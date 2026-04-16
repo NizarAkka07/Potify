@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    default: h2
+  jpa:
+    # ddl-auto=validate en environnement reel pour eviter les changements schema non maitrises.
+    # Pour une phase de demarrage/POC, update est pratique car Hibernate synchronise le schema.
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+    open-in-view: false
+

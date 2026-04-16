@@ -1,2 +1,0 @@
-package com.alphateckplus.potify.data_jpa;
-
