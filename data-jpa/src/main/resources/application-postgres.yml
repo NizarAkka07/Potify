@@ -1,0 +1,16 @@
+spring:
+  config:
+    activate:
+      on-profile: postgres
+  datasource:
+    # Profil production/sauvegarde datasets via PostgreSQL.
+    # Les variables d'environnement permettent de ne pas hardcoder les secrets.
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/potify}
+    driver-class-name: org.postgresql.Driver
+    username: ${POSTGRES_USERNAME:potify}
+    password: ${POSTGRES_PASSWORD:potify}
+  jpa:
+    show-sql: false
+    hibernate:
+      # En PostgreSQL (prod), on valide le schema au lieu de le modifier automatiquement.
+      ddl-auto: validate

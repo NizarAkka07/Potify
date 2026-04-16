@@ -1,6 +1,9 @@
 spring:
+  config:
+    activate:
+      on-profile: h2
   datasource:
-    # Base H2 en memoire pour developpement local rapide.
+    # Base H2 en memoire pour tests d'integration et tests rapides.
     url: jdbc:h2:mem:potify;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
@@ -12,4 +15,5 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      # En H2 de test, create-drop isole chaque execution et evite d'impacter PostgreSQL.
+      ddl-auto: create-drop

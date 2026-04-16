@@ -1,15 +1,14 @@
 spring:
-  profiles:
-    default: h2
   jpa:
-    # ddl-auto=validate en environnement reel pour eviter les changements schema non maitrises.
-    # Pour une phase de demarrage/POC, update est pratique car Hibernate synchronise le schema.
+    # Configuration JPA commune a tous les profils (h2, postgres).
+    # Les differents profils peuvent surcharger ponctuellement si necessaire.
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
         jdbc:
           time_zone: UTC
     open-in-view: false
+
 

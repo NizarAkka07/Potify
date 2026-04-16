@@ -1,0 +1,5 @@
+spring:
+  # Les tests du module data-jpa utilisent explicitement H2.
+  profiles:
+    active: h2
+

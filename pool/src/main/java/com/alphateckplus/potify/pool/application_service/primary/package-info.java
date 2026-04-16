@@ -1,1 +1,0 @@
-package com.alphateckplus.potify.pool.application_service.primary;
