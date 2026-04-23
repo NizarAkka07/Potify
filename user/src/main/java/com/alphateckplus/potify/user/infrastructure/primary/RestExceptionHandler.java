@@ -1,6 +1,10 @@
 package com.alphateckplus.potify.user.infrastructure.primary;
 
 import com.alphateckplus.potify.user.infrastructure.primary.dto.ErrorResponse;
+import com.alphateckplus.potify.user.domain.exception.PermissionAlreadyExistsException;
+import com.alphateckplus.potify.user.domain.exception.PermissionNotFoundException;
+import com.alphateckplus.potify.user.domain.exception.RoleAlreadyExistsException;
+import com.alphateckplus.potify.user.domain.exception.RoleNotFoundException;
 import com.alphateckplus.potify.user.domain.exception.UserAlreadyExistsException;
 import com.alphateckplus.potify.user.domain.exception.UserNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +34,38 @@ public class RestExceptionHandler {
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleUserAlreadyExists(
         UserAlreadyExistsException exception,
+        HttpServletRequest request
+    ) {
+        return buildErrorResponse(HttpStatus.CONFLICT, exception.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRoleNotFound(
+        RoleNotFoundException exception,
+        HttpServletRequest request
+    ) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(RoleAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleRoleAlreadyExists(
+        RoleAlreadyExistsException exception,
+        HttpServletRequest request
+    ) {
+        return buildErrorResponse(HttpStatus.CONFLICT, exception.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(PermissionNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePermissionNotFound(
+        PermissionNotFoundException exception,
+        HttpServletRequest request
+    ) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(PermissionAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handlePermissionAlreadyExists(
+        PermissionAlreadyExistsException exception,
         HttpServletRequest request
     ) {
         return buildErrorResponse(HttpStatus.CONFLICT, exception.getMessage(), request.getRequestURI());

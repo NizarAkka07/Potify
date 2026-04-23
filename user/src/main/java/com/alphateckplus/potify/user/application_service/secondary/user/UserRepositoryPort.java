@@ -1,5 +1,6 @@
 package com.alphateckplus.potify.user.application_service.secondary.user;
 
+import com.alphateckplus.potify.user.domain.model.Role;
 import com.alphateckplus.potify.user.domain.model.User;
 import java.util.List;
 import java.util.Optional;
@@ -20,4 +21,8 @@ public interface UserRepositoryPort {
     List<User> findAll();
 
     boolean existsByEmail(String email);
+
+    void addRoleToUser(String userId, String roleId);
+
+    List<Role> findRolesByUserId(String userId);
 }

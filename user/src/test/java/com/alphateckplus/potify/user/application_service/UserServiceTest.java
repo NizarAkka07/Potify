@@ -6,8 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.alphateckplus.potify.user.application_service.primary.create_user.DefaultCreateUserService;
-import com.alphateckplus.potify.user.application_service.primary.update_user.DefaultUpdateUserService;
+import com.alphateckplus.potify.user.application_service.primary.user.create_user.DefaultCreateUserService;
+import com.alphateckplus.potify.user.application_service.primary.user.update_user.DefaultUpdateUserService;
 import com.alphateckplus.potify.user.application_service.primary.command.CreateUserCommand;
 import com.alphateckplus.potify.user.application_service.primary.command.UpdateUserCommand;
 import com.alphateckplus.potify.user.application_service.secondary.user.UserRepositoryPort;
