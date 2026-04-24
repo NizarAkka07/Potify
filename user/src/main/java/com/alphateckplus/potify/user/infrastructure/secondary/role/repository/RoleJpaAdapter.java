@@ -33,7 +33,15 @@ public class RoleJpaAdapter implements RoleRepositoryPort {
 
     @Override
     public Role save(Role role) {
-        RoleEntity roleEntity = rolePersistenceMapper.toEntity(role);
+        RoleEntity roleEntity;
+        if (role.getId() != null && !role.getId().isEmpty()) {
+            roleEntity = roleEntityRepository.findById(role.getId()).orElseGet(RoleEntity::new);
+            roleEntity.setName(role.getName());
+            roleEntity.setDescription(role.getDescription());
+            // Do not overwrite permissions to prevent wiping them out
+        } else {
+            roleEntity = rolePersistenceMapper.toEntity(role);
+        }
         RoleEntity savedEntity = roleEntityRepository.save(roleEntity);
         return rolePersistenceMapper.toDomain(savedEntity);
     }
@@ -71,6 +79,17 @@ public class RoleJpaAdapter implements RoleRepositoryPort {
             .orElseThrow();
 
         roleEntity.getPermissions().add(permissionEntity);
+        roleEntityRepository.save(roleEntity);
+    }
+
+    @Override
+    public void removePermissionFromRole(String roleId, String permissionId) {
+        RoleEntity roleEntity = roleEntityRepository.findById(roleId)
+            .orElseThrow();
+        PermissionEntity permissionEntity = permissionEntityRepository.findById(permissionId)
+            .orElseThrow();
+
+        roleEntity.getPermissions().remove(permissionEntity);
         roleEntityRepository.save(roleEntity);
     }
 }

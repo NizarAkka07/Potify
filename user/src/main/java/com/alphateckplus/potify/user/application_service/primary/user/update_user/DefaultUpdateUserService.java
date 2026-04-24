@@ -29,7 +29,9 @@ public class DefaultUpdateUserService implements UpdateUserService {
 
         existingUser.setFullName(command.fullName());
         existingUser.setEmail(command.email());
-        existingUser.setPassword(command.password());
+        if (command.password() != null && !command.password().isEmpty()) {
+            existingUser.setPassword(command.password());
+        }
         existingUser.setStatus(command.status());
         return userRepositoryPort.save(existingUser);
     }

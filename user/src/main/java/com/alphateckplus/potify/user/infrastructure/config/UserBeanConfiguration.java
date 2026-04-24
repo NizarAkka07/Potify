@@ -214,4 +214,24 @@ public class UserBeanConfiguration {
     ) {
         return new DefaultDeletePermissionService(permissionRepositoryPort);
     }
+
+    @Bean
+    public com.alphateckplus.potify.user.application_service.primary.user.remove_role_from_user.RemoveRoleFromUserService removeRoleFromUserService(
+        UserRepositoryPort userRepositoryPort,
+        RoleRepositoryPort roleRepositoryPort
+    ) {
+        return new com.alphateckplus.potify.user.application_service.primary.user.remove_role_from_user.DefaultRemoveRoleFromUserService(
+            userRepositoryPort, roleRepositoryPort
+        );
+    }
+
+    @Bean
+    public com.alphateckplus.potify.user.application_service.primary.role.remove_permission_from_role.RemovePermissionFromRoleService removePermissionFromRoleService(
+        RoleRepositoryPort roleRepositoryPort,
+        PermissionRepositoryPort permissionRepositoryPort
+    ) {
+        return new com.alphateckplus.potify.user.application_service.primary.role.remove_permission_from_role.DefaultRemovePermissionFromRoleService(
+            roleRepositoryPort, permissionRepositoryPort
+        );
+    }
 }

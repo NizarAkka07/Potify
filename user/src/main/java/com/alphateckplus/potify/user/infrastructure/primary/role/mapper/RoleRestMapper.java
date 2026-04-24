@@ -7,6 +7,9 @@ import com.alphateckplus.potify.user.infrastructure.primary.role.dto.CreateRoleR
 import com.alphateckplus.potify.user.infrastructure.primary.role.dto.RoleResponse;
 import com.alphateckplus.potify.user.infrastructure.primary.role.dto.UpdateRoleRequest;
 
+import com.alphateckplus.potify.user.infrastructure.primary.permission.dto.PermissionResponse;
+import java.util.List;
+
 /**
  * Mapper REST pour les objets Role.
  */
@@ -21,6 +24,12 @@ public class RoleRestMapper {
     }
 
     public RoleResponse toResponse(Role role) {
-        return new RoleResponse(role.getId(), role.getName(), role.getDescription());
+        List<PermissionResponse> permissionResponses = role.getPermissions() != null
+            ? role.getPermissions().stream()
+                .map(p -> new PermissionResponse(p.getId(), p.getCode(), p.getDescription()))
+                .toList()
+            : List.of();
+            
+        return new RoleResponse(role.getId(), role.getName(), role.getDescription(), permissionResponses);
     }
 }

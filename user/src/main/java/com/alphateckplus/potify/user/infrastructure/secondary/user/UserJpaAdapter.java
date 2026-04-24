@@ -37,7 +37,19 @@ public class UserJpaAdapter implements UserRepositoryPort {
 
     @Override
     public User save(User user) {
-        UserEntity userEntity = userPersistenceMapper.toEntity(user);
+        UserEntity userEntity;
+        if (user.getId() != null && !user.getId().isEmpty()) {
+            userEntity = userEntityRepository.findById(user.getId()).orElseGet(UserEntity::new);
+            userEntity.setFullName(user.getFullName());
+            userEntity.setEmail(user.getEmail());
+            userEntity.setPassword(user.getPassword());
+            if (user.getStatus() != null) {
+                userEntity.setStatus(com.alphateckplus.potify.data_jpa.entity.user.UserStatus.valueOf(user.getStatus().name()));
+            }
+            // Do not overwrite roles to prevent wiping them out
+        } else {
+            userEntity = userPersistenceMapper.toEntity(user);
+        }
         UserEntity savedEntity = userEntityRepository.save(userEntity);
         return userPersistenceMapper.toDomain(savedEntity);
     }
@@ -75,6 +87,17 @@ public class UserJpaAdapter implements UserRepositoryPort {
             .orElseThrow();
 
         userEntity.getRoles().add(roleEntity);
+        userEntityRepository.save(userEntity);
+    }
+
+    @Override
+    public void removeRoleFromUser(String userId, String roleId) {
+        UserEntity userEntity = userEntityRepository.findById(userId)
+            .orElseThrow();
+        RoleEntity roleEntity = roleEntityRepository.findById(roleId)
+            .orElseThrow();
+
+        userEntity.getRoles().remove(roleEntity);
         userEntityRepository.save(userEntity);
     }
 

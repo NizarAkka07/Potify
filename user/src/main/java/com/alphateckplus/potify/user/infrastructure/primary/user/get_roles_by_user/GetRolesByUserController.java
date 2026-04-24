@@ -2,6 +2,7 @@ package com.alphateckplus.potify.user.infrastructure.primary.user.get_roles_by_u
 
 import com.alphateckplus.potify.user.application_service.primary.user.list_roles_by_user.ListRolesByUserService;
 import com.alphateckplus.potify.user.infrastructure.primary.role.dto.RoleResponse;
+import com.alphateckplus.potify.user.infrastructure.primary.permission.dto.PermissionResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,14 @@ public class GetRolesByUserController {
     public ResponseEntity<List<RoleResponse>> listRolesByUser(@PathVariable String userId) {
         List<RoleResponse> body = listRolesByUserService.execute(userId)
             .stream()
-            .map(role -> new RoleResponse(role.getId(), role.getName(), role.getDescription()))
+            .map(role -> {
+                List<PermissionResponse> perms = role.getPermissions() != null
+                    ? role.getPermissions().stream()
+                        .map(p -> new PermissionResponse(p.getId(), p.getCode(), p.getDescription()))
+                        .toList()
+                    : List.of();
+                return new RoleResponse(role.getId(), role.getName(), role.getDescription(), perms);
+            })
             .toList();
 
         return ResponseEntity.ok(body);

@@ -19,7 +19,6 @@ public record UpdateUserRequest(
     @Size(max = 150, message = "L'email ne doit pas depasser 150 caracteres")
     String email,
 
-    @NotBlank(message = "Le mot de passe est obligatoire")
     @Size(min = 6, max = 255, message = "Le mot de passe doit contenir entre 6 et 255 caracteres")
     String password,
 

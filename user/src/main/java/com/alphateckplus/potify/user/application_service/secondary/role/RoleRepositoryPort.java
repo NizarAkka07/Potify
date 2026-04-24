@@ -20,4 +20,6 @@ public interface RoleRepositoryPort {
     void deleteById(String roleId);
 
     void addPermissionToRole(String roleId, String permissionId);
+
+    void removePermissionFromRole(String roleId, String permissionId);
 }

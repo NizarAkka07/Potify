@@ -24,5 +24,7 @@ public interface UserRepositoryPort {
 
     void addRoleToUser(String userId, String roleId);
 
+    void removeRoleFromUser(String userId, String roleId);
+
     List<Role> findRolesByUserId(String userId);
 }
