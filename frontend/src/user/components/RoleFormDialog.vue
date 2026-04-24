@@ -70,7 +70,7 @@
 <script setup>
 import { useDialogPluginComponent, useQuasar } from 'quasar'
 import { ref, onMounted } from 'vue'
-import { createRole, updateRole, getPermissions, assignPermissionToRole, removePermissionFromRole } from 'src/services/api'
+import { createRole, updateRole, getPermissions, assignPermissionToRole, removePermissionFromRole } from 'src/shared/services/api'
 
 const props = defineProps({
   role: {

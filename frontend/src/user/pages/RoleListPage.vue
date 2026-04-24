@@ -35,8 +35,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
-import { getRoles, deleteRole } from 'src/services/api'
-import RoleFormDialog from 'src/components/roles/RoleFormDialog.vue'
+import { getRoles, deleteRole } from 'src/shared/services/api'
+import RoleFormDialog from 'src/user/components/RoleFormDialog.vue'
 
 const $q = useQuasar()
 

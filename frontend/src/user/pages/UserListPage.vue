@@ -33,8 +33,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
-import { getUsers } from 'src/services/api'
-import UserFormDialog from 'src/components/users/UserFormDialog.vue'
+import { getUsers } from 'src/shared/services/api'
+import UserFormDialog from 'src/user/components/UserFormDialog.vue'
 
 const $q = useQuasar()
 

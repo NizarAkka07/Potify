@@ -41,7 +41,7 @@
               <q-select
                 filled
                 v-model="formData.status"
-                :options="['ACTIVE', 'INACTIVE']"
+                :options="['ACTIVE', 'SUSPENDED', 'DELETED']"
                 label="Statut *"
                 lazy-rules
                 :rules="[ val => val && val.length > 0 || 'Veuillez sélectionner un statut']"
@@ -95,7 +95,7 @@
 <script setup>
 import { useDialogPluginComponent, useQuasar } from 'quasar'
 import { ref, onMounted } from 'vue'
-import { createUser, updateUser, getRoles, assignRoleToUser, getUserRoles, removeRoleFromUser } from 'src/services/api'
+import { createUser, updateUser, getRoles, assignRoleToUser, getUserRoles, removeRoleFromUser } from 'src/shared/services/api'
 
 const props = defineProps({
   user: {

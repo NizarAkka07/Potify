@@ -1,18 +1,18 @@
 const routes = [
   {
     path: '/',
-    component: () => import('layouts/LandingLayout.vue'),
+    component: () => import('src/shared/layouts/LandingLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/IndexPage.vue') }
+      { path: '', component: () => import('src/landing/pages/IndexPage.vue') }
     ]
   },
   {
     path: '/admin',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('src/shared/layouts/MainLayout.vue'),
     children: [
-      { path: '/users', component: () => import('pages/users/UserListPage.vue') },
-      { path: '/roles', component: () => import('pages/roles/RoleListPage.vue') },
-      { path: '/permissions', component: () => import('pages/permissions/PermissionListPage.vue') }
+      { path: '/users', component: () => import('src/user/pages/UserListPage.vue') },
+      { path: '/roles', component: () => import('src/user/pages/RoleListPage.vue') },
+      { path: '/permissions', component: () => import('src/user/pages/PermissionListPage.vue') }
     ]
   },
 
@@ -20,7 +20,7 @@ const routes = [
   // but you can also remove it
   {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue')
+    component: () => import('src/pages/ErrorNotFound.vue')
   }
 ]
 

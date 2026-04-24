@@ -26,8 +26,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
-import { getPermissions, deletePermission } from 'src/services/api'
-import PermissionFormDialog from 'src/components/permissions/PermissionFormDialog.vue'
+import { getPermissions, deletePermission } from 'src/shared/services/api'
+import PermissionFormDialog from 'src/user/components/PermissionFormDialog.vue'
 
 const $q = useQuasar()
 

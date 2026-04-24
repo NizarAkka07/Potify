@@ -37,7 +37,7 @@
 <script setup>
 import { useDialogPluginComponent } from 'quasar'
 import { ref, onMounted } from 'vue'
-import { createPermission, updatePermission } from 'src/services/api'
+import { createPermission, updatePermission } from 'src/shared/services/api'
 
 const props = defineProps({
   permission: {
