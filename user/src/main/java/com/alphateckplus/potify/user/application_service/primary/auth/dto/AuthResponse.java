@@ -5,8 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
- * DTO pour la réponse d'authentification contenant les tokens.
+ * DTO pour la réponse d'authentification contenant les tokens et les infos utilisateur.
  */
 @Data
 @Builder
@@ -15,4 +17,6 @@ import lombok.NoArgsConstructor;
 public class AuthResponse {
     private String accessToken;
     private String refreshToken;
+    private String email;
+    private List<String> roles;
 }

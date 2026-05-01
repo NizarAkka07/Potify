@@ -98,8 +98,12 @@ const onSubmit = async () => {
     const response = await api.post('/auth/signin', loginForm.value)
     const { accessToken } = response.data
 
-    // Stockage du token dans le store global
+    // Stockage du token et de l'utilisateur dans le store global
     authStore.setToken(accessToken)
+    authStore.setUser({ 
+      email: response.data.email, 
+      roles: response.data.roles 
+    })
 
     // Notification de succès
     $q.notify({

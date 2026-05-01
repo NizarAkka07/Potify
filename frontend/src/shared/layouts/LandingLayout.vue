@@ -46,7 +46,7 @@
             />
           </template>
           <template v-else>
-            <q-btn flat no-caps label="Tableau de bord" style="color: rgba(255,255,255,0.85);" to="/admin" />
+            <q-btn v-if="authStore.isAdmin.value" flat no-caps label="Tableau de bord" style="color: rgba(255,255,255,0.85);" to="/admin" />
             <q-btn flat round dense icon="logout" style="color: rgba(255,255,255,0.75);" @click="onLogout">
               <q-tooltip>Se déconnecter</q-tooltip>
             </q-btn>

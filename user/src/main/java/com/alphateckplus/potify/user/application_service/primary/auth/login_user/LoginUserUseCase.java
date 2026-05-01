@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * Cas d'utilisation pour la connexion d'un utilisateur.
  * Gère l'authentification, le verrouillage du compte et la génération de tokens.
@@ -60,12 +62,18 @@ public class LoginUserUseCase {
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
         String jwtToken = jwtUtils.generateToken(userDetails);
 
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .toList();
+
         // TODO: Implémenter la génération du Refresh Token en base
         String refreshToken = "mock-refresh-token"; 
 
         return AuthResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .email(user.getEmail())
+                .roles(roles)
                 .build();
     }
 }
