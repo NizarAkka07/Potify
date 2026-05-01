@@ -21,6 +21,10 @@ public class UserPersistenceMapper {
             .email(domain.getEmail())
             .password(domain.getPassword())
             .status(com.alphateckplus.potify.data_jpa.entity.user.UserStatus.valueOf(domain.getStatus().name()))
+            .enabled(domain.isEnabled())
+            .accountNonLocked(domain.isAccountNonLocked())
+            .failedAttempts(domain.getFailedAttempts())
+            .lockTime(domain.getLockTime())
             .build();
     }
 
@@ -36,6 +40,10 @@ public class UserPersistenceMapper {
             .status(UserStatus.valueOf(entity.getStatus().name()))
             .createdAt(entity.getCreatedAt())
             .updatedAt(entity.getUpdatedAt())
+            .enabled(entity.isEnabled())
+            .accountNonLocked(entity.isAccountNonLocked())
+            .failedAttempts(entity.getFailedAttempts())
+            .lockTime(entity.getLockTime())
             .build();
     }
 }

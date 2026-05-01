@@ -43,6 +43,10 @@ public class UserJpaAdapter implements UserRepositoryPort {
             userEntity.setFullName(user.getFullName());
             userEntity.setEmail(user.getEmail());
             userEntity.setPassword(user.getPassword());
+            userEntity.setEnabled(user.isEnabled());
+            userEntity.setAccountNonLocked(user.isAccountNonLocked());
+            userEntity.setFailedAttempts(user.getFailedAttempts());
+            userEntity.setLockTime(user.getLockTime());
             if (user.getStatus() != null) {
                 userEntity.setStatus(com.alphateckplus.potify.data_jpa.entity.user.UserStatus.valueOf(user.getStatus().name()));
             }

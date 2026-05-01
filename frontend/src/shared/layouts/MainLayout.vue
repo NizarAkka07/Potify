@@ -16,6 +16,17 @@
         </q-toolbar-title>
 
         <div>Microservice User</div>
+
+        <q-btn
+          flat
+          round
+          dense
+          icon="logout"
+          class="q-ml-md"
+          @click="onLogout"
+        >
+          <q-tooltip>Se déconnecter</q-tooltip>
+        </q-btn>
       </q-toolbar>
     </q-header>
 
@@ -69,10 +80,18 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import authStore from 'src/shared/stores/auth'
 
+const router = useRouter()
 const leftDrawerOpen = ref(false)
 
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
+}
+
+function onLogout () {
+  authStore.logout()
+  router.push('/login')
 }
 </script>

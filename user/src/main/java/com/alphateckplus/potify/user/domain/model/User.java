@@ -1,6 +1,7 @@
 package com.alphateckplus.potify.user.domain.model;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,4 +41,31 @@ public class User {
 
     /** Horodatage de derniere modification renseigne par la persistence. */
     private Instant updatedAt;
+
+    private boolean enabled;
+    private boolean accountNonLocked;
+    private int failedAttempts;
+    private LocalDateTime lockTime;
+
+    /**
+     * Logique metier: Verifie si le verrouillage a expire.
+     */
+    public boolean isLockExpired() {
+        if (lockTime == null) return true;
+        return lockTime.plusMinutes(30).isBefore(LocalDateTime.now());
+    }
+
+    public void incrementFailedAttempts() {
+        this.failedAttempts++;
+        if (this.failedAttempts >= 5) {
+            this.accountNonLocked = false;
+            this.lockTime = LocalDateTime.now();
+        }
+    }
+
+    public void resetFailedAttempts() {
+        this.failedAttempts = 0;
+        this.accountNonLocked = true;
+        this.lockTime = null;
+    }
 }
