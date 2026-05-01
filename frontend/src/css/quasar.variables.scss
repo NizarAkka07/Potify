@@ -12,14 +12,16 @@
 // to match your app's branding.
 // Tip: Use the "Theme Builder" on Quasar's documentation website.
 
-$primary   : #1976D2;
-$secondary : #26A69A;
-$accent    : #9C27B0;
+// ── Palette Akkodis (akkodis.com) : JAUNE #FFB300 + DARK NAVY + BLANC ──
+// Source : https://www.akkodis.com/
+$primary   : #FFB300;   // Jaune Akkodis (bouton LEARN MORE)
+$secondary : #0D1B2E;   // Dark navy Akkodis (navbar)
+$accent    : #1E6BE6;   // Bleu lien Akkodis (corps de texte)
 
-$dark      : #1D1D1D;
-$dark-page : #121212;
+$dark      : #0D1B2E;   // Dark navy (navbar Akkodis)
+$dark-page : #07101C;   // Navy encore plus profond
 
-$positive  : #21BA45;
-$negative  : #C10015;
-$info      : #31CCEC;
-$warning   : #F2C037;
+$positive  : #00C853;   // Vert succès
+$negative  : #D32F2F;   // Rouge erreur
+$info      : #1E6BE6;   // Bleu info = bleu lien Akkodis
+$warning   : #FFB300;   // Ambre = yellow Akkodis

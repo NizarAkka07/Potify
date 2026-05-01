@@ -1,1 +1,47 @@
-// app global css
+// ── app global css ── Palette Akkodis (akkodis.com) ──
+
+// CSS Custom Properties exactes Akkodis
+:root {
+  --akkodis-yellow:      #FFB300;  /* Jaune CTA */
+  --akkodis-yellow-hover:#E6A000;  /* Jaune hover plus foncé */
+  --akkodis-navy:        #0D1B2E;  /* Dark navy navbar */
+  --akkodis-navy-mid:    #162540;  /* Navy intermédiaire */
+  --akkodis-white:       #FFFFFF;
+  --akkodis-bg:          #FFFFFF;  /* Fond blanc comme Akkodis */
+  --akkodis-text:        #1A1A2A;  /* Texte sombre */
+  --akkodis-blue-link:   #1E6BE6;  /* Bleu lien corps de texte */
+  --akkodis-grey-light:  #F5F5F5;  /* Fond sections alternées */
+}
+
+// Font moderne (Inter comme Akkodis)
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+body {
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  color: #1A1A2A;
+  background: #FFFFFF;
+}
+
+// Bouton yellow Akkodis – texte sombre
+.q-btn.bg-primary {
+  color: #1A1A2A !important;
+  font-weight: 700 !important;
+}
+
+// Hover sur CTA jaune
+.q-btn.bg-primary:hover {
+  background: #E6A000 !important;
+  box-shadow: 0 4px 12px rgba(255, 179, 0, 0.4) !important;
+}
+
+// Section alternée gris clair (comme Akkodis)
+.akkodis-section-grey {
+  background: #F5F5F5;
+}
+
+// Header sticky dark navy Akkodis
+.akkodis-header {
+  background: #0D1B2E;
+  border-bottom: none;
+}
+

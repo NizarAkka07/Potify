@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header elevated style="background: #0A1628; border-bottom: 3px solid #F5C518;">
       <q-toolbar>
         <q-btn
           flat
@@ -9,13 +9,14 @@
           icon="menu"
           aria-label="Menu"
           @click="toggleLeftDrawer"
+          style="color: #F5C518;"
         />
 
-        <q-toolbar-title>
-          Potify Admin
+        <q-toolbar-title style="color: #FFFFFF; font-weight: 700;">
+          <span style="color: #F5C518;">Potify</span> Admin
         </q-toolbar-title>
 
-        <div>Microservice User</div>
+        <div style="color: rgba(255,255,255,0.6);">Microservice User</div>
 
         <q-btn
           flat
