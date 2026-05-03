@@ -1,6 +1,7 @@
 package com.alphateckplus.potify.pool.domain.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -110,6 +111,6 @@ public class Pool {
             return BigDecimal.ZERO;
         }
         return currentAmount.multiply(new BigDecimal("100"))
-                .divide(goalAmount, 2, BigDecimal.ROUND_HALF_UP);
+                .divide(goalAmount, 2, RoundingMode.HALF_UP);
     }
 }
