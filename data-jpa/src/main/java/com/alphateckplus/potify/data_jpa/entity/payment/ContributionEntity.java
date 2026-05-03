@@ -22,6 +22,7 @@ import lombok.experimental.SuperBuilder;
 
 /**
  * Contribution financiere d'un utilisateur vers une cagnotte.
+ * Cette entite est partagee entre les microservices pool et payment.
  */
 @Entity
 @Table(name = "contributions")
@@ -38,15 +39,30 @@ public class ContributionEntity extends BaseEntity {
     private PoolEntity pool;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id") // Rendu optionnel pour les dons de visiteurs
     private UserEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "wallet_id", nullable = false)
+    @JoinColumn(name = "wallet_id")
     private CagnotteWalletEntity wallet;
 
     @Column(name = "amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
+
+    @Column(name = "contributor_email", length = 255)
+    private String contributorEmail;
+
+    @Column(name = "contributor_name", length = 100)
+    private String contributorName;
+
+    @Column(name = "message", length = 500)
+    private String message;
+
+    @Column(name = "anonymous", nullable = false)
+    private boolean anonymous;
+
+    @Column(name = "payment_method", length = 50)
+    private String paymentMethod;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)

@@ -1,9 +1,9 @@
 package com.alphateckplus.potify.pool.infrastructure.secondary.contribution.repository;
 
-import com.alphateckplus.potify.data_jpa.entity.pool.ContributionEntity;
+import com.alphateckplus.potify.data_jpa.entity.payment.ContributionEntity;
 import com.alphateckplus.potify.data_jpa.entity.pool.PoolEntity;
 import com.alphateckplus.potify.data_jpa.entity.user.UserEntity;
-import com.alphateckplus.potify.data_jpa.repository.pool.ContributionEntityRepository;
+import com.alphateckplus.potify.data_jpa.repository.payment.ContributionEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.pool.PoolEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.user.UserEntityRepository;
 import com.alphateckplus.potify.pool.application_service.secondary.contribution.ContributionRepositoryPort;
@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Adapter sortant pour la persistance des contributions via JPA.
+ * Utilise l'entite et le repository partages avec le microservice payment.
  */
 @Transactional
 public class ContributionJpaAdapter implements ContributionRepositoryPort {
@@ -39,17 +40,14 @@ public class ContributionJpaAdapter implements ContributionRepositoryPort {
     public Contribution save(Contribution contribution) {
         ContributionEntity entity = mapper.toEntity(contribution);
 
-        // Liaison avec la cagnotte
         if (contribution.getPoolId() != null) {
             PoolEntity pool = poolEntityRepository.findById(contribution.getPoolId())
                     .orElseThrow(() -> new IllegalArgumentException("Cagnotte non trouvee : " + contribution.getPoolId()));
             entity.setPool(pool);
         }
 
-        // Liaison optionnelle avec l'utilisateur
         if (contribution.getUserId() != null) {
-            UserEntity user = userEntityRepository.findById(contribution.getUserId())
-                    .orElseGet(() -> null);
+            UserEntity user = userEntityRepository.findById(contribution.getUserId()).orElse(null);
             entity.setUser(user);
         }
 

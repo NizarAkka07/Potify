@@ -19,7 +19,7 @@ import com.alphateckplus.potify.pool.infrastructure.secondary.contribution.repos
 import com.alphateckplus.potify.pool.infrastructure.secondary.contribution.mapper.ContributionPersistenceMapper;
 import com.alphateckplus.potify.pool.application_service.secondary.contribution.ContributionRepositoryPort;
 import com.alphateckplus.potify.data_jpa.repository.pool.PoolEntityRepository;
-import com.alphateckplus.potify.data_jpa.repository.pool.ContributionEntityRepository;
+import com.alphateckplus.potify.data_jpa.repository.payment.ContributionEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.user.UserEntityRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

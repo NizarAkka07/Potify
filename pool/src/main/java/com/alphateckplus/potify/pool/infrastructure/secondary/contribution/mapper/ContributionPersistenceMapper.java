@@ -1,11 +1,11 @@
 package com.alphateckplus.potify.pool.infrastructure.secondary.contribution.mapper;
 
-import com.alphateckplus.potify.data_jpa.entity.pool.ContributionEntity;
-import com.alphateckplus.potify.data_jpa.entity.pool.ContributionStatus;
+import com.alphateckplus.potify.data_jpa.entity.payment.ContributionEntity;
+import com.alphateckplus.potify.data_jpa.entity.payment.ContributionStatus;
 import com.alphateckplus.potify.pool.domain.model.Contribution;
 
 /**
- * Mapper pour la conversion entre le domaine Contribution et l'entite ContributionEntity.
+ * Mapper pour la conversion entre le domaine Contribution et l'entite ContributionEntity (partagee).
  */
 public class ContributionPersistenceMapper {
 

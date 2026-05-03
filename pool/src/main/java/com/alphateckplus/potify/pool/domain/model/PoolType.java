@@ -9,6 +9,9 @@ public enum PoolType {
     /** Collecte publique ouverte a tous les visiteurs. */
     PUBLIC,
 
+    /** Cagnotte privee standard. */
+    PRIVATE,
+
     /**
      * Cagnotte privee de type Tontine.
      * Accessible uniquement sur invitation pour un cercle restreint de membres.

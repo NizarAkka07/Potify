@@ -72,6 +72,7 @@ public class LoginUserUseCase {
         return AuthResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .id(user.getId())
                 .email(user.getEmail())
                 .roles(roles)
                 .build();

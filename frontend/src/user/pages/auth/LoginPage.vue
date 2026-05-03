@@ -101,6 +101,7 @@ const onSubmit = async () => {
     // Stockage du token et de l'utilisateur dans le store global
     authStore.setToken(accessToken)
     authStore.setUser({ 
+      id: response.data.id,
       email: response.data.email, 
       roles: response.data.roles 
     })

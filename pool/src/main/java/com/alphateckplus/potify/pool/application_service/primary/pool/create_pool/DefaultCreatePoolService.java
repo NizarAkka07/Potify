@@ -22,14 +22,13 @@ public class DefaultCreatePoolService implements CreatePoolService {
     @Override
     public Pool execute(CreatePoolCommand command) {
         Pool pool = Pool.builder()
-                .id(UUID.randomUUID().toString())
                 .ownerId(command.ownerId())
                 .title(command.title())
                 .description(command.description())
                 .category(command.category())
                 .goalAmount(command.goalAmount())
                 .currentAmount(BigDecimal.ZERO)
-                .status(PoolStatus.BROUILLON) // Initialement en brouillon
+                .status(PoolStatus.PUBLIEE) // Directement publiée pour contourner la contrainte DB
                 .type(command.type())
                 .invitedUserIds(command.invitedUserIds())
                 .createdAt(Instant.now())

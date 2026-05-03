@@ -23,6 +23,7 @@
               size="md"
               no-caps
               label="Créer une cagnotte"
+              to="/pools/create"
               style="background: #FFB300; color: #1A1A2A; font-weight: 700; padding: 12px 28px; letter-spacing: 0.5px;"
               class="shadow-2"
             />
@@ -97,22 +98,22 @@
           <q-btn flat no-caps style="color: #1E6BE6; font-weight: 600;" label="Voir tout →" />
         </div>
         <div class="row q-col-gutter-lg">
-          <div class="col-12 col-sm-6 col-md-4" v-for="n in 3" :key="n">
+          <div class="col-12 col-sm-6 col-md-4" v-for="pool in pools" :key="pool.id">
             <q-card class="shadow-2 hover-card" style="border-radius: 4px; border: 1px solid #E0E0E0;">
               <img
-                src="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                :src="getPoolImage(pool.category)"
                 style="height: 200px; object-fit: cover; width: 100%;"
               />
               <q-card-section>
-                <div class="text-caption text-weight-bold q-mb-xs" style="color: #FFB300; text-transform: uppercase; letter-spacing: 1px;">Santé & Urgence</div>
-                <div class="text-subtitle1 text-weight-bold q-mb-xs line-clamp-2" style="color: #1A1A2A;">Soutenons le traitement médical de la petite Emma</div>
-                <div class="text-caption" style="color: #888;">Par Association Espoir</div>
+                <div class="text-caption text-weight-bold q-mb-xs" style="color: #FFB300; text-transform: uppercase; letter-spacing: 1px;">{{ pool.category || 'Général' }}</div>
+                <div class="text-subtitle1 text-weight-bold q-mb-xs line-clamp-2" style="color: #1A1A2A;">{{ pool.title }}</div>
+                <div class="text-caption" style="color: #888;">{{ pool.description }}</div>
               </q-card-section>
               <q-card-section class="q-pt-none">
-                <q-linear-progress :value="0.75" style="height: 6px; border-radius: 3px;" color="primary" track-color="grey-3" class="q-mb-sm" />
+                <q-linear-progress :value="pool.progressPercentage / 100" style="height: 6px; border-radius: 3px;" color="primary" track-color="grey-3" class="q-mb-sm" />
                 <div class="row justify-between text-caption text-weight-bold">
-                  <span style="color: #1A1A2A;">15 000 € collectés</span>
-                  <span style="color: #888;">sur 20 000 €</span>
+                   <span style="color: #1A1A2A;">{{ pool.currentAmount }} € collectés</span>
+                   <span style="color: #888;">sur {{ pool.goalAmount }} €</span>
                 </div>
               </q-card-section>
               <q-card-actions class="q-pa-md">
@@ -121,9 +122,14 @@
                   class="full-width"
                   label="Contribuer"
                   style="background: #FFB300; color: #1A1A2A; font-weight: 700;"
+                  @click="contribute(pool)"
                 />
               </q-card-actions>
             </q-card>
+          </div>
+          <div v-if="pools.length === 0" class="col-12 text-center q-py-xl">
+             <q-icon name="explore" size="4rem" color="grey-4" />
+             <p class="text-grey-6 q-mt-md">Aucune cagnotte en cours. Soyez le premier à en créer une !</p>
           </div>
         </div>
       </div>
@@ -230,10 +236,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { poolApi } from 'boot/axios'
 
 const slide = ref('1')
 const search = ref('')
+const pools = ref([])
 
 const categories = [
   { name: 'Santé', icon: 'local_hospital' },
@@ -243,6 +251,34 @@ const categories = [
   { name: 'Projets', icon: 'flight_takeoff' },
   { name: 'Sport', icon: 'directions_run' }
 ]
+
+const fetchPools = async () => {
+  try {
+    const response = await poolApi.get('/pools')
+    pools.value = response.data
+  } catch (error) {
+    console.error('Erreur lors du chargement des cagnottes:', error)
+  }
+}
+
+const getPoolImage = (category) => {
+  const images = {
+    'Santé': 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+    'Éducation': 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+    'Animaux': 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+    'Sport': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+  }
+  return images[category] || 'https://images.unsplash.com/photo-1469571483350-f18203005d1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+}
+
+const contribute = (pool) => {
+  // Logique de redirection vers le détail de la cagnotte
+  console.log('Contribuer à:', pool.title)
+}
+
+onMounted(() => {
+  fetchPools()
+})
 </script>
 
 <style scoped>

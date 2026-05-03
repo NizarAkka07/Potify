@@ -12,7 +12,9 @@ const routes = [
       // Page de connexion
       { path: 'login', component: () => import('src/user/pages/auth/LoginPage.vue') },
       // Page d'inscription
-      { path: 'register', component: () => import('src/user/pages/auth/RegisterPage.vue') }
+      { path: 'register', component: () => import('src/user/pages/auth/RegisterPage.vue') },
+      // Creation de cagnotte
+      { path: 'pools/create', component: () => import('src/pool/pages/CreatePoolPage.vue') }
     ]
   },
   {
