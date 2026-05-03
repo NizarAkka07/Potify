@@ -1,4 +1,4 @@
-package com.alphateckplus.potify.pool.infrastructure.secondary.pool;
+package com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper;
 
 import com.alphateckplus.potify.data_jpa.entity.pool.CagnotteStatus;
 import com.alphateckplus.potify.data_jpa.entity.pool.PoolEntity;

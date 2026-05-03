@@ -1,4 +1,4 @@
-package com.alphateckplus.potify.pool.infrastructure.secondary.pool;
+package com.alphateckplus.potify.pool.infrastructure.secondary.pool.repository;
 
 import com.alphateckplus.potify.data_jpa.entity.pool.PoolEntity;
 import com.alphateckplus.potify.data_jpa.entity.user.UserEntity;
@@ -6,6 +6,7 @@ import com.alphateckplus.potify.data_jpa.repository.pool.PoolEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.user.UserEntityRepository;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolRepositoryPort;
 import com.alphateckplus.potify.pool.domain.model.Pool;
+import com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper.PoolPersistenceMapper;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,14 +34,12 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     public Pool save(Pool pool) {
         PoolEntity entity = poolPersistenceMapper.toEntity(pool);
 
-        // On recupere le proprietaire si non deja present (pour la creation)
         if (pool.getOwnerId() != null) {
             UserEntity owner = userEntityRepository.findById(pool.getOwnerId())
                     .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouve : " + pool.getOwnerId()));
             entity.setOwner(owner);
         }
 
-        // Gestion de la hierarchie (Parent)
         if (pool.getParentId() != null) {
             PoolEntity parent = poolEntityRepository.findById(pool.getParentId())
                     .orElseThrow(() -> new IllegalArgumentException("Cagnotte parente non trouvee : " + pool.getParentId()));

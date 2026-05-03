@@ -11,8 +11,8 @@ import com.alphateckplus.potify.pool.application_service.primary.pool.list_pools
 import com.alphateckplus.potify.pool.application_service.primary.pool.update_pool.DefaultUpdatePoolService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.update_pool.UpdatePoolService;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolRepositoryPort;
-import com.alphateckplus.potify.pool.infrastructure.secondary.pool.PoolJpaAdapter;
-import com.alphateckplus.potify.pool.infrastructure.secondary.pool.PoolPersistenceMapper;
+import com.alphateckplus.potify.pool.infrastructure.secondary.pool.repository.PoolJpaAdapter;
+import com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper.PoolPersistenceMapper;
 import com.alphateckplus.potify.data_jpa.repository.pool.PoolEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.user.UserEntityRepository;
 import org.springframework.context.annotation.Bean;
