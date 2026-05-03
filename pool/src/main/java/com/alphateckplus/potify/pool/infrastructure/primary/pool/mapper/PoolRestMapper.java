@@ -1,13 +1,13 @@
-package com.alphateckplus.potify.pool.infrastructure.primary;
+package com.alphateckplus.potify.pool.infrastructure.primary.pool.mapper;
 
 import com.alphateckplus.potify.pool.application_service.primary.command.CreatePoolCommand;
 import com.alphateckplus.potify.pool.domain.model.Pool;
-import com.alphateckplus.potify.pool.infrastructure.primary.dto.CreatePoolRequest;
-import com.alphateckplus.potify.pool.infrastructure.primary.dto.PoolResponse;
+import com.alphateckplus.potify.pool.infrastructure.primary.pool.dto.CreatePoolRequest;
+import com.alphateckplus.potify.pool.infrastructure.primary.pool.dto.PoolResponse;
 import org.springframework.stereotype.Component;
 
 /**
- * Mapper pour les contrats REST.
+ * Mapper pour les contrats REST de la cagnotte.
  */
 @Component
 public class PoolRestMapper {
@@ -31,6 +31,8 @@ public class PoolRestMapper {
      * Mappe une entite domaine vers une reponse REST.
      */
     public PoolResponse toResponse(Pool pool) {
+        if (pool == null) return null;
+        
         return new PoolResponse(
                 pool.getId(),
                 pool.getOwnerId(),

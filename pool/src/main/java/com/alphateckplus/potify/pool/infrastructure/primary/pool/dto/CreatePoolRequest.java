@@ -1,4 +1,4 @@
-package com.alphateckplus.potify.pool.infrastructure.primary.dto;
+package com.alphateckplus.potify.pool.infrastructure.primary.pool.dto;
 
 import com.alphateckplus.potify.pool.domain.model.PoolType;
 import jakarta.validation.constraints.NotBlank;
