@@ -59,10 +59,27 @@ public class PoolEntity extends BaseEntity {
     @Column(name = "description", nullable = false, length = 1000)
     private String description;
 
+    @Column(name = "category", length = 50)
+    private String category;
+
     @Column(name = "goal_amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal goalAmount;
+
+    @Column(name = "current_amount", nullable = false, precision = 19, scale = 2)
+    @Builder.Default
+    private BigDecimal currentAmount = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
     private CagnotteStatus status;
+
+    @Column(name = "type", nullable = false, length = 20)
+    private String type; // On stocke le type (PUBLIC, PRIVATE_TONTINE)
+
+    /**
+     * Pour la tontine, on stocke les IDs des invites.
+     * Dans une version plus complexe, on utiliserait une table de jointure.
+     */
+    @Column(name = "invited_user_ids", length = 2000)
+    private String invitedUserIds; 
 }
