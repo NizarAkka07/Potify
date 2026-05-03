@@ -38,6 +38,9 @@ public class Pool {
     /** Description detaillee de l'objectif. */
     private String description;
 
+    /** Categorie de la collecte. */
+    private String category;
+
     /** Montant cible a atteindre. */
     private BigDecimal goalAmount;
 
