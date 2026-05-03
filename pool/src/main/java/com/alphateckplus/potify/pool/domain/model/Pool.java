@@ -1,0 +1,112 @@
+package com.alphateckplus.potify.pool.domain.model;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+/**
+ * Agregat metier Pool (Cagnotte) de l'architecture hexagonale.
+ *
+ * <p>Cette classe gere la logique pure des cagnottes, incluant les regles
+ * de transition d'etat et les specificites des tontines.
+ */
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Pool {
+
+    /** Identifiant unique de la cagnotte. */
+    private String id;
+
+    /** Identifiant de l'utilisateur createur/proprietaire. */
+    private String ownerId;
+
+    /** Identifiant de la cagnotte parente (si applicable). */
+    private String parentId;
+
+    /** Titre de la collecte. */
+    private String title;
+
+    /** Description detaillee de l'objectif. */
+    private String description;
+
+    /** Montant cible a atteindre. */
+    private BigDecimal goalAmount;
+
+    /** Montant actuellement collecte. */
+    private BigDecimal currentAmount;
+
+    /** Statut actuel du cycle de vie. */
+    private PoolStatus status;
+
+    /** Type de la cagnotte (Public ou Tontine privee). */
+    private PoolType type;
+
+    /** Liste des identifiants utilisateurs invites (pour le mode Tontine). */
+    @Builder.Default
+    private Set<String> invitedUserIds = new HashSet<>();
+
+    /** Horodatage de creation. */
+    private Instant createdAt;
+
+    /** Horodatage de derniere modification. */
+    private Instant updatedAt;
+
+    // --- Logique Metier ---
+
+    /**
+     * Verifie si la cagnotte est de type Tontine.
+     */
+    public boolean isTontine() {
+        return PoolType.PRIVATE_TONTINE.equals(this.type);
+    }
+
+    /**
+     * Verifie si un utilisateur est autorise a voir ou contribuer a la cagnotte.
+     */
+    public boolean isUserAllowed(String userId) {
+        if (PoolType.PUBLIC.equals(this.type)) {
+            return true;
+        }
+        // Pour une tontine, seuls le proprietaire et les invites sont autorises.
+        return userId.equals(ownerId) || invitedUserIds.contains(userId);
+    }
+
+    /**
+     * Verifie si la cagnotte peut passer en revue.
+     */
+    public boolean canBeSubmitted() {
+        return PoolStatus.BROUILLON.equals(this.status) 
+                && title != null && !title.isBlank()
+                && goalAmount != null && goalAmount.compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    /**
+     * Transitionne la cagnotte vers l'etat EN_REVUE.
+     */
+    public void submitForReview() {
+        if (!canBeSubmitted()) {
+            throw new IllegalStateException("La cagnotte n'est pas prete pour la revue.");
+        }
+        this.status = PoolStatus.EN_REVUE;
+    }
+
+    /**
+     * Calcule le pourcentage de progression.
+     */
+    public BigDecimal getProgressPercentage() {
+        if (goalAmount == null || goalAmount.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+        return currentAmount.multiply(new BigDecimal("100"))
+                .divide(goalAmount, 2, BigDecimal.ROUND_HALF_UP);
+    }
+}
