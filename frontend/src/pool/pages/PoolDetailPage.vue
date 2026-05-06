@@ -153,14 +153,80 @@
         </div>
       </div>
     </div>
+
+    <!-- Dialogue de Contribution -->
+    <q-dialog v-model="contributionDialog" persistent>
+      <q-card style="min-width: 400px; border-radius: 16px;">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6 text-weight-bold">Faire un don</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section class="q-pt-md">
+          <div class="text-subtitle2 q-mb-md text-grey-7">
+            Soutenez "{{ pool?.title }}" en choisissant un montant.
+          </div>
+
+          <q-form @submit="submitContribution" class="q-gutter-md">
+            <q-input
+              outlined
+              v-model.number="contributionForm.amount"
+              type="number"
+              label="Montant du don (€)"
+              suffix="€"
+              :rules="[val => val > 0 || 'Le montant doit être supérieur à 0']"
+              color="secondary"
+              autofocus
+            />
+
+            <q-input
+              outlined
+              v-model="contributionForm.contributorName"
+              label="Votre nom (facultatif)"
+              placeholder="Ex: Jean Dupont"
+              color="secondary"
+            />
+
+            <q-input
+              outlined
+              v-model="contributionForm.message"
+              type="textarea"
+              label="Petit message de soutien (facultatif)"
+              placeholder="Votre message sera affiché sur la page..."
+              color="secondary"
+              rows="3"
+            />
+
+            <q-checkbox
+              v-model="contributionForm.anonymous"
+              label="Faire ce don de manière anonyme"
+              color="secondary"
+            />
+
+            <div class="q-mt-lg">
+              <q-btn
+                label="Confirmer le paiement"
+                type="submit"
+                class="full-width q-py-sm text-weight-bold"
+                style="background: #FFB300; color: #1A1A2A;"
+                :loading="submitting"
+                no-caps
+              />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { poolService } from 'src/shared/services/poolService'
 import { useQuasar } from 'quasar'
+import authStore from 'src/shared/stores/auth'
 
 const route = useRoute()
 const $q = useQuasar()
@@ -168,6 +234,16 @@ const $q = useQuasar()
 const loading = ref(true)
 const error = ref(null)
 const pool = ref(null)
+
+// Gestion des contributions
+const contributionDialog = ref(false)
+const submitting = ref(false)
+const contributionForm = reactive({
+  amount: 20,
+  contributorName: '',
+  message: '',
+  anonymous: false
+})
 
 const getPoolImage = (category) => {
   const images = {
@@ -206,11 +282,42 @@ const fetchPool = async () => {
 }
 
 const contribute = () => {
-  $q.notify({
-    message: 'Le module de paiement sera bientôt disponible !',
-    color: 'amber-9',
-    icon: 'payment'
-  })
+  contributionDialog.value = true
+}
+
+const submitContribution = async () => {
+  submitting.value = true
+  try {
+    const payload = {
+      poolId: pool.value.id,
+      userId: authStore.user.value?.id || null,
+      amount: contributionForm.amount,
+      contributorName: contributionForm.contributorName || 'Donateur anonyme',
+      message: contributionForm.message,
+      anonymous: contributionForm.anonymous,
+      paymentMethod: 'CARD' // Simulé pour l'instant
+    }
+
+    await poolService.contributeToPool(payload)
+
+    $q.notify({
+      type: 'positive',
+      message: 'Merci pour votre contribution !',
+      position: 'top'
+    })
+
+    contributionDialog.value = false
+    // Recharger la cagnotte pour voir le nouveau montant
+    fetchPool()
+  } catch (err) {
+    console.error('Erreur contribution:', err)
+    $q.notify({
+      type: 'negative',
+      message: 'Erreur lors du traitement du don.'
+    })
+  } finally {
+    submitting.value = false
+  }
 }
 
 onMounted(fetchPool)

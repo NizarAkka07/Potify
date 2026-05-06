@@ -48,6 +48,15 @@ export const poolService = {
         'Content-Type': 'multipart/form-data'
       }
     })
+  },
+
+  /**
+   * Effectue une contribution vers une cagnotte.
+   * @param {Object} data - Données de la contribution (poolId, amount, etc.).
+   * @returns {Promise}
+   */
+  contributeToPool(data) {
+    return poolApi.post('/contributions', data)
   }
 }
 

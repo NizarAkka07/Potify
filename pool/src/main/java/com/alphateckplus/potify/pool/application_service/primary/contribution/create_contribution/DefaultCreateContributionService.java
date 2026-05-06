@@ -33,7 +33,6 @@ public class DefaultCreateContributionService implements CreateContributionServi
 
         // 2. Creer la contribution
         Contribution contribution = Contribution.builder()
-                .id(UUID.randomUUID().toString())
                 .poolId(command.poolId())
                 .userId(command.userId())
                 .contributorEmail(command.contributorEmail())

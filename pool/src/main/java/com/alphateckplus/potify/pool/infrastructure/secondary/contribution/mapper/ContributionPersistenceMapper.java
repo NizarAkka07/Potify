@@ -19,7 +19,7 @@ public class ContributionPersistenceMapper {
                 .amount(domain.getAmount())
                 .message(domain.getMessage())
                 .anonymous(domain.isAnonymous())
-                .status(ContributionStatus.valueOf(domain.getStatus().name()))
+                .status(mapStatusToEntity(domain.getStatus()))
                 .paymentMethod(domain.getPaymentMethod())
                 .build();
     }
@@ -36,9 +36,29 @@ public class ContributionPersistenceMapper {
                 .amount(entity.getAmount())
                 .message(entity.getMessage())
                 .anonymous(entity.isAnonymous())
-                .status(com.alphateckplus.potify.pool.domain.model.ContributionStatus.valueOf(entity.getStatus().name()))
+                .status(mapStatusToDomain(entity.getStatus()))
                 .paymentMethod(entity.getPaymentMethod())
                 .createdAt(entity.getCreatedAt())
                 .build();
+    }
+
+    private ContributionStatus mapStatusToEntity(com.alphateckplus.potify.pool.domain.model.ContributionStatus domainStatus) {
+        if (domainStatus == null) return null;
+        return switch (domainStatus) {
+            case EN_ATTENTE -> ContributionStatus.PENDING;
+            case REUSSIE -> ContributionStatus.CONFIRMED;
+            case REFUSEE -> ContributionStatus.CANCELLED;
+            case REMBOURSEE -> ContributionStatus.REFUNDED;
+        };
+    }
+
+    private com.alphateckplus.potify.pool.domain.model.ContributionStatus mapStatusToDomain(ContributionStatus entityStatus) {
+        if (entityStatus == null) return null;
+        return switch (entityStatus) {
+            case PENDING -> com.alphateckplus.potify.pool.domain.model.ContributionStatus.EN_ATTENTE;
+            case CONFIRMED -> com.alphateckplus.potify.pool.domain.model.ContributionStatus.REUSSIE;
+            case CANCELLED -> com.alphateckplus.potify.pool.domain.model.ContributionStatus.REFUSEE;
+            case REFUNDED -> com.alphateckplus.potify.pool.domain.model.ContributionStatus.REMBOURSEE;
+        };
     }
 }
