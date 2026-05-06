@@ -20,8 +20,8 @@
 
         <!-- Liens de navigation desktop – style Akkodis (blanc, uppercase) -->
         <div class="gt-sm row items-center q-gutter-lg">
-          <span class="nav-link cursor-pointer" style="color: rgba(255,255,255,0.85); font-size: 0.9rem; font-weight: 500;">Accueil</span>
-          <span class="nav-link cursor-pointer" style="color: rgba(255,255,255,0.85); font-size: 0.9rem; font-weight: 500;">Explorer</span>
+          <span class="nav-link cursor-pointer" style="color: rgba(255,255,255,0.85); font-size: 0.9rem; font-weight: 500;" @click="$router.push('/')">Accueil</span>
+          <span class="nav-link cursor-pointer" style="color: rgba(255,255,255,0.85); font-size: 0.9rem; font-weight: 500;" @click="$router.push('/pools')">Explorer</span>
           <span class="nav-link cursor-pointer" style="color: rgba(255,255,255,0.85); font-size: 0.9rem; font-weight: 500;">Comment ça marche</span>
         </div>
 

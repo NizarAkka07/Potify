@@ -64,6 +64,9 @@ public class Pool {
     /** Horodatage de derniere modification. */
     private Instant updatedAt;
 
+    /** URL de l'image illustrative de la cagnotte. */
+    private String imageUrl;
+
     // --- Logique Metier ---
 
     /**

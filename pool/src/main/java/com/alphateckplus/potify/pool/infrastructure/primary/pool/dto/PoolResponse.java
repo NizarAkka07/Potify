@@ -20,6 +20,7 @@ public record PoolResponse(
     PoolStatus status,
     PoolType type,
     Set<String> invitedUserIds,
+    String imageUrl,
     BigDecimal progressPercentage,
     Instant createdAt,
     Instant updatedAt

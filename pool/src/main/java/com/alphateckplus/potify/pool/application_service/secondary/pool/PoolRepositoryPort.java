@@ -33,6 +33,21 @@ public interface PoolRepositoryPort {
     List<Pool> findAll();
 
     /**
+     * Liste toutes les cagnottes publiques.
+     *
+     * @return La liste des cagnottes publiques.
+     */
+    List<Pool> findPublicPools();
+
+    /**
+     * Recherche des cagnottes publiques par titre.
+     *
+     * @param query Le terme de recherche.
+     * @return La liste des cagnottes publiques correspondantes.
+     */
+    List<Pool> searchPublicPools(String query);
+
+    /**
      * Supprime une cagnotte.
      *
      * @param id L'identifiant de la cagnotte.

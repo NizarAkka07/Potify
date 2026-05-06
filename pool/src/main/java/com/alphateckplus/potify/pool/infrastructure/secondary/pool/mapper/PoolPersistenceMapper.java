@@ -36,6 +36,7 @@ public class PoolPersistenceMapper {
                 .status(CagnotteStatus.valueOf(domain.getStatus().name()))
                 .type(domain.getType().name())
                 .invitedUserIds(invitedIds)
+                .imageUrl(domain.getImageUrl())
                 .build();
     }
 
@@ -63,6 +64,7 @@ public class PoolPersistenceMapper {
                 .status(PoolStatus.valueOf(entity.getStatus().name()))
                 .type(PoolType.valueOf(entity.getType()))
                 .invitedUserIds(invitedIds)
+                .imageUrl(entity.getImageUrl())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

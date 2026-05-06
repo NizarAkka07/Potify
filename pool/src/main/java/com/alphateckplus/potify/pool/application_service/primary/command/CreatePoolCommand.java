@@ -16,5 +16,6 @@ public record CreatePoolCommand(
     String category,
     BigDecimal goalAmount,
     PoolType type,
-    Set<String> invitedUserIds
+    Set<String> invitedUserIds,
+    String imageUrl
 ) {}

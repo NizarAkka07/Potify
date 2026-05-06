@@ -29,5 +29,6 @@ public record CreatePoolRequest(
     @NotNull(message = "Le type est obligatoire")
     PoolType type,
 
-    Set<String> invitedUserIds
+    Set<String> invitedUserIds,
+    String imageUrl
 ) {}

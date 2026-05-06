@@ -14,4 +14,19 @@ public interface ListPoolsService {
      * @return La liste des cagnottes.
      */
     List<Pool> execute();
+
+    /**
+     * Liste toutes les cagnottes publiques.
+     *
+     * @return La liste des cagnottes publiques.
+     */
+    List<Pool> listPublicPools();
+
+    /**
+     * Recherche des cagnottes publiques.
+     *
+     * @param query Le terme de recherche.
+     * @return La liste des cagnottes publiques correspondantes.
+     */
+    List<Pool> searchPublicPools(String query);
 }

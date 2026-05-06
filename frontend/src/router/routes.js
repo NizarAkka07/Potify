@@ -14,7 +14,11 @@ const routes = [
       // Page d'inscription
       { path: 'register', component: () => import('src/user/pages/auth/RegisterPage.vue') },
       // Creation de cagnotte
-      { path: 'pools/create', component: () => import('src/pool/pages/CreatePoolPage.vue') }
+      { path: 'pools/create', component: () => import('src/pool/pages/CreatePoolPage.vue') },
+      // Liste des cagnottes publiques
+      { path: 'pools', component: () => import('src/pool/pages/PublicPoolsPage.vue') },
+      // Détail d'une cagnotte
+      { path: 'pools/:id', component: () => import('src/pool/pages/PoolDetailPage.vue') }
     ]
   },
   {

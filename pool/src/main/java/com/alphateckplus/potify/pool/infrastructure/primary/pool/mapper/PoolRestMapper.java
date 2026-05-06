@@ -24,6 +24,7 @@ public class PoolRestMapper {
                 .goalAmount(request.goalAmount())
                 .type(request.type())
                 .invitedUserIds(request.invitedUserIds())
+                .imageUrl(request.imageUrl())
                 .build();
     }
 
@@ -44,6 +45,7 @@ public class PoolRestMapper {
                 pool.getStatus(),
                 pool.getType(),
                 pool.getInvitedUserIds(),
+                pool.getImageUrl(),
                 pool.getProgressPercentage(),
                 pool.getCreatedAt(),
                 pool.getUpdatedAt()

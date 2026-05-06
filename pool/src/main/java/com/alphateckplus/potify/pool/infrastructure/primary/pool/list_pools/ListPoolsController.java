@@ -29,4 +29,14 @@ public class ListPoolsController {
                 .toList();
         return ResponseEntity.ok(pools);
     }
+
+    @GetMapping("/public")
+    @Operation(summary = "Lister les cagnottes publiques avec recherche optionnelle")
+    public ResponseEntity<List<PoolResponse>> listPublicPools(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String search) {
+        List<PoolResponse> pools = listPoolsService.searchPublicPools(search).stream()
+                .map(poolRestMapper::toResponse)
+                .toList();
+        return ResponseEntity.ok(pools);
+    }
 }

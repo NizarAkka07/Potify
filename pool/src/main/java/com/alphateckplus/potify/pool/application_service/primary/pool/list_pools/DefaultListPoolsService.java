@@ -19,4 +19,17 @@ public class DefaultListPoolsService implements ListPoolsService {
     public List<Pool> execute() {
         return poolRepositoryPort.findAll();
     }
+
+    @Override
+    public List<Pool> listPublicPools() {
+        return poolRepositoryPort.findPublicPools();
+    }
+
+    @Override
+    public List<Pool> searchPublicPools(String query) {
+        if (query == null || query.isBlank()) {
+            return listPublicPools();
+        }
+        return poolRepositoryPort.searchPublicPools(query);
+    }
 }

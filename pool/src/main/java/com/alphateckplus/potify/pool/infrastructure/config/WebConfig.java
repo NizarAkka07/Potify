@@ -17,5 +17,15 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
                 .allowCredentials(true);
+        
+        registry.addMapping("/uploads/**")
+                .allowedOrigins("http://localhost:9000", "http://localhost:9001", "http://localhost:9002")
+                .allowedMethods("GET");
+    }
+
+    @Override
+    public void addResourceHandlers(org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:uploads/");
     }
 }

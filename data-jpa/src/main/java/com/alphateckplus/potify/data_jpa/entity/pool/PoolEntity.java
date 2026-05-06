@@ -81,5 +81,8 @@ public class PoolEntity extends BaseEntity {
      * Dans une version plus complexe, on utiliserait une table de jointure.
      */
     @Column(name = "invited_user_ids", length = 2000)
-    private String invitedUserIds; 
+    private String invitedUserIds;
+
+    @Column(name = "image_url", length = 2000)
+    private String imageUrl;
 }

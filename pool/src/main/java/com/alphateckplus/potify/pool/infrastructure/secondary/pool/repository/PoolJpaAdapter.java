@@ -64,6 +64,20 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     }
 
     @Override
+    public List<Pool> findPublicPools() {
+        return poolEntityRepository.findByType("PUBLIC").stream()
+                .map(poolPersistenceMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Pool> searchPublicPools(String query) {
+        return poolEntityRepository.findByTypeAndTitleContainingIgnoreCase("PUBLIC", query).stream()
+                .map(poolPersistenceMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public void deleteById(String id) {
         poolEntityRepository.deleteById(id);
     }
