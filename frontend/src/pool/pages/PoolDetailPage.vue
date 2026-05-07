@@ -69,7 +69,7 @@
               
               <div class="row justify-between text-caption text-grey-6 text-weight-medium">
                 <span>{{ Math.round(((pool.currentAmount || 0) / pool.goalAmount) * 100) }}% complété</span>
-                <span>0 participants</span>
+                <span>{{ contributions.length }} participants</span>
               </div>
             </div>
 
@@ -86,6 +86,31 @@
             <div class="row q-gutter-sm q-mt-md">
               <q-btn outline color="primary" icon="share" label="Partager" class="col" no-caps style="border-radius: 10px;" />
               <q-btn outline color="grey-7" icon="favorite_border" class="col-auto" style="border-radius: 10px;" />
+            </div>
+          </q-card>
+
+          <!-- Liste des derniers contributeurs (Sidebar) -->
+          <q-card class="q-mt-lg q-pa-lg no-shadow" style="border-radius: 16px; background: white; border: 1px solid #EEE;">
+            <div class="text-subtitle1 text-weight-bold q-mb-md">Derniers donateurs ({{ contributions.length }})</div>
+            
+            <q-list v-if="contributions.length > 0">
+              <q-item v-for="contrib in contributions.slice(0, 5)" :key="contrib.id" class="q-px-none q-py-sm">
+                <q-item-section avatar>
+                  <q-avatar size="32px" color="blue-1" text-color="primary">
+                    {{ contrib.anonymous ? '?' : contrib.contributorName.charAt(0) }}
+                  </q-avatar>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-weight-bold" style="font-size: 0.9rem;">
+                    {{ contrib.anonymous ? 'Donateur anonyme' : contrib.contributorName }}
+                  </q-item-label>
+                  <q-item-label caption>{{ contrib.amount }} € • {{ formatDate(contrib.createdAt) }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+            
+            <div v-else class="text-center q-py-md text-grey-6 text-italic">
+              Soyez le premier à contribuer !
             </div>
           </q-card>
         </div>
@@ -181,6 +206,7 @@
             />
 
             <q-input
+              v-if="!authStore.isAuthenticated.value"
               outlined
               v-model="contributionForm.contributorName"
               label="Votre nom (facultatif)"
@@ -234,6 +260,7 @@ const $q = useQuasar()
 const loading = ref(true)
 const error = ref(null)
 const pool = ref(null)
+const contributions = ref([])
 
 // Gestion des contributions
 const contributionDialog = ref(false)
@@ -266,6 +293,16 @@ const formatDate = (dateStr) => {
   })
 }
 
+const fetchContributions = async () => {
+  try {
+    const id = route.params.id
+    const response = await poolService.getPoolContributions(id)
+    contributions.value = response.data
+  } catch (err) {
+    console.error('Erreur chargement contributions:', err)
+  }
+}
+
 const fetchPool = async () => {
   loading.value = true
   error.value = null
@@ -273,6 +310,7 @@ const fetchPool = async () => {
     const id = route.params.id
     const response = await poolService.getPoolById(id)
     pool.value = response.data
+    await fetchContributions()
   } catch (err) {
     console.error('Erreur chargement cagnotte:', err)
     error.value = 'Cagnotte introuvable.'
@@ -307,8 +345,8 @@ const submitContribution = async () => {
     })
 
     contributionDialog.value = false
-    // Recharger la cagnotte pour voir le nouveau montant
-    fetchPool()
+    // Recharger la cagnotte et les contributions
+    await fetchPool()
   } catch (err) {
     console.error('Erreur contribution:', err)
     $q.notify({

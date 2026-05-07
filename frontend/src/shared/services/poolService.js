@@ -57,6 +57,15 @@ export const poolService = {
    */
   contributeToPool(data) {
     return poolApi.post('/contributions', data)
+  },
+
+  /**
+   * Récupère la liste des contributions pour une cagnotte.
+   * @param {string} poolId - ID de la cagnotte.
+   * @returns {Promise}
+   */
+  getPoolContributions(poolId) {
+    return poolApi.get(`/contributions/pool/${poolId}`)
   }
 }
 
