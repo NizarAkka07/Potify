@@ -38,4 +38,8 @@ public class MessageEntity extends BaseEntity {
 
     @Column(name = "content", nullable = false, length = 2000)
     private String content;
+
+    @Column(name = "is_public", nullable = false)
+    @lombok.Builder.Default
+    private boolean isPublic = true;
 }

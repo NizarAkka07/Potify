@@ -42,10 +42,7 @@
             </div>
 
             <div class="flex items-center q-mb-lg">
-              <q-avatar size="32px" class="q-mr-sm">
-                <img src="https://cdn.quasar.dev/img/avatar.png">
-              </q-avatar>
-              <span class="text-grey-7">Créé par <span class="text-weight-bold text-primary">Utilisateur</span></span>
+              <span class="text-grey-7">Créé par <span class="text-weight-bold text-primary">{{ pool.ownerName || 'Anonyme' }}</span></span>
             </div>
 
             <!-- Progression -->
@@ -97,12 +94,20 @@
               <q-item v-for="contrib in contributions.slice(0, 5)" :key="contrib.id" class="q-px-none q-py-sm">
                 <q-item-section avatar>
                   <q-avatar size="32px" color="blue-1" text-color="primary">
-                    {{ contrib.anonymous ? '?' : contrib.contributorName.charAt(0) }}
+                    <template v-if="contrib.anonymous">
+                      <span v-if="isOwner">{{ contrib.contributorName.charAt(0) }}</span>
+                      <span v-else>?</span>
+                    </template>
+                    <span v-else>{{ contrib.contributorName.charAt(0) }}</span>
                   </q-avatar>
                 </q-item-section>
                 <q-item-section>
                   <q-item-label class="text-weight-bold" style="font-size: 0.9rem;">
-                    {{ contrib.anonymous ? 'Donateur anonyme' : contrib.contributorName }}
+                    <template v-if="contrib.anonymous">
+                      <span v-if="isOwner">{{ contrib.contributorName }} (Anonyme)</span>
+                      <span v-else>Donateur anonyme</span>
+                    </template>
+                    <span v-else>{{ contrib.contributorName }}</span>
                   </q-item-label>
                   <q-item-label caption>{{ contrib.amount }} € • {{ formatDate(contrib.createdAt) }}</q-item-label>
                 </q-item-section>
@@ -123,8 +128,65 @@
             <div class="text-h5 text-weight-bold q-mb-lg" style="color: #0D1B2E;">
               À propos de cette cagnotte
             </div>
-            <div class="text-body1 text-grey-8" style="white-space: pre-line; line-height: 1.6;">
+            <div class="text-body1 text-grey-8 q-mb-xl" style="white-space: pre-line; line-height: 1.6;">
               {{ pool.description }}
+            </div>
+
+            <!-- SECTION : COMMENTAIRES (Messages du Pool) -->
+            <div class="text-h5 text-weight-bold q-mb-lg row items-center" style="color: #0D1B2E;">
+              <q-icon name="forum" class="q-mr-sm" color="primary" />
+              Commentaires et Questions ({{ messages.length }})
+            </div>
+
+            <!-- Champ de saisie pour nouveau commentaire -->
+            <div v-if="authStore.isAuthenticated.value" class="q-mb-xl">
+              <q-input
+                filled
+                v-model="newComment"
+                type="textarea"
+                placeholder="Posez une question ou laissez un message de soutien..."
+                rows="3"
+                color="secondary"
+                bg-color="white"
+                class="shadow-1"
+                style="border-radius: 8px;"
+              >
+                <template v-slot:after>
+                  <div class="column justify-end full-height q-pb-xs">
+                    <q-btn round color="primary" icon="send" :loading="sendingComment" @click="postComment" />
+                  </div>
+                </template>
+              </q-input>
+            </div>
+            <div v-else class="q-pa-md bg-blue-1 text-blue-9 text-weight-bold q-mb-xl" style="border-radius: 8px; border: 1px dashed #2196F3;">
+              <q-icon name="info" class="q-mr-sm" />
+              Veuillez vous connecter pour laisser un commentaire.
+            </div>
+
+            <!-- Liste des commentaires -->
+            <div v-if="messages.length > 0" class="q-gutter-y-md">
+              <div v-for="msg in messages" :key="msg.id" class="comment-item q-pa-md" style="background: white; border-radius: 12px; border: 1px solid #EEE;">
+                <div class="row justify-between items-center q-mb-sm">
+                  <div class="row items-center">
+                    <q-avatar size="32px" color="primary" text-white class="q-mr-sm">
+                      {{ msg.userName?.charAt(0) || '?' }}
+                    </q-avatar>
+                    <div>
+                      <div class="text-weight-bold" style="color: #0D1B2E;">
+                        {{ msg.userName || 'Utilisateur' }}
+                      </div>
+                      <div class="text-caption text-grey-6">{{ formatDate(msg.createdAt) }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-body2 text-grey-9 q-pl-md border-left" style="border-left: 2px solid #EEE;">
+                  {{ msg.content }}
+                </div>
+              </div>
+            </div>
+            <div v-else class="text-center q-py-xl text-grey-5">
+              <q-icon name="chat_bubble_outline" size="48px" class="q-mb-sm" />
+              <div>Aucun commentaire pour le moment. Soyez le premier !</div>
             </div>
 
             <q-separator class="q-my-xl" />
@@ -248,9 +310,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { poolService } from 'src/shared/services/poolService'
+import { poolApi } from 'boot/axios'
 import { useQuasar } from 'quasar'
 import authStore from 'src/shared/stores/auth'
 
@@ -261,6 +324,45 @@ const loading = ref(true)
 const error = ref(null)
 const pool = ref(null)
 const contributions = ref([])
+const messages = ref([])
+
+const isOwner = computed(() => {
+  return authStore.isAuthenticated.value && pool.value?.ownerId === authStore.user.value?.id
+})
+
+// Gestion des commentaires (Pool Messages)
+const newComment = ref('')
+const sendingComment = ref(false)
+
+const postComment = async () => {
+  if (!newComment.value.trim()) return
+  
+  sendingComment.value = true
+  try {
+    await poolApi.post('/messages', {
+      poolId: pool.value.id,
+      userId: authStore.user.value?.id,
+      content: newComment.value,
+      isPublic: true // Tous les messages sont désormais publics
+    })
+    
+    newComment.value = ''
+    $q.notify({
+      type: 'positive',
+      message: 'Commentaire publié !',
+      position: 'bottom'
+    })
+    await fetchMessages()
+  } catch (err) {
+    console.error('Erreur publication commentaire:', err)
+    $q.notify({
+      type: 'negative',
+      message: 'Erreur lors de la publication.'
+    })
+  } finally {
+    sendingComment.value = false
+  }
+}
 
 // Gestion des contributions
 const contributionDialog = ref(false)
@@ -303,6 +405,16 @@ const fetchContributions = async () => {
   }
 }
 
+const fetchMessages = async () => {
+  try {
+    const id = route.params.id
+    const response = await poolApi.get(`/messages/pool/${id}`)
+    messages.value = response.data
+  } catch (err) {
+    console.error('Erreur chargement messages:', err)
+  }
+}
+
 const fetchPool = async () => {
   loading.value = true
   error.value = null
@@ -311,6 +423,7 @@ const fetchPool = async () => {
     const response = await poolService.getPoolById(id)
     pool.value = response.data
     await fetchContributions()
+    await fetchMessages()
   } catch (err) {
     console.error('Erreur chargement cagnotte:', err)
     error.value = 'Cagnotte introuvable.'
@@ -326,11 +439,20 @@ const contribute = () => {
 const submitContribution = async () => {
   submitting.value = true
   try {
+    const isAuth = authStore.isAuthenticated.value
+    const user = authStore.user.value
+    
+    // Détermination du nom du contributeur
+    let name = contributionForm.contributorName || 'Donateur anonyme'
+    if (isAuth && user) {
+      name = `${user.firstName} ${user.lastName}`
+    }
+
     const payload = {
       poolId: pool.value.id,
-      userId: authStore.user.value?.id || null,
+      userId: user?.id || null,
       amount: contributionForm.amount,
-      contributorName: contributionForm.contributorName || 'Donateur anonyme',
+      contributorName: name,
       message: contributionForm.message,
       anonymous: contributionForm.anonymous,
       paymentMethod: 'CARD' // Simulé pour l'instant

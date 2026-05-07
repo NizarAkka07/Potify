@@ -12,6 +12,12 @@ import com.alphateckplus.potify.pool.application_service.primary.pool.get_pool.D
 import com.alphateckplus.potify.pool.application_service.primary.pool.get_pool.GetPoolService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.list_pools.DefaultListPoolsService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.list_pools.ListPoolsService;
+import com.alphateckplus.potify.pool.application_service.primary.pool.message.DefaultMessageService;
+import com.alphateckplus.potify.pool.application_service.primary.pool.message.MessageService;
+import com.alphateckplus.potify.pool.application_service.secondary.pool.MessageRepositoryPort;
+import com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper.MessagePersistenceMapper;
+import com.alphateckplus.potify.pool.infrastructure.secondary.pool.repository.MessageJpaAdapter;
+import com.alphateckplus.potify.data_jpa.repository.pool.MessageEntityRepository;
 import com.alphateckplus.potify.pool.application_service.primary.pool.update_pool.DefaultUpdatePoolService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.update_pool.UpdatePoolService;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolRepositoryPort;
@@ -33,6 +39,20 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class PoolBeanConfiguration {
+
+    @Bean
+    public MessagePersistenceMapper messagePersistenceMapper() {
+        return new MessagePersistenceMapper();
+    }
+
+    @Bean
+    public MessageRepositoryPort messageRepositoryPort(
+            MessageEntityRepository messageEntityRepository,
+            PoolEntityRepository poolEntityRepository,
+            UserEntityRepository userEntityRepository,
+            MessagePersistenceMapper messagePersistenceMapper) {
+        return new MessageJpaAdapter(messageEntityRepository, poolEntityRepository, userEntityRepository, messagePersistenceMapper);
+    }
 
     @Bean
     public PoolPersistenceMapper poolPersistenceMapper() {
@@ -96,6 +116,11 @@ public class PoolBeanConfiguration {
     @Bean
     public UpdatePoolService updatePoolService(PoolRepositoryPort poolRepositoryPort) {
         return new DefaultUpdatePoolService(poolRepositoryPort);
+    }
+
+    @Bean
+    public MessageService messageService(MessageRepositoryPort messageRepositoryPort) {
+        return new DefaultMessageService(messageRepositoryPort);
     }
 
     @Bean

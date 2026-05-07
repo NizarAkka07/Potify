@@ -12,6 +12,7 @@ import java.util.Set;
 public record PoolResponse(
     String id,
     String ownerId,
+    String ownerName,
     String title,
     String description,
     String category,

@@ -56,6 +56,7 @@ public class PoolPersistenceMapper {
         return Pool.builder()
                 .id(entity.getId())
                 .ownerId(entity.getOwner() != null ? entity.getOwner().getId() : null)
+                .ownerName(entity.getOwner() != null ? entity.getOwner().getFullName() : null)
                 .parentId(entity.getParent() != null ? entity.getParent().getId() : null)
                 .title(entity.getTitle())
                 .description(entity.getDescription())

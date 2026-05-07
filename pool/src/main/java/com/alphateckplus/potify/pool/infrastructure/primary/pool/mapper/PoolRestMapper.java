@@ -55,6 +55,7 @@ public class PoolRestMapper {
         return new PoolResponse(
                 pool.getId(),
                 pool.getOwnerId(),
+                pool.getOwnerName(),
                 pool.getTitle(),
                 pool.getDescription(),
                 pool.getCategory(),

@@ -30,6 +30,9 @@ public class Pool {
     /** Identifiant de l'utilisateur createur/proprietaire. */
     private String ownerId;
 
+    /** Nom complet du proprietaire. */
+    private String ownerName;
+
     /** Identifiant de la cagnotte parente (si applicable). */
     private String parentId;
 
