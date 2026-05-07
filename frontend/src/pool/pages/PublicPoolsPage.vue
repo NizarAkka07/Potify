@@ -12,22 +12,18 @@
         <!-- Barre de recherche premium -->
         <div class="search-container q-pa-sm bg-white shadow-2" style="border-radius: 12px; max-width: 700px;">
           <div class="row items-center no-wrap">
-            <q-icon name="search" size="24px" color="grey-6" class="q-ml-md" />
             <q-input
               borderless
               v-model="searchQuery"
               placeholder="Rechercher une cagnotte par titre..."
               class="col q-px-md"
-              @keyup.enter="fetchPools"
               color="primary"
-            />
-            <q-btn
-              label="Rechercher"
-              style="background: #FFB300; color: #0D1B2E; font-weight: 700; border-radius: 8px; padding: 10px 24px;"
-              no-caps
-              @click="fetchPools"
-              :loading="loading"
-            />
+            >
+              <template v-slot:append>
+                <q-spinner-dots v-if="loading" color="primary" size="20px" />
+                <q-icon v-else name="search" size="24px" color="grey-6" />
+              </template>
+            </q-input>
           </div>
         </div>
       </div>
@@ -152,7 +148,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { poolService } from 'src/shared/services/poolService'
 
@@ -162,6 +158,9 @@ const pools = ref([])
 const searchQuery = ref('')
 const selectedCategory = ref('Toutes')
 const categories = ['Toutes', 'Santé', 'Éducation', 'Urgence', 'Animaux', 'Projets', 'Sport']
+
+// Timer pour le debounce
+let searchTimer = null
 
 const fetchPools = async () => {
   loading.value = true
@@ -174,6 +173,14 @@ const fetchPools = async () => {
     loading.value = false
   }
 }
+
+// Watcher pour la recherche en temps réel
+watch(searchQuery, () => {
+  if (searchTimer) clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    fetchPools()
+  }, 300) // Attendre 300ms après la dernière frappe
+})
 
 const filteredPools = computed(() => {
   if (selectedCategory.value === 'Toutes') {

@@ -18,7 +18,9 @@ const routes = [
       // Liste des cagnottes publiques
       { path: 'pools', component: () => import('src/pool/pages/PublicPoolsPage.vue') },
       // Détail d'une cagnotte
-      { path: 'pools/:id', component: () => import('src/pool/pages/PoolDetailPage.vue') }
+      { path: 'pools/:id', component: () => import('src/pool/pages/PoolDetailPage.vue') },
+      // Dashboard utilisateur
+      { path: 'dashboard', component: () => import('src/pool/pages/UserDashboardPage.vue'), meta: { requiresAuth: true } }
     ]
   },
   {

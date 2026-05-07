@@ -39,4 +39,14 @@ public class ListPoolsController {
                 .toList();
         return ResponseEntity.ok(pools);
     }
+
+    @GetMapping("/user/{userId}")
+    @Operation(summary = "Lister les cagnottes d'un utilisateur specifique")
+    public ResponseEntity<List<PoolResponse>> listUserPools(
+            @org.springframework.web.bind.annotation.PathVariable String userId) {
+        List<PoolResponse> pools = listPoolsService.findByOwnerId(userId).stream()
+                .map(poolRestMapper::toResponse)
+                .toList();
+        return ResponseEntity.ok(pools);
+    }
 }

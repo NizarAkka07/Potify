@@ -8,6 +8,7 @@ import java.util.List;
  * Repository JPA des cagnottes.
  */
 public interface PoolEntityRepository extends JpaRepository<PoolEntity, String> {
+    List<PoolEntity> findByOwnerId(String ownerId);
     List<PoolEntity> findByType(String type);
     List<PoolEntity> findByTypeAndTitleContainingIgnoreCase(String type, String title);
 }

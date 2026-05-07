@@ -29,4 +29,12 @@ public interface ListPoolsService {
      * @return La liste des cagnottes publiques correspondantes.
      */
     List<Pool> searchPublicPools(String query);
+
+    /**
+     * Liste les cagnottes d'un utilisateur.
+     *
+     * @param ownerId L'identifiant de l'utilisateur.
+     * @return La liste des cagnottes.
+     */
+    List<Pool> findByOwnerId(String ownerId);
 }

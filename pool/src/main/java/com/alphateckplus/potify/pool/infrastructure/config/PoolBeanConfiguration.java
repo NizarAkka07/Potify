@@ -2,6 +2,8 @@ package com.alphateckplus.potify.pool.infrastructure.config;
 
 import com.alphateckplus.potify.pool.application_service.primary.contribution.create_contribution.CreateContributionService;
 import com.alphateckplus.potify.pool.application_service.primary.contribution.create_contribution.DefaultCreateContributionService;
+import com.alphateckplus.potify.pool.application_service.primary.contribution.list_contributions.DefaultListContributionsService;
+import com.alphateckplus.potify.pool.application_service.primary.contribution.list_contributions.ListContributionsService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.create_pool.CreatePoolService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.create_pool.DefaultCreatePoolService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.delete_pool.DefaultDeletePoolService;
@@ -69,6 +71,11 @@ public class PoolBeanConfiguration {
             ContributionRepositoryPort contributionRepositoryPort,
             PoolRepositoryPort poolRepositoryPort) {
         return new DefaultCreateContributionService(contributionRepositoryPort, poolRepositoryPort);
+    }
+
+    @Bean
+    public ListContributionsService listContributionsService(ContributionRepositoryPort contributionRepositoryPort) {
+        return new DefaultListContributionsService(contributionRepositoryPort);
     }
 
     @Bean

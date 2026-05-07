@@ -48,6 +48,14 @@ public interface PoolRepositoryPort {
     List<Pool> searchPublicPools(String query);
 
     /**
+     * Liste les cagnottes d'un utilisateur specifique.
+     *
+     * @param ownerId L'identifiant du proprietaire.
+     * @return La liste des cagnottes.
+     */
+    List<Pool> findByOwnerId(String ownerId);
+
+    /**
      * Supprime une cagnotte.
      *
      * @param id L'identifiant de la cagnotte.

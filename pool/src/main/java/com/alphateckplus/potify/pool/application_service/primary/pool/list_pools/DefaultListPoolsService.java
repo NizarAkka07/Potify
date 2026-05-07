@@ -32,4 +32,9 @@ public class DefaultListPoolsService implements ListPoolsService {
         }
         return poolRepositoryPort.searchPublicPools(query);
     }
+
+    @Override
+    public List<Pool> findByOwnerId(String ownerId) {
+        return poolRepositoryPort.findByOwnerId(ownerId);
+    }
 }
