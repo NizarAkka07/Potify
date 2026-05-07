@@ -83,6 +83,9 @@ public class PoolEntity extends BaseEntity {
     @Column(name = "invited_user_ids", length = 2000)
     private String invitedUserIds;
 
-    @Column(name = "image_url", length = 2000)
-    private String imageUrl;
+    @Column(name = "image_content", columnDefinition = "bytea")
+    private byte[] imageContent;
+
+    @Column(name = "image_content_type", length = 50)
+    private String imageContentType;
 }

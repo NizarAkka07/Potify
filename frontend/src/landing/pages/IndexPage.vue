@@ -32,6 +32,7 @@
               outline
               no-caps
               label="Découvrir les cagnottes"
+              to="/pools"
               style="color: #0D1B2E; border-color: #0D1B2E; font-weight: 600; padding: 12px 28px;"
             />
           </div>
@@ -101,7 +102,7 @@
           <div class="col-12 col-sm-6 col-md-4" v-for="pool in pools" :key="pool.id">
             <q-card class="shadow-2 hover-card" style="border-radius: 4px; border: 1px solid #E0E0E0;">
               <img
-                :src="getPoolImage(pool.category)"
+                :src="pool.imageUrl || getPoolImage(pool.category)"
                 style="height: 200px; object-fit: cover; width: 100%;"
               />
               <q-card-section>

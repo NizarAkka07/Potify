@@ -31,7 +31,8 @@ public class DefaultCreatePoolService implements CreatePoolService {
                 .status(PoolStatus.PUBLIEE) // Directement publiée pour contourner la contrainte DB
                 .type(command.type())
                 .invitedUserIds(command.invitedUserIds())
-                .imageUrl(command.imageUrl())
+                .imageContent(command.imageContent())
+                .imageContentType(command.imageContentType())
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();

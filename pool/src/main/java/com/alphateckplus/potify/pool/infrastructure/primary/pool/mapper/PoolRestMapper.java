@@ -12,10 +12,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class PoolRestMapper {
 
-    /**
-     * Mappe une requete de creation vers une commande applicative.
-     */
     public CreatePoolCommand toCommand(CreatePoolRequest request) {
+        byte[] imageBytes = null;
+        if (request.imageData() != null && !request.imageData().isBlank()) {
+            try {
+                // Supprimer le préfixe data:image/xxx;base64, si présent
+                String base64Data = request.imageData();
+                if (base64Data.contains(",")) {
+                    base64Data = base64Data.split(",")[1];
+                }
+                imageBytes = java.util.Base64.getDecoder().decode(base64Data);
+            } catch (IllegalArgumentException e) {
+                // Log error or handle invalid base64
+            }
+        }
+
         return CreatePoolCommand.builder()
                 .ownerId(request.ownerId())
                 .title(request.title())
@@ -24,7 +35,8 @@ public class PoolRestMapper {
                 .goalAmount(request.goalAmount())
                 .type(request.type())
                 .invitedUserIds(request.invitedUserIds())
-                .imageUrl(request.imageUrl())
+                .imageContent(imageBytes)
+                .imageContentType(request.imageContentType())
                 .build();
     }
 
@@ -34,6 +46,12 @@ public class PoolRestMapper {
     public PoolResponse toResponse(Pool pool) {
         if (pool == null) return null;
         
+        String finalImageUrl = null;
+        // Si on a du contenu en DB, on génère l'URL vers notre nouvel endpoint
+        if (pool.getImageContent() != null && pool.getImageContent().length > 0) {
+            finalImageUrl = "http://localhost:8082/api/pools/" + pool.getId() + "/image";
+        }
+
         return new PoolResponse(
                 pool.getId(),
                 pool.getOwnerId(),
@@ -45,7 +63,7 @@ public class PoolRestMapper {
                 pool.getStatus(),
                 pool.getType(),
                 pool.getInvitedUserIds(),
-                pool.getImageUrl(),
+                finalImageUrl,
                 pool.getProgressPercentage(),
                 pool.getCreatedAt(),
                 pool.getUpdatedAt()

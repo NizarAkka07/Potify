@@ -64,8 +64,11 @@ public class Pool {
     /** Horodatage de derniere modification. */
     private Instant updatedAt;
 
-    /** URL de l'image illustrative de la cagnotte. */
-    private String imageUrl;
+    /** Contenu binaire de l'image (stockage DB). */
+    private byte[] imageContent;
+
+    /** Type MIME de l'image (ex: image/png). */
+    private String imageContentType;
 
     // --- Logique Metier ---
 

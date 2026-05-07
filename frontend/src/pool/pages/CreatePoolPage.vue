@@ -117,7 +117,6 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { poolApi } from 'boot/axios'
-import { poolService } from 'src/shared/services/poolService'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import authStore from '../../shared/stores/auth'
@@ -136,7 +135,6 @@ const form = reactive({
   category: 'Santé',
   goalAmount: 1000,
   type: 'PUBLIC',
-  imageUrl: '',
   ownerId: ''
 })
 
@@ -167,23 +165,6 @@ const autoFill = () => {
 const onSubmit = async () => {
   loading.value = true
   try {
-    // 1. Upload de l'image si présente
-    if (imageFile.value) {
-      try {
-        const uploadRes = await poolService.uploadImage(imageFile.value)
-        form.imageUrl = uploadRes.data.url
-      } catch (uploadError) {
-        console.error('Erreur upload:', uploadError)
-        $q.notify({
-          type: 'negative',
-          message: 'Erreur lors de l\'upload de l\'image'
-        })
-        loading.value = false
-        return
-      }
-    }
-
-    // 2. Création de la cagnotte
     const userId = authStore.user.value?.id
     
     if (!userId) {
@@ -195,9 +176,24 @@ const onSubmit = async () => {
       return
     }
 
+    let imageData = null
+    let imageContentType = null
+
+    // Conversion de l'image en Base64 si présente
+    if (imageFile.value) {
+      imageData = await new Promise((resolve) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result)
+        reader.readAsDataURL(imageFile.value)
+      })
+      imageContentType = imageFile.value.type
+    }
+
     const payload = {
       ...form,
-      ownerId: userId
+      ownerId: userId,
+      imageData: imageData,
+      imageContentType: imageContentType
     }
 
     await poolApi.post('/pools', payload)

@@ -30,5 +30,6 @@ public record CreatePoolRequest(
     PoolType type,
 
     Set<String> invitedUserIds,
-    String imageUrl
+    String imageData, // Base64 string
+    String imageContentType
 ) {}
