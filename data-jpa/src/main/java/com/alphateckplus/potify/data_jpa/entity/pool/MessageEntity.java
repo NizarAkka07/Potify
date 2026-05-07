@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,4 +44,8 @@ public class MessageEntity extends BaseEntity {
     @Column(name = "is_public", nullable = false)
     @lombok.Builder.Default
     private boolean isPublic = true;
+
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @lombok.Builder.Default
+    private java.util.List<CommentReactionEntity> reactions = new java.util.ArrayList<>();
 }

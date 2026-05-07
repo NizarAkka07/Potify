@@ -36,4 +36,14 @@ public class MessageController {
     public ResponseEntity<List<Message>> getPoolMessages(@PathVariable String poolId) {
         return ResponseEntity.ok(messageService.getPoolMessages(poolId));
     }
+
+    @PostMapping("/{messageId}/react")
+    @Operation(summary = "Ajouter ou supprimer une reaction")
+    public ResponseEntity<Void> toggleReaction(
+            @PathVariable String messageId,
+            @RequestParam String userId,
+            @RequestParam String type) {
+        messageService.toggleReaction(messageId, userId, type);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -15,9 +15,12 @@ import com.alphateckplus.potify.pool.application_service.primary.pool.list_pools
 import com.alphateckplus.potify.pool.application_service.primary.pool.message.DefaultMessageService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.message.MessageService;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.MessageRepositoryPort;
+import com.alphateckplus.potify.pool.application_service.secondary.pool.ReactionRepositoryPort;
 import com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper.MessagePersistenceMapper;
 import com.alphateckplus.potify.pool.infrastructure.secondary.pool.repository.MessageJpaAdapter;
+import com.alphateckplus.potify.pool.infrastructure.secondary.pool.repository.ReactionJpaAdapter;
 import com.alphateckplus.potify.data_jpa.repository.pool.MessageEntityRepository;
+import com.alphateckplus.potify.data_jpa.repository.pool.CommentReactionEntityRepository;
 import com.alphateckplus.potify.pool.application_service.primary.pool.update_pool.DefaultUpdatePoolService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.update_pool.UpdatePoolService;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolRepositoryPort;
@@ -39,6 +42,14 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class PoolBeanConfiguration {
+
+    @Bean
+    public ReactionRepositoryPort reactionRepositoryPort(
+            CommentReactionEntityRepository reactionRepository,
+            MessageEntityRepository messageRepository,
+            UserEntityRepository userRepository) {
+        return new ReactionJpaAdapter(reactionRepository, messageRepository, userRepository);
+    }
 
     @Bean
     public MessagePersistenceMapper messagePersistenceMapper() {
@@ -119,8 +130,8 @@ public class PoolBeanConfiguration {
     }
 
     @Bean
-    public MessageService messageService(MessageRepositoryPort messageRepositoryPort) {
-        return new DefaultMessageService(messageRepositoryPort);
+    public MessageService messageService(MessageRepositoryPort messageRepositoryPort, ReactionRepositoryPort reactionRepositoryPort) {
+        return new DefaultMessageService(messageRepositoryPort, reactionRepositoryPort);
     }
 
     @Bean

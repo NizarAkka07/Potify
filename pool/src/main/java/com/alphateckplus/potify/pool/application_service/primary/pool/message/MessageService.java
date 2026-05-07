@@ -6,4 +6,5 @@ import java.util.List;
 public interface MessageService {
     Message addMessage(Message message);
     List<Message> getPoolMessages(String poolId);
+    void toggleReaction(String messageId, String userId, String type);
 }

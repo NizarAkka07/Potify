@@ -173,14 +173,39 @@
                     </q-avatar>
                     <div>
                       <div class="text-weight-bold" style="color: #0D1B2E;">
-                        {{ msg.userName || 'Utilisateur' }}
+                        {{ msg.userName || 'Utilisateur anonyme' }}
                       </div>
                       <div class="text-caption text-grey-6">{{ formatDate(msg.createdAt) }}</div>
                     </div>
                   </div>
+                  
+                  <!-- Bouton Réaction (Style WhatsApp) -->
+                  <div v-if="authStore.isAuthenticated.value" class="reaction-trigger">
+                    <q-btn flat round dense icon="add_reaction" color="grey-7" size="sm">
+                      <q-menu anchor="top middle" self="bottom middle" class="reaction-menu no-shadow">
+                        <div class="row no-wrap q-pa-xs q-gutter-x-sm bg-white shadow-2" style="border-radius: 30px; border: 1px solid #EEE;">
+                          <q-btn v-for="emoji in availableEmojis" :key="emoji.type" 
+                                 flat round dense :label="emoji.icon" class="emoji-btn"
+                                 @click="toggleReaction(msg.id, emoji.type)" v-close-popup />
+                        </div>
+                      </q-menu>
+                    </q-btn>
+                  </div>
                 </div>
-                <div class="text-body2 text-grey-9 q-pl-md border-left" style="border-left: 2px solid #EEE;">
+                
+                <div class="text-body2 text-grey-9 q-pl-md border-left q-mb-sm" style="border-left: 2px solid #EEE;">
                   {{ msg.content }}
+                </div>
+
+                <!-- Affichage des réactions -->
+                <div v-if="msg.reactions && msg.reactions.length > 0" class="row q-gutter-xs q-pl-md">
+                  <div v-for="(group, type) in groupReactions(msg.reactions)" :key="type" 
+                       class="reaction-badge row items-center q-px-sm q-py-xs"
+                       @click="toggleReaction(msg.id, type)"
+                       :class="{'user-reacted': hasUserReacted(msg.reactions, type)}">
+                    <span class="q-mr-xs">{{ getEmojiIcon(type) }}</span>
+                    <span class="text-caption text-weight-bold">{{ group.length }}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -334,6 +359,51 @@ const isOwner = computed(() => {
 const newComment = ref('')
 const sendingComment = ref(false)
 
+const availableEmojis = [
+  { type: 'LIKE', icon: '👍' },
+  { type: 'HEART', icon: '❤️' },
+  { type: 'LAUGH', icon: '😂' },
+  { type: 'SURPRISE', icon: '😮' },
+  { type: 'SAD', icon: '😢' },
+  { type: 'PRAY', icon: '🙏' }
+]
+
+const getEmojiIcon = (type) => {
+  const emoji = availableEmojis.find(e => e.type === type)
+  return emoji ? emoji.icon : '👍'
+}
+
+const groupReactions = (reactions) => {
+  if (!reactions) return {}
+  return reactions.reduce((groups, r) => {
+    const type = r.reactionType
+    if (!groups[type]) groups[type] = []
+    groups[type].push(r)
+    return groups
+  }, {})
+}
+
+const hasUserReacted = (reactions, type) => {
+  if (!reactions || !authStore.isAuthenticated.value) return false
+  return reactions.some(r => r.userId === authStore.user.value?.id && r.reactionType === type)
+}
+
+const toggleReaction = async (messageId, type) => {
+  if (!authStore.isAuthenticated.value) return
+  
+  try {
+    await poolApi.post(`/messages/${messageId}/react`, null, {
+      params: {
+        userId: authStore.user.value.id,
+        type: type
+      }
+    })
+    await fetchMessages() // Rafraîchir pour voir la réaction
+  } catch (err) {
+    console.error('Erreur reaction:', err)
+  }
+}
+
 const postComment = async () => {
   if (!newComment.value.trim()) return
   
@@ -444,8 +514,13 @@ const submitContribution = async () => {
     
     // Détermination du nom du contributeur
     let name = contributionForm.contributorName || 'Donateur anonyme'
-    if (isAuth && user) {
-      name = `${user.firstName} ${user.lastName}`
+    
+    // Si anonyme est coché, on force le nom à "Anonyme"
+    if (contributionForm.anonymous) {
+      name = 'Anonyme'
+    } else if (isAuth && user) {
+      // Sinon on prend le nom complet de l'utilisateur connecté
+      name = user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Utilisateur'
     }
 
     const payload = {
@@ -490,6 +565,34 @@ onMounted(fetchPool)
 .action-card {
   position: sticky;
   top: 100px;
+}
+.reaction-badge {
+  background: #F1F4F9;
+  border-radius: 12px;
+  border: 1px solid #E0E0E0;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+.reaction-badge:hover {
+  background: #E8EAF6;
+  border-color: #3F51B5;
+}
+.user-reacted {
+  background: #E3F2FD !important;
+  border-color: #2196F3 !important;
+  color: #1976D2;
+}
+.emoji-btn {
+  font-size: 1.2rem;
+  transition: transform 0.2s;
+}
+.emoji-btn:hover {
+  transform: scale(1.3);
+}
+.reaction-menu {
+  border-radius: 30px;
+  overflow: hidden;
 }
 @media (max-width: 991px) {
   .action-card {

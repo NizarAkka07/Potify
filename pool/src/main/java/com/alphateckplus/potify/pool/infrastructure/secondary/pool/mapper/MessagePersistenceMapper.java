@@ -2,6 +2,7 @@ package com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper;
 
 import com.alphateckplus.potify.data_jpa.entity.pool.MessageEntity;
 import com.alphateckplus.potify.pool.domain.model.Message;
+import com.alphateckplus.potify.pool.domain.model.Reaction;
 
 public class MessagePersistenceMapper {
 
@@ -16,6 +17,16 @@ public class MessagePersistenceMapper {
 
     public Message toDomain(MessageEntity entity) {
         if (entity == null) return null;
+        
+        java.util.List<Reaction> reactions = entity.getReactions() != null ? entity.getReactions().stream()
+                .map(r -> Reaction.builder()
+                        .id(r.getId())
+                        .messageId(entity.getId())
+                        .userId(r.getUser().getId())
+                        .reactionType(r.getReactionType())
+                        .build())
+                .collect(java.util.stream.Collectors.toList()) : new java.util.ArrayList<>();
+        
         return Message.builder()
                 .id(entity.getId())
                 .poolId(entity.getPool() != null ? entity.getPool().getId() : null)
@@ -23,6 +34,7 @@ public class MessagePersistenceMapper {
                 .userName(entity.getUser() != null ? entity.getUser().getFullName() : null)
                 .content(entity.getContent())
                 .isPublic(entity.isPublic())
+                .reactions(reactions)
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

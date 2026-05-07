@@ -22,5 +22,6 @@ public class Message {
     private String userName;
     private String content;
     private boolean isPublic;
-    private Instant createdAt;
+    private java.util.List<Reaction> reactions;
+    private java.time.Instant createdAt;
 }
