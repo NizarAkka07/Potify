@@ -66,6 +66,8 @@ public class PoolRestMapper {
                 pool.getInvitedUserIds(),
                 finalImageUrl,
                 pool.getProgressPercentage(),
+                pool.getWallet() != null ? pool.getWallet().getAvailableBalance() : java.math.BigDecimal.ZERO,
+                pool.getWallet() != null ? pool.getWallet().getPendingBalance() : java.math.BigDecimal.ZERO,
                 pool.getCreatedAt(),
                 pool.getUpdatedAt()
         );

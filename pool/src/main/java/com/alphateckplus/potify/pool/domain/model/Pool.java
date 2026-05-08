@@ -73,6 +73,9 @@ public class Pool {
     /** Type MIME de l'image (ex: image/png). */
     private String imageContentType;
 
+    /** Portefeuille financier de la cagnotte. */
+    private Wallet wallet;
+
     // --- Logique Metier ---
 
     /**

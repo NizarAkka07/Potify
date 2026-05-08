@@ -2,11 +2,12 @@ package com.alphateckplus.potify.pool.application_service.primary.pool.create_po
 
 import com.alphateckplus.potify.pool.application_service.primary.command.CreatePoolCommand;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolRepositoryPort;
+import com.alphateckplus.potify.pool.application_service.secondary.pool.WalletRepositoryPort;
 import com.alphateckplus.potify.pool.domain.model.Pool;
 import com.alphateckplus.potify.pool.domain.model.PoolStatus;
+import com.alphateckplus.potify.pool.domain.model.Wallet;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.UUID;
 
 /**
  * Implementation par defaut du service de creation de cagnotte.
@@ -14,9 +15,11 @@ import java.util.UUID;
 public class DefaultCreatePoolService implements CreatePoolService {
 
     private final PoolRepositoryPort poolRepositoryPort;
+    private final WalletRepositoryPort walletRepositoryPort;
 
-    public DefaultCreatePoolService(PoolRepositoryPort poolRepositoryPort) {
+    public DefaultCreatePoolService(PoolRepositoryPort poolRepositoryPort, WalletRepositoryPort walletRepositoryPort) {
         this.poolRepositoryPort = poolRepositoryPort;
+        this.walletRepositoryPort = walletRepositoryPort;
     }
 
     @Override
@@ -28,7 +31,7 @@ public class DefaultCreatePoolService implements CreatePoolService {
                 .category(command.category())
                 .goalAmount(command.goalAmount())
                 .currentAmount(BigDecimal.ZERO)
-                .status(PoolStatus.PUBLIEE) // Directement publiée pour contourner la contrainte DB
+                .status(PoolStatus.PUBLIEE)
                 .type(command.type())
                 .invitedUserIds(command.invitedUserIds())
                 .imageContent(command.imageContent())
@@ -37,6 +40,11 @@ public class DefaultCreatePoolService implements CreatePoolService {
                 .updatedAt(Instant.now())
                 .build();
 
-        return poolRepositoryPort.save(pool);
+        Pool savedPool = poolRepositoryPort.save(pool);
+        
+        // Création automatique du wallet associé
+        walletRepositoryPort.save(Wallet.createEmpty(savedPool.getId()));
+        
+        return savedPool;
     }
 }

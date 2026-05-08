@@ -23,6 +23,8 @@ public record PoolResponse(
     Set<String> invitedUserIds,
     String imageUrl,
     BigDecimal progressPercentage,
+    BigDecimal availableBalance,
+    BigDecimal pendingBalance,
     Instant createdAt,
     Instant updatedAt
 ) {}

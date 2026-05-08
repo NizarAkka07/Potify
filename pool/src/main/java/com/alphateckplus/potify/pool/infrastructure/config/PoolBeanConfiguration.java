@@ -16,9 +16,12 @@ import com.alphateckplus.potify.pool.application_service.primary.pool.message.De
 import com.alphateckplus.potify.pool.application_service.primary.pool.message.MessageService;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.MessageRepositoryPort;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.ReactionRepositoryPort;
+import com.alphateckplus.potify.pool.application_service.secondary.pool.WalletRepositoryPort;
 import com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper.MessagePersistenceMapper;
+import com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper.WalletPersistenceMapper;
 import com.alphateckplus.potify.pool.infrastructure.secondary.pool.repository.MessageJpaAdapter;
 import com.alphateckplus.potify.pool.infrastructure.secondary.pool.repository.ReactionJpaAdapter;
+import com.alphateckplus.potify.pool.infrastructure.secondary.pool.repository.WalletJpaAdapter;
 import com.alphateckplus.potify.data_jpa.repository.pool.MessageEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.pool.CommentReactionEntityRepository;
 import com.alphateckplus.potify.pool.application_service.primary.pool.update_pool.DefaultUpdatePoolService;
@@ -30,6 +33,7 @@ import com.alphateckplus.potify.pool.infrastructure.secondary.contribution.repos
 import com.alphateckplus.potify.pool.infrastructure.secondary.contribution.mapper.ContributionPersistenceMapper;
 import com.alphateckplus.potify.pool.application_service.secondary.contribution.ContributionRepositoryPort;
 import com.alphateckplus.potify.data_jpa.repository.pool.PoolEntityRepository;
+import com.alphateckplus.potify.data_jpa.repository.pool.CagnotteWalletEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.payment.ContributionEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.user.UserEntityRepository;
 import org.springframework.context.annotation.Bean;
@@ -52,6 +56,19 @@ public class PoolBeanConfiguration {
     }
 
     @Bean
+    public WalletPersistenceMapper walletPersistenceMapper() {
+        return new WalletPersistenceMapper();
+    }
+
+    @Bean
+    public WalletRepositoryPort walletRepositoryPort(
+            CagnotteWalletEntityRepository walletEntityRepository,
+            PoolEntityRepository poolEntityRepository,
+            WalletPersistenceMapper walletPersistenceMapper) {
+        return new WalletJpaAdapter(walletEntityRepository, poolEntityRepository, walletPersistenceMapper);
+    }
+
+    @Bean
     public MessagePersistenceMapper messagePersistenceMapper() {
         return new MessagePersistenceMapper();
     }
@@ -66,8 +83,8 @@ public class PoolBeanConfiguration {
     }
 
     @Bean
-    public PoolPersistenceMapper poolPersistenceMapper() {
-        return new PoolPersistenceMapper();
+    public PoolPersistenceMapper poolPersistenceMapper(WalletPersistenceMapper walletPersistenceMapper) {
+        return new PoolPersistenceMapper(walletPersistenceMapper);
     }
 
     @Bean
@@ -100,8 +117,9 @@ public class PoolBeanConfiguration {
     @Bean
     public CreateContributionService createContributionService(
             ContributionRepositoryPort contributionRepositoryPort,
-            PoolRepositoryPort poolRepositoryPort) {
-        return new DefaultCreateContributionService(contributionRepositoryPort, poolRepositoryPort);
+            PoolRepositoryPort poolRepositoryPort,
+            WalletRepositoryPort walletRepositoryPort) {
+        return new DefaultCreateContributionService(contributionRepositoryPort, poolRepositoryPort, walletRepositoryPort);
     }
 
     @Bean
@@ -110,8 +128,8 @@ public class PoolBeanConfiguration {
     }
 
     @Bean
-    public CreatePoolService createPoolService(PoolRepositoryPort poolRepositoryPort) {
-        return new DefaultCreatePoolService(poolRepositoryPort);
+    public CreatePoolService createPoolService(PoolRepositoryPort poolRepositoryPort, WalletRepositoryPort walletRepositoryPort) {
+        return new DefaultCreatePoolService(poolRepositoryPort, walletRepositoryPort);
     }
 
     @Bean

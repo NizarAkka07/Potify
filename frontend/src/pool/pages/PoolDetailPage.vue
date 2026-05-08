@@ -132,6 +132,34 @@
               {{ pool.description }}
             </div>
 
+            <!-- SECTION FINANCIERE (Visible uniquement par le proprietaire) -->
+            <div v-if="isOwner" class="q-mb-xl">
+              <div class="text-h6 text-weight-bold q-mb-md" style="color: #0D1B2E;">
+                <q-icon name="account_balance_wallet" color="primary" class="q-mr-sm" />
+                Tableau de bord financier (Propriétaire)
+              </div>
+              <div class="row q-col-gutter-md">
+                <div class="col-12 col-sm-6">
+                  <q-card flat bordered class="bg-green-1 text-green-9" style="border-radius: 12px;">
+                    <q-card-section>
+                      <div class="text-overline">Solde Disponible</div>
+                      <div class="text-h4 text-weight-bolder">{{ pool.availableBalance || 0 }} €</div>
+                      <div class="text-caption">Prêt à être retiré</div>
+                    </q-card-section>
+                  </q-card>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-card flat bordered class="bg-blue-1 text-blue-9" style="border-radius: 12px;">
+                    <q-card-section>
+                      <div class="text-overline">En attente</div>
+                      <div class="text-h4 text-weight-bolder">{{ pool.pendingBalance || 0 }} €</div>
+                      <div class="text-caption">Contributions en cours de traitement</div>
+                    </q-card-section>
+                  </q-card>
+                </div>
+              </div>
+            </div>
+
             <!-- SECTION : COMMENTAIRES (Messages du Pool) -->
             <div class="text-h5 text-weight-bold q-mb-lg row items-center" style="color: #0D1B2E;">
               <q-icon name="forum" class="q-mr-sm" color="primary" />

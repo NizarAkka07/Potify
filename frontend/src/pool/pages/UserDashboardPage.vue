@@ -43,7 +43,7 @@
           <div v-else-if="userPools.length > 0" class="row q-col-gutter-lg">
             <div v-for="pool in userPools" :key="pool.id" class="col-12 col-sm-6 col-md-4">
               <q-card class="pool-card shadow-1" @click="$router.push(`/pools/${pool.id}`)">
-                <q-img :src="pool.imageUrl || getPlaceholder(pool.category)" style="height: 180px;" fit="cover">
+                <q-img :src="pool.imageUrl || getPlaceholder()" style="height: 180px;" fit="cover">
                   <div class="absolute-top-right q-ma-sm">
                     <q-chip :color="getStatusColor(pool.status)" text-white size="sm" class="text-weight-bold">
                       {{ pool.status }}
@@ -119,9 +119,7 @@
 import { ref, onMounted } from 'vue'
 import { poolApi } from 'boot/axios'
 import authStore from 'src/shared/stores/auth'
-import { useQuasar } from 'quasar'
 
-const $q = useQuasar()
 const tab = ref('pools')
 const userName = authStore.user.value?.firstName || 'Utilisateur'
 const userId = authStore.user.value?.id
@@ -166,7 +164,7 @@ const getStatusColor = (status) => {
   }
 }
 
-const getPlaceholder = (category) => {
+const getPlaceholder = () => {
   return 'https://images.unsplash.com/photo-1469571483350-f18203005d1d?auto=format&fit=crop&q=80&w=800'
 }
 

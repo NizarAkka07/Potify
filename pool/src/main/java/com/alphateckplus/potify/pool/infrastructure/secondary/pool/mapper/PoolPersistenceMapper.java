@@ -5,6 +5,8 @@ import com.alphateckplus.potify.data_jpa.entity.pool.PoolEntity;
 import com.alphateckplus.potify.pool.domain.model.Pool;
 import com.alphateckplus.potify.pool.domain.model.PoolStatus;
 import com.alphateckplus.potify.pool.domain.model.PoolType;
+import com.alphateckplus.potify.pool.domain.model.Wallet;
+import lombok.RequiredArgsConstructor;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +15,10 @@ import java.util.stream.Collectors;
 /**
  * Mapper pour la conversion entre le domaine Pool et l'entite PoolEntity.
  */
+@RequiredArgsConstructor
 public class PoolPersistenceMapper {
+
+    private final WalletPersistenceMapper walletPersistenceMapper;
 
     /**
      * Convertit un objet domaine vers son equivalent JPA.
@@ -70,6 +75,7 @@ public class PoolPersistenceMapper {
                 .imageContentType(entity.getImageContentType())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .wallet(walletPersistenceMapper.toDomain(entity.getWallet()))
                 .build();
     }
 }

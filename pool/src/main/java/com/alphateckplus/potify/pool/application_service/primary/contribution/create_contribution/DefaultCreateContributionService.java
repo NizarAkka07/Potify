@@ -3,12 +3,13 @@ package com.alphateckplus.potify.pool.application_service.primary.contribution.c
 import com.alphateckplus.potify.pool.application_service.primary.command.CreateContributionCommand;
 import com.alphateckplus.potify.pool.application_service.secondary.contribution.ContributionRepositoryPort;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolRepositoryPort;
+import com.alphateckplus.potify.pool.application_service.secondary.pool.WalletRepositoryPort;
 import com.alphateckplus.potify.pool.domain.exception.PoolNotFoundException;
 import com.alphateckplus.potify.pool.domain.model.Contribution;
 import com.alphateckplus.potify.pool.domain.model.ContributionStatus;
 import com.alphateckplus.potify.pool.domain.model.Pool;
+import com.alphateckplus.potify.pool.domain.model.Wallet;
 import java.time.Instant;
-import java.util.UUID;
 
 /**
  * Implementation par defaut du service de creation de contribution.
@@ -17,12 +18,15 @@ public class DefaultCreateContributionService implements CreateContributionServi
 
     private final ContributionRepositoryPort contributionRepositoryPort;
     private final PoolRepositoryPort poolRepositoryPort;
+    private final WalletRepositoryPort walletRepositoryPort;
 
     public DefaultCreateContributionService(
             ContributionRepositoryPort contributionRepositoryPort,
-            PoolRepositoryPort poolRepositoryPort) {
+            PoolRepositoryPort poolRepositoryPort,
+            WalletRepositoryPort walletRepositoryPort) {
         this.contributionRepositoryPort = contributionRepositoryPort;
         this.poolRepositoryPort = poolRepositoryPort;
+        this.walletRepositoryPort = walletRepositoryPort;
     }
 
     @Override
@@ -41,17 +45,24 @@ public class DefaultCreateContributionService implements CreateContributionServi
                 .message(command.message())
                 .anonymous(command.anonymous())
                 .paymentMethod(command.paymentMethod())
-                .status(ContributionStatus.REUSSIE) // On simule un succès direct pour l'instant
+                .status(ContributionStatus.REUSSIE) // Simule un succès direct
                 .createdAt(Instant.now())
                 .validatedAt(Instant.now())
                 .build();
 
         Contribution savedContribution = contributionRepositoryPort.save(contribution);
 
-        // 3. Mettre a jour le montant de la cagnotte si la contribution est reussie
+        // 3. Mises a jour si la contribution est reussie
         if (savedContribution.isSuccessful()) {
+            // Mise a jour du montant global de la cagnotte
             pool.setCurrentAmount(pool.getCurrentAmount().add(savedContribution.getAmount()));
             poolRepositoryPort.save(pool);
+            
+            // Mise a jour du Wallet (Solde disponible)
+            walletRepositoryPort.findByPoolId(pool.getId()).ifPresent(wallet -> {
+                wallet.setAvailableBalance(wallet.getAvailableBalance().add(savedContribution.getAmount()));
+                walletRepositoryPort.save(wallet);
+            });
         }
 
         return savedContribution;
