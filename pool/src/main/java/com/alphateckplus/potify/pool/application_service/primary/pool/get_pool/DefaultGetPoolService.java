@@ -19,4 +19,9 @@ public class DefaultGetPoolService implements GetPoolService {
     public Optional<Pool> execute(String id) {
         return poolRepositoryPort.findById(id);
     }
+
+    @Override
+    public Optional<Pool> execute(String id, String userId, String email) {
+        return poolRepositoryPort.findById(id).filter(pool -> pool.isUserAllowed(userId, email));
+    }
 }

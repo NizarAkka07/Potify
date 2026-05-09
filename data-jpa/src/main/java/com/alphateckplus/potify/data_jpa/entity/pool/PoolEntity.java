@@ -89,6 +89,10 @@ public class PoolEntity extends BaseEntity {
     @Column(name = "image_content_type", length = 50)
     private String imageContentType;
 
-    @jakarta.persistence.OneToOne(mappedBy = "pool", cascade = jakarta.persistence.CascadeType.ALL, fetch = FetchType.LAZY)
+    @jakarta.persistence.OneToOne(mappedBy = "pool", cascade = jakarta.persistence.CascadeType.ALL, fetch = jakarta.persistence.FetchType.LAZY)
     private CagnotteWalletEntity wallet;
+
+    @jakarta.persistence.OneToMany(mappedBy = "pool", cascade = jakarta.persistence.CascadeType.ALL, fetch = jakarta.persistence.FetchType.LAZY)
+    @lombok.Builder.Default
+    private java.util.List<PoolInvitationEntity> invitations = new java.util.ArrayList<>();
 }

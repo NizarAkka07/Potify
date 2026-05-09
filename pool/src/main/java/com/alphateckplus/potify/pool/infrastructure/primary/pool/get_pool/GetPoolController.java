@@ -23,10 +23,13 @@ public class GetPoolController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Recuperer une cagnotte par son ID")
-    public ResponseEntity<PoolResponse> getPool(@PathVariable String id) {
-        return getPoolService.execute(id)
+    public ResponseEntity<PoolResponse> getPool(
+            @PathVariable String id,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String userId,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String email) {
+        return getPoolService.execute(id, userId, email)
                 .map(poolRestMapper::toResponse)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.status(403).build());
     }
 }

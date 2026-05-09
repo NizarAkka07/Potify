@@ -76,6 +76,9 @@ public class Pool {
     /** Portefeuille financier de la cagnotte. */
     private Wallet wallet;
 
+    /** Liste des invitations pour cette cagnotte. */
+    private java.util.List<Invitation> invitations;
+
     // --- Logique Metier ---
 
     /**
@@ -88,12 +91,15 @@ public class Pool {
     /**
      * Verifie si un utilisateur est autorise a voir ou contribuer a la cagnotte.
      */
-    public boolean isUserAllowed(String userId) {
+    public boolean isUserAllowed(String userId, String email) {
         if (PoolType.PUBLIC.equals(this.type)) {
             return true;
         }
         // Pour une tontine, seuls le proprietaire et les invites sont autorises.
-        return userId.equals(ownerId) || invitedUserIds.contains(userId);
+        boolean isInvited = (invitations != null && invitations.stream().anyMatch(i -> i.getEmail().equalsIgnoreCase(email)))
+                || (invitedUserIds != null && invitedUserIds.contains(userId));
+        
+        return userId != null && userId.equals(ownerId) || isInvited;
     }
 
     /**

@@ -24,6 +24,12 @@ import com.alphateckplus.potify.pool.infrastructure.secondary.pool.repository.Re
 import com.alphateckplus.potify.pool.infrastructure.secondary.pool.repository.WalletJpaAdapter;
 import com.alphateckplus.potify.data_jpa.repository.pool.MessageEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.pool.CommentReactionEntityRepository;
+import com.alphateckplus.potify.pool.application_service.primary.pool.invitation.DefaultInvitationService;
+import com.alphateckplus.potify.pool.application_service.primary.pool.invitation.InvitationService;
+import com.alphateckplus.potify.pool.application_service.secondary.pool.InvitationRepositoryPort;
+import com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper.InvitationPersistenceMapper;
+import com.alphateckplus.potify.pool.infrastructure.secondary.pool.repository.InvitationJpaAdapter;
+import com.alphateckplus.potify.data_jpa.repository.pool.PoolInvitationEntityRepository;
 import com.alphateckplus.potify.pool.application_service.primary.pool.update_pool.DefaultUpdatePoolService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.update_pool.UpdatePoolService;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolRepositoryPort;
@@ -69,6 +75,19 @@ public class PoolBeanConfiguration {
     }
 
     @Bean
+    public InvitationPersistenceMapper invitationPersistenceMapper() {
+        return new InvitationPersistenceMapper();
+    }
+
+    @Bean
+    public InvitationRepositoryPort invitationRepositoryPort(
+            PoolInvitationEntityRepository invitationRepository,
+            PoolEntityRepository poolRepository,
+            InvitationPersistenceMapper invitationPersistenceMapper) {
+        return new InvitationJpaAdapter(invitationRepository, poolRepository, invitationPersistenceMapper);
+    }
+
+    @Bean
     public MessagePersistenceMapper messagePersistenceMapper() {
         return new MessagePersistenceMapper();
     }
@@ -83,8 +102,10 @@ public class PoolBeanConfiguration {
     }
 
     @Bean
-    public PoolPersistenceMapper poolPersistenceMapper(WalletPersistenceMapper walletPersistenceMapper) {
-        return new PoolPersistenceMapper(walletPersistenceMapper);
+    public PoolPersistenceMapper poolPersistenceMapper(
+            WalletPersistenceMapper walletPersistenceMapper,
+            InvitationPersistenceMapper invitationPersistenceMapper) {
+        return new PoolPersistenceMapper(walletPersistenceMapper, invitationPersistenceMapper);
     }
 
     @Bean
@@ -155,5 +176,10 @@ public class PoolBeanConfiguration {
     @Bean
     public DeletePoolService deletePoolService(PoolRepositoryPort poolRepositoryPort) {
         return new DefaultDeletePoolService(poolRepositoryPort);
+    }
+
+    @Bean
+    public InvitationService invitationService(InvitationRepositoryPort invitationRepositoryPort) {
+        return new DefaultInvitationService(invitationRepositoryPort);
     }
 }

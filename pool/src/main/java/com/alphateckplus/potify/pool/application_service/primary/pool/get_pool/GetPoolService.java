@@ -15,4 +15,5 @@ public interface GetPoolService {
      * @return Un Optional contenant la cagnotte si trouvee.
      */
     Optional<Pool> execute(String id);
+    Optional<Pool> execute(String id, String userId, String email);
 }

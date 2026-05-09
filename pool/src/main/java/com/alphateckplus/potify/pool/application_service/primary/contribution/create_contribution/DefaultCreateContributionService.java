@@ -31,9 +31,13 @@ public class DefaultCreateContributionService implements CreateContributionServi
 
     @Override
     public Contribution execute(CreateContributionCommand command) {
-        // 1. Verifier l'existence de la cagnotte
+        // 1. Verifier l'existence de la cagnotte et l'acces
         Pool pool = poolRepositoryPort.findById(command.poolId())
                 .orElseThrow(() -> new PoolNotFoundException("Cagnotte non trouvee : " + command.poolId()));
+
+        if (!pool.isUserAllowed(command.userId(), command.contributorEmail())) {
+            throw new IllegalStateException("Vous n'etes pas autorise a contribuer a cette cagnotte privee.");
+        }
 
         // 2. Creer la contribution
         Contribution contribution = Contribution.builder()

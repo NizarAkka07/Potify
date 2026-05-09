@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class PoolPersistenceMapper {
 
     private final WalletPersistenceMapper walletPersistenceMapper;
+    private final InvitationPersistenceMapper invitationPersistenceMapper;
 
     /**
      * Convertit un objet domaine vers son equivalent JPA.
@@ -76,6 +77,9 @@ public class PoolPersistenceMapper {
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .wallet(walletPersistenceMapper.toDomain(entity.getWallet()))
+                .invitations(entity.getInvitations() != null ? 
+                        entity.getInvitations().stream().map(invitationPersistenceMapper::toDomain).collect(Collectors.toList()) : 
+                        null)
                 .build();
     }
 }

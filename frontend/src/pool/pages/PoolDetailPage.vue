@@ -160,6 +160,35 @@
               </div>
             </div>
 
+            <!-- SECTION INVITATIONS (Tontine Privee - Visible uniquement par le proprietaire) -->
+            <div v-if="isOwner && pool.type === 'PRIVATE_TONTINE'" class="q-mb-xl">
+              <div class="text-h6 text-weight-bold q-mb-md" style="color: #0D1B2E;">
+                <q-icon name="person_add" color="primary" class="q-mr-sm" />
+                Inviter des participants
+              </div>
+              <q-card flat bordered style="border-radius: 12px;">
+                <q-card-section>
+                  <div class="row q-col-gutter-md items-center">
+                    <div class="col">
+                      <q-input v-model="inviteEmail" label="Email de l'invité" dense filled color="primary" @keyup.enter="sendInvitation" />
+                    </div>
+                    <div class="col-auto">
+                      <q-btn label="Inviter" color="primary" unelevated @click="sendInvitation" :loading="sendingInvite" />
+                    </div>
+                  </div>
+                  
+                  <div v-if="invitations.length > 0" class="q-mt-md">
+                    <div class="text-caption text-grey-7 q-mb-sm">Membres invités ({{ invitations.length }}) :</div>
+                    <div class="row q-gutter-xs">
+                      <q-chip v-for="inv in invitations" :key="inv.id" outline dense color="primary" size="sm">
+                        {{ inv.email }}
+                      </q-chip>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
+
             <!-- SECTION : COMMENTAIRES (Messages du Pool) -->
             <div class="text-h5 text-weight-bold q-mb-lg row items-center" style="color: #0D1B2E;">
               <q-icon name="forum" class="q-mr-sm" color="primary" />
@@ -371,16 +400,20 @@ import { useQuasar } from 'quasar'
 import authStore from 'src/shared/stores/auth'
 
 const route = useRoute()
+const router = useRouter()
 const $q = useQuasar()
 
+const pool = ref({})
 const loading = ref(true)
 const error = ref(null)
-const pool = ref(null)
 const contributions = ref([])
 const messages = ref([])
+const invitations = ref([])
+const inviteEmail = ref('')
+const sendingInvite = ref(false)
 
 const isOwner = computed(() => {
-  return authStore.isAuthenticated.value && pool.value?.ownerId === authStore.user.value?.id
+  return authStore.isAuthenticated.value && pool.value.ownerId === authStore.user.value?.id
 })
 
 // Gestion des commentaires (Pool Messages)
@@ -515,18 +548,60 @@ const fetchMessages = async () => {
 
 const fetchPool = async () => {
   loading.value = true
-  error.value = null
   try {
-    const id = route.params.id
-    const response = await poolService.getPoolById(id)
+    const response = await poolApi.get(`/pools/${route.params.id}`, {
+      params: {
+        userId: authStore.user.value?.id,
+        email: authStore.user.value?.email
+      }
+    })
     pool.value = response.data
-    await fetchContributions()
     await fetchMessages()
+    if (isOwner.value) {
+      await fetchInvitations()
+    }
   } catch (err) {
     console.error('Erreur chargement cagnotte:', err)
+    if (err.response?.status === 403) {
+      $q.notify({
+        type: 'negative',
+        message: 'Accès refusé : Cette cagnotte est privée.'
+      })
+      router.push('/pools')
+    }
     error.value = 'Cagnotte introuvable.'
   } finally {
     loading.value = false
+  }
+}
+
+const fetchInvitations = async () => {
+  try {
+    const response = await poolApi.get(`/invitations/pool/${route.params.id}`)
+    invitations.value = response.data
+  } catch (err) {
+    console.error('Erreur invitations:', err)
+  }
+}
+
+const sendInvitation = async () => {
+  if (!inviteEmail.value || !inviteEmail.value.includes('@')) {
+    $q.notify({ type: 'warning', message: 'Veuillez saisir un email valide.' })
+    return
+  }
+  
+  sendingInvite.value = true
+  try {
+    await poolApi.post(`/invitations/pool/${pool.value.id}`, null, {
+      params: { email: inviteEmail.value }
+    })
+    $q.notify({ type: 'positive', message: `Invitation envoyée à ${inviteEmail.value}` })
+    inviteEmail.value = ''
+    await fetchInvitations()
+  } catch (err) {
+    console.error('Erreur envoi invitation:', err)
+  } finally {
+    sendingInvite.value = false
   }
 }
 
@@ -554,6 +629,7 @@ const submitContribution = async () => {
     const payload = {
       poolId: pool.value.id,
       userId: user?.id || null,
+      contributorEmail: user?.email || 'anonyme@potify.com',
       amount: contributionForm.amount,
       contributorName: name,
       message: contributionForm.message,
