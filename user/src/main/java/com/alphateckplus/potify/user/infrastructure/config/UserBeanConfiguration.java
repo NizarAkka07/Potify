@@ -37,6 +37,8 @@ import com.alphateckplus.potify.user.application_service.primary.role.update_rol
 import com.alphateckplus.potify.user.application_service.primary.role.update_role.UpdateRoleService;
 import com.alphateckplus.potify.user.application_service.primary.user.update_user.DefaultUpdateUserService;
 import com.alphateckplus.potify.user.application_service.primary.user.update_user.UpdateUserService;
+import com.alphateckplus.potify.user.application_service.primary.user.verify_email.DefaultVerifyEmailService;
+import com.alphateckplus.potify.user.application_service.primary.user.verify_email.VerifyEmailService;
 import com.alphateckplus.potify.user.application_service.secondary.permission.PermissionRepositoryPort;
 import com.alphateckplus.potify.user.application_service.secondary.role.RoleRepositoryPort;
 import com.alphateckplus.potify.user.application_service.secondary.user.UserRepositoryPort;
@@ -46,6 +48,9 @@ import com.alphateckplus.potify.user.infrastructure.secondary.role.mapper.RolePe
 import com.alphateckplus.potify.user.infrastructure.secondary.role.repository.RoleJpaAdapter;
 import com.alphateckplus.potify.user.infrastructure.secondary.user.UserJpaAdapter;
 import com.alphateckplus.potify.user.infrastructure.secondary.user.UserPersistenceMapper;
+import com.alphateckplus.potify.user.application_service.secondary.notification.NotificationPort;
+import com.alphateckplus.potify.user.infrastructure.secondary.notification.EmailNotificationAdapter;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -112,8 +117,13 @@ public class UserBeanConfiguration {
     }
 
     @Bean
-    public CreateUserService createUserService(UserRepositoryPort userRepositoryPort) {
-        return new DefaultCreateUserService(userRepositoryPort);
+    public NotificationPort notificationPort(JavaMailSender mailSender) {
+        return new EmailNotificationAdapter(mailSender);
+    }
+
+    @Bean
+    public CreateUserService createUserService(UserRepositoryPort userRepositoryPort, NotificationPort notificationPort) {
+        return new DefaultCreateUserService(userRepositoryPort, notificationPort);
     }
 
     @Bean
@@ -233,5 +243,10 @@ public class UserBeanConfiguration {
         return new com.alphateckplus.potify.user.application_service.primary.role.remove_permission_from_role.DefaultRemovePermissionFromRoleService(
             roleRepositoryPort, permissionRepositoryPort
         );
+    }
+
+    @Bean
+    public VerifyEmailService verifyEmailService(UserRepositoryPort userRepositoryPort) {
+        return new DefaultVerifyEmailService(userRepositoryPort);
     }
 }

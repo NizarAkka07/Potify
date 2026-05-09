@@ -13,12 +13,16 @@ const routes = [
       { path: 'login', component: () => import('src/user/pages/auth/LoginPage.vue') },
       // Page d'inscription
       { path: 'register', component: () => import('src/user/pages/auth/RegisterPage.vue') },
+      // Verification d'email
+      { path: 'verify-email', component: () => import('src/user/pages/auth/VerifyEmailPage.vue') },
       // Creation de cagnotte
       { path: 'pools/create', component: () => import('src/pool/pages/CreatePoolPage.vue') },
       // Liste des cagnottes publiques
       { path: 'pools', component: () => import('src/pool/pages/PublicPoolsPage.vue') },
       // Détail d'une cagnotte
       { path: 'pools/:id', component: () => import('src/pool/pages/PoolDetailPage.vue') },
+      // Acceptation d'invitation
+      { path: 'pool/invitation', component: () => import('src/pool/pages/AcceptInvitationPage.vue') },
       // Dashboard utilisateur
       { path: 'dashboard', component: () => import('src/pool/pages/UserDashboardPage.vue'), meta: { requiresAuth: true } }
     ]

@@ -30,4 +30,10 @@ public class InvitationController {
     public ResponseEntity<List<Invitation>> getPoolInvitations(@PathVariable String poolId) {
         return ResponseEntity.ok(invitationService.getPoolInvitations(poolId));
     }
+
+    @PostMapping("/accept")
+    @Operation(summary = "Accepter une invitation via token")
+    public ResponseEntity<Invitation> acceptInvitation(@RequestParam String token) {
+        return ResponseEntity.ok(invitationService.acceptInvitation(token));
+    }
 }

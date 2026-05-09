@@ -1,4 +1,4 @@
-package com.alphateckplus.potify.pool.infrastructure.config.security;
+package com.alphateckplus.potify.pool.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,12 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    public SecurityConfig() {
+        System.out.println(">>> [DEBUG] SecurityConfig is being initialized!");
+    }
+
     @Bean
+    @org.springframework.core.annotation.Order(org.springframework.core.Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
@@ -38,7 +43,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:9000", "http://localhost:9001", "http://localhost:9002"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*")); // On autorise tous les headers pour le test
         configuration.setExposedHeaders(List.of("Authorization"));

@@ -92,10 +92,13 @@ const onSubmit = async () => {
 
     $q.notify({
       color: 'positive',
-      message: 'Inscription réussie ! Vous pouvez maintenant vous connecter.',
-      icon: 'check_circle'
+      message: 'Inscription réussie ! Veuillez vérifier votre email pour activer votre compte.',
+      icon: 'email',
+      timeout: 10000
     })
 
+    // Dans un vrai projet, on resterait sur une page "Vérifiez votre email"
+    // Ici on redirige vers login avec un message informatif
     router.push('/login')
   } catch (error) {
     $q.notify({

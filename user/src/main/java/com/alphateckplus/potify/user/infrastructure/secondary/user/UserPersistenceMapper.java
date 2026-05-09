@@ -25,6 +25,7 @@ public class UserPersistenceMapper {
             .accountNonLocked(domain.isAccountNonLocked())
             .failedAttempts(domain.getFailedAttempts())
             .lockTime(domain.getLockTime())
+            .verificationToken(domain.getVerificationToken())
             .build();
     }
 
@@ -44,6 +45,7 @@ public class UserPersistenceMapper {
             .accountNonLocked(entity.isAccountNonLocked())
             .failedAttempts(entity.getFailedAttempts())
             .lockTime(entity.getLockTime())
+            .verificationToken(entity.getVerificationToken())
             .build();
     }
 }

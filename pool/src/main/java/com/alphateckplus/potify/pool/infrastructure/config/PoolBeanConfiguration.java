@@ -42,8 +42,13 @@ import com.alphateckplus.potify.data_jpa.repository.pool.PoolEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.pool.CagnotteWalletEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.payment.ContributionEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.user.UserEntityRepository;
+import com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationPort;
+import com.alphateckplus.potify.pool.infrastructure.secondary.notification.EmailNotificationAdapter;
+import com.alphateckplus.potify.pool.application_service.secondary.pool.UserCheckPort;
+import com.alphateckplus.potify.pool.infrastructure.secondary.pool.UserCheckAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.mail.javamail.JavaMailSender;
 
 /**
  * Configuration explicite des beans du microservice pool.
@@ -179,7 +184,21 @@ public class PoolBeanConfiguration {
     }
 
     @Bean
-    public InvitationService invitationService(InvitationRepositoryPort invitationRepositoryPort) {
-        return new DefaultInvitationService(invitationRepositoryPort);
+    public UserCheckPort userCheckPort(UserEntityRepository userEntityRepository) {
+        return new UserCheckAdapter(userEntityRepository);
+    }
+
+    @Bean
+    public NotificationPort poolNotificationPort(JavaMailSender mailSender) {
+        return new EmailNotificationAdapter(mailSender);
+    }
+
+    @Bean
+    public InvitationService invitationService(
+            InvitationRepositoryPort invitationRepositoryPort,
+            UserCheckPort userCheckPort,
+            NotificationPort poolNotificationPort,
+            PoolRepositoryPort poolRepositoryPort) {
+        return new DefaultInvitationService(invitationRepositoryPort, userCheckPort, poolNotificationPort, poolRepositoryPort);
     }
 }

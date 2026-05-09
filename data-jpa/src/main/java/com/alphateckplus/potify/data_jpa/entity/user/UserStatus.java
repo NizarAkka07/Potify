@@ -8,6 +8,7 @@ package com.alphateckplus.potify.data_jpa.entity.user;
  */
 public enum UserStatus {
     ACTIVE,
+    PENDING_VERIFICATION,
     SUSPENDED,
     DELETED
 }

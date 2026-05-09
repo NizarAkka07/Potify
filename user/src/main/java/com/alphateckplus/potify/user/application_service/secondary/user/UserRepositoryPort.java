@@ -18,6 +18,8 @@ public interface UserRepositoryPort {
 
     Optional<User> findByEmail(String email);
 
+    Optional<User> findByVerificationToken(String token);
+
     List<User> findAll();
 
     boolean existsByEmail(String email);

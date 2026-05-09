@@ -160,8 +160,8 @@
               </div>
             </div>
 
-            <!-- SECTION INVITATIONS (Tontine Privee - Visible uniquement par le proprietaire) -->
-            <div v-if="isOwner && pool.type === 'PRIVATE_TONTINE'" class="q-mb-xl">
+            <!-- SECTION INVITATIONS (Visible uniquement par le proprietaire pour les cagnottes non publiques) -->
+            <div v-if="isOwner && pool.type !== 'PUBLIC'" class="q-mb-xl">
               <div class="text-h6 text-weight-bold q-mb-md" style="color: #0D1B2E;">
                 <q-icon name="person_add" color="primary" class="q-mr-sm" />
                 Inviter des participants
@@ -393,7 +393,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { poolService } from 'src/shared/services/poolService'
 import { poolApi } from 'boot/axios'
 import { useQuasar } from 'quasar'
@@ -557,6 +557,7 @@ const fetchPool = async () => {
     })
     pool.value = response.data
     await fetchMessages()
+    await fetchContributions()
     if (isOwner.value) {
       await fetchInvitations()
     }
@@ -600,6 +601,8 @@ const sendInvitation = async () => {
     await fetchInvitations()
   } catch (err) {
     console.error('Erreur envoi invitation:', err)
+    const errorMsg = err.response?.data?.message || 'Une erreur est survenue lors de l\'envoi de l\'invitation.'
+    $q.notify({ type: 'negative', message: errorMsg })
   } finally {
     sendingInvite.value = false
   }

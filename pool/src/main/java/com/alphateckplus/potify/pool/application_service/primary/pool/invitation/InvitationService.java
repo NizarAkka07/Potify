@@ -7,4 +7,5 @@ public interface InvitationService {
     Invitation inviteUser(String poolId, String email);
     List<Invitation> getPoolInvitations(String poolId);
     boolean isUserInvited(String poolId, String email);
+    Invitation acceptInvitation(String token);
 }

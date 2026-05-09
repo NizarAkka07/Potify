@@ -35,6 +35,10 @@ public class LoginUserUseCase {
         User user = userRepositoryPort.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadCredentialsException("Email ou mot de passe incorrect"));
 
+        if (user.getStatus() == com.alphateckplus.potify.user.domain.model.UserStatus.PENDING_VERIFICATION) {
+            throw new BadCredentialsException("Veuillez vérifier votre email avant de vous connecter.");
+        }
+
         // Vérifier si le compte est verrouillé
         if (!user.isAccountNonLocked()) {
             if (user.isLockExpired()) {

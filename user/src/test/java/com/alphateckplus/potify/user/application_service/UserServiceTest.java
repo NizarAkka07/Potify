@@ -10,6 +10,7 @@ import com.alphateckplus.potify.user.application_service.primary.user.create_use
 import com.alphateckplus.potify.user.application_service.primary.user.update_user.DefaultUpdateUserService;
 import com.alphateckplus.potify.user.application_service.primary.command.CreateUserCommand;
 import com.alphateckplus.potify.user.application_service.primary.command.UpdateUserCommand;
+import com.alphateckplus.potify.user.application_service.secondary.notification.NotificationPort;
 import com.alphateckplus.potify.user.application_service.secondary.user.UserRepositoryPort;
 import com.alphateckplus.potify.user.domain.exception.UserAlreadyExistsException;
 import com.alphateckplus.potify.user.domain.model.User;
@@ -32,12 +33,15 @@ class UserServiceTest {
     @Mock
     private UserRepositoryPort userRepositoryPort;
 
+    @Mock
+    private NotificationPort notificationPort;
+
     private DefaultCreateUserService defaultCreateUserService;
     private DefaultUpdateUserService defaultUpdateUserService;
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        defaultCreateUserService = new DefaultCreateUserService(userRepositoryPort);
+        defaultCreateUserService = new DefaultCreateUserService(userRepositoryPort, notificationPort);
         defaultUpdateUserService = new DefaultUpdateUserService(userRepositoryPort);
     }
 
@@ -72,7 +76,7 @@ class UserServiceTest {
         User result = defaultCreateUserService.execute(command);
 
         // Assert: verification de l'etat metier et de l'appel repository.
-        assertThat(result.getStatus()).isEqualTo(UserStatus.ACTIVE);
+        assertThat(result.getStatus()).isEqualTo(UserStatus.PENDING_VERIFICATION);
         assertThat(result.getEmail()).isEqualTo("nizar@example.com");
         verify(userRepositoryPort).save(any(User.class));
     }

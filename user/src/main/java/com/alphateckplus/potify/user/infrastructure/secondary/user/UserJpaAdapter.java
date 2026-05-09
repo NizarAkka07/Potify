@@ -50,6 +50,7 @@ public class UserJpaAdapter implements UserRepositoryPort {
             if (user.getStatus() != null) {
                 userEntity.setStatus(com.alphateckplus.potify.data_jpa.entity.user.UserStatus.valueOf(user.getStatus().name()));
             }
+            userEntity.setVerificationToken(user.getVerificationToken());
             // Do not overwrite roles to prevent wiping them out
         } else {
             userEntity = userPersistenceMapper.toEntity(user);
@@ -67,6 +68,12 @@ public class UserJpaAdapter implements UserRepositoryPort {
     @Override
     public Optional<User> findByEmail(String email) {
         return userEntityRepository.findByEmail(email)
+            .map(userPersistenceMapper::toDomain);
+    }
+
+    @Override
+    public Optional<User> findByVerificationToken(String token) {
+        return userEntityRepository.findByVerificationToken(token)
             .map(userPersistenceMapper::toDomain);
     }
 

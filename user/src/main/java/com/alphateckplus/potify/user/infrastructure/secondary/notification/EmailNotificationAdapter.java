@@ -1,0 +1,38 @@
+package com.alphateckplus.potify.user.infrastructure.secondary.notification;
+
+import com.alphateckplus.potify.user.application_service.secondary.notification.NotificationPort;
+import lombok.RequiredArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class EmailNotificationAdapter implements NotificationPort {
+
+    private final JavaMailSender mailSender;
+
+    @Override
+    public void sendVerificationEmail(String email, String fullName, String token) {
+        String verificationUrl = "http://localhost:9000/#/verify-email?token=" + token;
+        
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Bienvenue sur Potify - Vérifiez votre compte");
+        message.setText("Bonjour " + fullName + ",\n\n" +
+                "Merci de vous être inscrit sur Potify. Pour activer votre compte, veuillez cliquer sur le lien suivant :\n" +
+                verificationUrl + "\n\n" +
+                "Si vous n'êtes pas à l'origine de cette inscription, ignorez cet email.\n\n" +
+                "L'équipe Potify");
+        
+        try {
+            System.out.println(">>> [MAIL] Envoi de l'email à : " + email);
+            mailSender.send(message);
+            System.out.println(">>> [MAIL] Email envoyé avec succès !");
+        } catch (Exception e) {
+            System.err.println(">>> [MAIL] ERREUR lors de l'envoi de l'email : " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de l'envoi de l'email de confirmation. " + e.getMessage());
+        }
+    }
+}

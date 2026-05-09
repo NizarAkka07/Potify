@@ -86,4 +86,7 @@ public class UserEntity extends BaseEntity {
 
     @Column(name = "lock_time")
     private LocalDateTime lockTime;
+
+    @Column(name = "verification_token", length = 100)
+    private String verificationToken;
 }

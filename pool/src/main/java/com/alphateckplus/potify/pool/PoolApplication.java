@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
+@org.springframework.context.annotation.ComponentScan(basePackages = "com.alphateckplus.potify.pool")
 @EnableJpaAuditing
 @EnableJpaRepositories(basePackages = "com.alphateckplus.potify.data_jpa.repository")
 @EntityScan(basePackages = "com.alphateckplus.potify.data_jpa.entity")

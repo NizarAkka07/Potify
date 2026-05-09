@@ -31,6 +31,7 @@ public class DataInitializer implements CommandLineRunner {
     private final RoleEntityRepository roleRepository;
     private final PermissionEntityRepository permissionRepository;
     private final PasswordEncoder passwordEncoder;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
     /**
      * Méthode exécutée au démarrage.
@@ -39,6 +40,15 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional // Garantit que toute l'initialisation se fait dans une seule transaction atomique
     public void run(String... args) {
+        // Nettoyage des contraintes obsolètes (Hibernate génère des CHECK constraints rigides)
+        try {
+            System.out.println(">>> [Nettoyage] Suppression de la contrainte users_status_check...");
+            jdbcTemplate.execute("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_status_check");
+            System.out.println(">>> [Nettoyage] Contrainte supprimée avec succès.");
+        } catch (Exception e) {
+            System.out.println(">>> [Nettoyage] Info: Pas de contrainte à supprimer ou erreur : " + e.getMessage());
+        }
+
         // Vérification du nombre d'utilisateurs actuels
         long userCount = userRepository.count();
         System.out.println(">>> [Initialisation] Nombre d'utilisateurs en base : " + userCount);
