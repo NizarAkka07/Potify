@@ -64,7 +64,7 @@ onMounted(async () => {
   }
 
   try {
-    const response = await api.get(`/auth/verify-email?token=${token}`)
+    await api.get(`/auth/verify-email?token=${token}`)
     success.value = true
   } catch (error) {
     success.value = false

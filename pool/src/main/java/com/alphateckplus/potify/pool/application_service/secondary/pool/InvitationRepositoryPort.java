@@ -9,4 +9,5 @@ public interface InvitationRepositoryPort {
     List<Invitation> findByPoolId(String poolId);
     Optional<Invitation> findByPoolIdAndEmail(String poolId, String email);
     Optional<Invitation> findByToken(String token);
+    void deleteById(String id);
 }

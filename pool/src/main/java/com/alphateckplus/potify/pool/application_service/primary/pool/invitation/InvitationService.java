@@ -8,4 +8,5 @@ public interface InvitationService {
     List<Invitation> getPoolInvitations(String poolId);
     boolean isUserInvited(String poolId, String email);
     Invitation acceptInvitation(String token);
+    void deleteInvitation(String invitationId);
 }

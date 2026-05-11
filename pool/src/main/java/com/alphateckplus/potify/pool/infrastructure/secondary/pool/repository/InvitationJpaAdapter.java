@@ -46,4 +46,9 @@ public class InvitationJpaAdapter implements InvitationRepositoryPort {
     public Optional<Invitation> findByToken(String token) {
         return invitationRepository.findByToken(token).map(mapper::toDomain);
     }
+
+    @Override
+    public void deleteById(String id) {
+        invitationRepository.deleteById(id);
+    }
 }

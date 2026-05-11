@@ -64,4 +64,9 @@ public class DefaultInvitationService implements InvitationService {
         invitation.setStatus("ACCEPTED");
         return invitationRepositoryPort.save(invitation);
     }
+
+    @Override
+    public void deleteInvitation(String invitationId) {
+        invitationRepositoryPort.deleteById(invitationId);
+    }
 }

@@ -36,4 +36,11 @@ public class InvitationController {
     public ResponseEntity<Invitation> acceptInvitation(@RequestParam String token) {
         return ResponseEntity.ok(invitationService.acceptInvitation(token));
     }
+
+    @DeleteMapping("/{invitationId}")
+    @Operation(summary = "Supprimer une invitation")
+    public ResponseEntity<Void> deleteInvitation(@PathVariable String invitationId) {
+        invitationService.deleteInvitation(invitationId);
+        return ResponseEntity.noContent().build();
+    }
 }

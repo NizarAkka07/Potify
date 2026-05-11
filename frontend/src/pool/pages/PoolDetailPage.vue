@@ -180,8 +180,9 @@
                   <div v-if="invitations.length > 0" class="q-mt-md">
                     <div class="text-caption text-grey-7 q-mb-sm">Membres invités ({{ invitations.length }}) :</div>
                     <div class="row q-gutter-xs">
-                      <q-chip v-for="inv in invitations" :key="inv.id" outline dense color="primary" size="sm">
+                      <q-chip v-for="inv in invitations" :key="inv.id" outline dense color="primary" size="sm" removable @remove="removeInvitation(inv.id)">
                         {{ inv.email }}
+                        <q-tooltip>Supprimer l'invitation</q-tooltip>
                       </q-chip>
                     </div>
                   </div>
@@ -583,6 +584,24 @@ const fetchInvitations = async () => {
   } catch (err) {
     console.error('Erreur invitations:', err)
   }
+}
+
+const removeInvitation = async (invitationId) => {
+  $q.dialog({
+    title: 'Confirmer',
+    message: 'Voulez-vous vraiment supprimer cette invitation ?',
+    cancel: true,
+    persistent: true
+  }).onOk(async () => {
+    try {
+      await poolApi.delete(`/invitations/${invitationId}`)
+      $q.notify({ type: 'positive', message: 'Invitation supprimée' })
+      await fetchInvitations()
+    } catch (err) {
+      console.error('Erreur suppression invitation:', err)
+      $q.notify({ type: 'negative', message: 'Erreur lors de la suppression' })
+    }
+  })
 }
 
 const sendInvitation = async () => {
