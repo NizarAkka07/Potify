@@ -15,4 +15,11 @@ public class UserCheckAdapter implements UserCheckPort {
     public boolean existsByEmail(String email) {
         return userEntityRepository.existsByEmail(email);
     }
+
+    @Override
+    public String getEmailById(String userId) {
+        return userEntityRepository.findById(userId)
+                .map(user -> user.getEmail())
+                .orElse(null);
+    }
 }

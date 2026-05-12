@@ -116,13 +116,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { poolApi } from 'boot/axios'
 import authStore from 'src/shared/stores/auth'
 
 const tab = ref('pools')
-const userName = authStore.user.value?.firstName || 'Utilisateur'
-const userId = authStore.user.value?.id
+const userName = computed(() => authStore.user.value?.firstName || 'Utilisateur')
+const userId = computed(() => authStore.user.value?.id)
 
 const userPools = ref([])
 const userContributions = ref([])
@@ -130,10 +130,12 @@ const loadingPools = ref(false)
 const loadingContributions = ref(false)
 
 const fetchUserPools = async () => {
-  if (!userId) return
+  if (!userId.value) return
   loadingPools.value = true
   try {
-    const response = await poolApi.get(`/pools/user/${userId}`)
+    const response = await poolApi.get(`/pools/user/${userId.value}`, {
+      params: { email: authStore.user.value?.email }
+    })
     userPools.value = response.data
   } catch (error) {
     console.error(error)
@@ -143,10 +145,10 @@ const fetchUserPools = async () => {
 }
 
 const fetchUserContributions = async () => {
-  if (!userId) return
+  if (!userId.value) return
   loadingContributions.value = true
   try {
-    const response = await poolApi.get(`/contributions/user/${userId}`)
+    const response = await poolApi.get(`/contributions/user/${userId.value}`)
     userContributions.value = response.data
   } catch (error) {
     console.error(error)
@@ -177,9 +179,18 @@ const formatDate = (dateStr) => {
 }
 
 onMounted(() => {
-  fetchUserPools()
-  fetchUserContributions()
+  if (userId.value) {
+    fetchUserPools()
+    fetchUserContributions()
+  }
 })
+
+watch(userId, (newId) => {
+  if (newId) {
+    fetchUserPools()
+    fetchUserContributions()
+  }
+}, { immediate: true })
 </script>
 
 <style scoped>

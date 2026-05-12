@@ -61,4 +61,9 @@ public interface PoolRepositoryPort {
      * @param id L'identifiant de la cagnotte.
      */
     void deleteById(String id);
+
+    /**
+     * Liste les cagnottes liees a un utilisateur (proprietaires ou invitees).
+     */
+    List<Pool> findByUser(String userId, String email);
 }

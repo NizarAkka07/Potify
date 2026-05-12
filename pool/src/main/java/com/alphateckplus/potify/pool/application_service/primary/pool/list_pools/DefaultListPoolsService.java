@@ -37,4 +37,9 @@ public class DefaultListPoolsService implements ListPoolsService {
     public List<Pool> findByOwnerId(String ownerId) {
         return poolRepositoryPort.findByOwnerId(ownerId);
     }
+
+    @Override
+    public List<Pool> findByUser(String userId, String email) {
+        return poolRepositoryPort.findByUser(userId, email);
+    }
 }

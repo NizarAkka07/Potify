@@ -88,4 +88,11 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     public void deleteById(String id) {
         poolEntityRepository.deleteById(id);
     }
+
+    @Override
+    public List<Pool> findByUser(String userId, String email) {
+        return poolEntityRepository.findByUser(userId, email).stream()
+                .map(poolPersistenceMapper::toDomain)
+                .toList();
+    }
 }

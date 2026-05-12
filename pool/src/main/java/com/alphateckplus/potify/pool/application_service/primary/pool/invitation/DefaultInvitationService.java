@@ -21,12 +21,22 @@ public class DefaultInvitationService implements InvitationService {
 
     @Override
     public Invitation inviteUser(String poolId, String email) {
-        // 1. Verifier si l'utilisateur existe dans le systeme
+        // 1. Charger la cagnotte
+        Pool pool = poolRepositoryPort.findById(poolId)
+                .orElseThrow(() -> new RuntimeException("Cagnotte introuvable"));
+
+        // 2. Verifier si l'utilisateur invite est le proprietaire
+        String ownerEmail = userCheckPort.getEmailById(pool.getOwnerId());
+        if (email.equalsIgnoreCase(ownerEmail)) {
+            throw new RuntimeException("Vous ne pouvez pas vous inviter vous-même à votre propre cagnotte.");
+        }
+
+        // 3. Verifier si l'utilisateur existe dans le systeme
         if (!userCheckPort.existsByEmail(email)) {
             throw new UserNotFoundException(email);
         }
 
-        // 2. Verifier si deja invite
+        // 4. Verifier si deja invite
         return invitationRepositoryPort.findByPoolIdAndEmail(poolId, email)
                 .orElseGet(() -> {
                     Invitation invitation = Invitation.builder()
@@ -37,9 +47,7 @@ public class DefaultInvitationService implements InvitationService {
                             .build();
                     Invitation saved = invitationRepositoryPort.save(invitation);
                     
-                    // 3. Envoyer l'email d'invitation
-                    Pool pool = poolRepositoryPort.findById(poolId)
-                            .orElseThrow(() -> new RuntimeException("Cagnotte introuvable"));
+                    // 5. Envoyer l'email d'invitation
                     notificationPort.sendInvitationEmail(email, pool.getTitle(), saved.getToken());
                     
                     return saved;

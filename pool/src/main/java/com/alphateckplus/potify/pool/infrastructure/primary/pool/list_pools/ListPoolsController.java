@@ -41,10 +41,12 @@ public class ListPoolsController {
     }
 
     @GetMapping("/user/{userId}")
-    @Operation(summary = "Lister les cagnottes d'un utilisateur specifique")
+    @Operation(summary = "Lister les cagnottes d'un utilisateur (proprietaires et invitees)")
     public ResponseEntity<List<PoolResponse>> listUserPools(
-            @org.springframework.web.bind.annotation.PathVariable String userId) {
-        List<PoolResponse> pools = listPoolsService.findByOwnerId(userId).stream()
+            @org.springframework.web.bind.annotation.PathVariable String userId,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String email) {
+        String effectiveEmail = (email != null) ? email : "";
+        List<PoolResponse> pools = listPoolsService.findByUser(userId, effectiveEmail).stream()
                 .map(poolRestMapper::toResponse)
                 .toList();
         return ResponseEntity.ok(pools);

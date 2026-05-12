@@ -641,6 +641,11 @@ const sendInvitation = async () => {
     $q.notify({ type: 'warning', message: 'Veuillez saisir un email valide.' })
     return
   }
+
+  if (inviteEmail.value.toLowerCase() === authStore.user.value?.email.toLowerCase()) {
+    $q.notify({ type: 'warning', message: 'Vous ne pouvez pas vous inviter vous-même.' })
+    return
+  }
   
   sendingInvite.value = true
   try {
