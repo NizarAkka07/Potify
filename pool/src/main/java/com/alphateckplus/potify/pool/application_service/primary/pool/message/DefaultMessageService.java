@@ -26,4 +26,10 @@ public class DefaultMessageService implements MessageService {
     public void toggleReaction(String messageId, String userId, String type) {
         reactionRepositoryPort.addOrRemoveReaction(messageId, userId, type);
     }
+
+    @Override
+    public Message getMessage(String messageId) {
+        return messageRepositoryPort.findById(messageId)
+                .orElseThrow(() -> new RuntimeException("Message introuvable"));
+    }
 }

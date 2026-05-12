@@ -50,4 +50,9 @@ public class MessageJpaAdapter implements MessageRepositoryPort {
     public void deleteById(String id) {
         messageEntityRepository.deleteById(id);
     }
+
+    @Override
+    public java.util.Optional<Message> findById(String id) {
+        return messageEntityRepository.findById(id).map(mapper::toDomain);
+    }
 }

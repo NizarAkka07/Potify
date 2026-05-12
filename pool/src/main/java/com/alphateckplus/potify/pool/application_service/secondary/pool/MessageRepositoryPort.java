@@ -7,4 +7,5 @@ public interface MessageRepositoryPort {
     Message save(Message message);
     List<Message> findByPoolId(String poolId);
     void deleteById(String id);
+    java.util.Optional<Message> findById(String id);
 }

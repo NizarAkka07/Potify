@@ -393,7 +393,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { poolService } from 'src/shared/services/poolService'
 import { poolApi } from 'boot/axios'
@@ -412,6 +412,7 @@ const messages = ref([])
 const invitations = ref([])
 const inviteEmail = ref('')
 const sendingInvite = ref(false)
+let messageEventSource = null
 
 const isOwner = computed(() => {
   return authStore.isAuthenticated.value && pool.value.ownerId === authStore.user.value?.id
@@ -544,6 +545,37 @@ const fetchMessages = async () => {
     messages.value = response.data
   } catch (err) {
     console.error('Erreur chargement messages:', err)
+  }
+}
+
+const setupMessageSSE = () => {
+  if (messageEventSource) {
+    messageEventSource.close()
+  }
+
+  const url = `http://localhost:8082/api/messages/pool/${route.params.id}/stream`
+  messageEventSource = new EventSource(url)
+
+  messageEventSource.addEventListener('message', (event) => {
+    try {
+      const newMessage = JSON.parse(event.data)
+      const index = messages.value.findIndex(m => m.id === newMessage.id)
+      if (index !== -1) {
+        // Mise a jour (ex: nouvelle reaction)
+        messages.value[index] = newMessage
+      } else {
+        // Nouveau message : Ajouter au debut de la liste
+        messages.value.unshift(newMessage)
+      }
+    } catch (e) {
+      console.error('Error parsing SSE message:', e)
+    }
+  })
+
+  messageEventSource.onerror = (err) => {
+    console.error('SSE Connection Error:', err)
+    // Tentative de reconnexion automatique par le navigateur par defaut, 
+    // mais on log l'erreur.
   }
 }
 
@@ -681,7 +713,16 @@ const submitContribution = async () => {
   }
 }
 
-onMounted(fetchPool)
+onMounted(async () => {
+  await fetchPool()
+  setupMessageSSE()
+})
+
+onUnmounted(() => {
+  if (messageEventSource) {
+    messageEventSource.close()
+  }
+})
 </script>
 
 <style scoped>
