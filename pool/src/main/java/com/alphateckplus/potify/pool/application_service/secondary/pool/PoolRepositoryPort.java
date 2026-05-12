@@ -66,4 +66,13 @@ public interface PoolRepositoryPort {
      * Liste les cagnottes liees a un utilisateur (proprietaires ou invitees).
      */
     List<Pool> findByUser(String userId, String email);
+
+    /**
+     * Liste uniquement les cagnottes auxquelles l'utilisateur a ete invite (pas proprietaire).
+     *
+     * @param userId L'identifiant de l'utilisateur.
+     * @param email L'email de l'utilisateur.
+     * @return La liste des cagnottes.
+     */
+    List<Pool> findInvitedPools(String userId, String email);
 }

@@ -51,12 +51,14 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Pool> findById(String id) {
         return poolEntityRepository.findById(id)
                 .map(poolPersistenceMapper::toDomain);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Pool> findAll() {
         return poolEntityRepository.findAll().stream()
                 .map(poolPersistenceMapper::toDomain)
@@ -64,6 +66,7 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Pool> findPublicPools() {
         return poolEntityRepository.findByType("PUBLIC").stream()
                 .map(poolPersistenceMapper::toDomain)
@@ -71,6 +74,7 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Pool> searchPublicPools(String query) {
         return poolEntityRepository.findByTypeAndTitleContainingIgnoreCase("PUBLIC", query).stream()
                 .map(poolPersistenceMapper::toDomain)
@@ -78,6 +82,7 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Pool> findByOwnerId(String ownerId) {
         return poolEntityRepository.findByOwnerId(ownerId).stream()
                 .map(poolPersistenceMapper::toDomain)
@@ -90,8 +95,17 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Pool> findByUser(String userId, String email) {
         return poolEntityRepository.findByUser(userId, email).stream()
+                .map(poolPersistenceMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Pool> findInvitedPools(String userId, String email) {
+        return poolEntityRepository.findInvitedPools(userId, email).stream()
                 .map(poolPersistenceMapper::toDomain)
                 .toList();
     }

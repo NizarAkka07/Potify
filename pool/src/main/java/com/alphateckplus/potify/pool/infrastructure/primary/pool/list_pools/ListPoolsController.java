@@ -51,4 +51,16 @@ public class ListPoolsController {
                 .toList();
         return ResponseEntity.ok(pools);
     }
+
+    @GetMapping("/user/{userId}/invited")
+    @Operation(summary = "Lister uniquement les cagnottes auxquelles l'utilisateur a ete invite")
+    public ResponseEntity<List<PoolResponse>> listInvitedPools(
+            @org.springframework.web.bind.annotation.PathVariable String userId,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String email) {
+        String effectiveEmail = (email != null) ? email : "";
+        List<PoolResponse> pools = listPoolsService.findInvitedPools(userId, effectiveEmail).stream()
+                .map(poolRestMapper::toResponse)
+                .toList();
+        return ResponseEntity.ok(pools);
+    }
 }

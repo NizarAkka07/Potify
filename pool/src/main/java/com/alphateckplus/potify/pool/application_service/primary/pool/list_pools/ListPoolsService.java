@@ -46,4 +46,13 @@ public interface ListPoolsService {
      * @return La liste des cagnottes.
      */
     List<Pool> findByUser(String userId, String email);
+
+    /**
+     * Liste uniquement les cagnottes auxquelles l'utilisateur a ete invite (pas proprietaire).
+     *
+     * @param userId L'identifiant de l'utilisateur.
+     * @param email L'email de l'utilisateur.
+     * @return La liste des cagnottes invitees.
+     */
+    List<Pool> findInvitedPools(String userId, String email);
 }
