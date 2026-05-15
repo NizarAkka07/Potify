@@ -37,6 +37,7 @@ public class DefaultCreatePoolService implements CreatePoolService {
                 .imageContent(command.imageContent())
                 .imageContentType(command.imageContentType())
                 .videoUrl(command.videoUrl())
+                .parentId(command.parentId())
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();

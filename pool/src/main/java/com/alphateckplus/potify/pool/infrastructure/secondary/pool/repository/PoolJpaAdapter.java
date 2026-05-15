@@ -40,7 +40,7 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
             entity.setOwner(owner);
         }
 
-        if (pool.getParentId() != null) {
+        if (pool.getParentId() != null && !pool.getParentId().isBlank()) {
             PoolEntity parent = poolEntityRepository.findById(pool.getParentId())
                     .orElseThrow(() -> new IllegalArgumentException("Cagnotte parente non trouvee : " + pool.getParentId()));
             entity.setParent(parent);

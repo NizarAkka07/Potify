@@ -19,5 +19,6 @@ public record CreatePoolCommand(
     Set<String> invitedUserIds,
     byte[] imageContent,
     String imageContentType,
-    String videoUrl
+    String videoUrl,
+    String parentId
 ) {}

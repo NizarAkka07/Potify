@@ -79,10 +79,52 @@ public class Pool {
     /** Portefeuille financier de la cagnotte. */
     private Wallet wallet;
 
+    /** Liste des cagnottes filles (phases). */
+    @Builder.Default
+    private java.util.List<Pool> children = new java.util.ArrayList<>();
+
     /** Liste des invitations pour cette cagnotte. */
     private java.util.List<Invitation> invitations;
 
     // --- Logique Metier ---
+
+    /**
+     * Recupere le montant actuel. 
+     * Si la cagnotte a des phases, le montant est la somme des montants des phases.
+     */
+    public BigDecimal getCurrentAmount() {
+        if (children != null && !children.isEmpty()) {
+            return children.stream()
+                    .map(Pool::getCurrentAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+        return currentAmount != null ? currentAmount : BigDecimal.ZERO;
+    }
+
+    /**
+     * Recupere l'objectif financier.
+     * Si la cagnotte a des phases, l'objectif est la somme des objectifs des phases.
+     */
+    public BigDecimal getGoalAmount() {
+        if (children != null && !children.isEmpty()) {
+            return children.stream()
+                    .map(Pool::getGoalAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+        return goalAmount != null ? goalAmount : BigDecimal.ZERO;
+    }
+
+    /**
+     * Identifie la phase active (la premiere qui n'est pas cloturee).
+     */
+    public java.util.Optional<Pool> getActivePhase() {
+        if (children == null || children.isEmpty()) {
+            return java.util.Optional.empty();
+        }
+        return children.stream()
+                .filter(p -> !PoolStatus.CLOTUREE.equals(p.getStatus()) && !PoolStatus.ARCHIVEE.equals(p.getStatus()))
+                .findFirst();
+    }
 
     /**
      * Verifie si la cagnotte est de type Tontine.
@@ -128,10 +170,12 @@ public class Pool {
      * Calcule le pourcentage de progression.
      */
     public BigDecimal getProgressPercentage() {
-        if (goalAmount == null || goalAmount.compareTo(BigDecimal.ZERO) == 0) {
+        BigDecimal goal = getGoalAmount();
+        BigDecimal current = getCurrentAmount();
+        if (goal == null || goal.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
-        return currentAmount.multiply(new BigDecimal("100"))
-                .divide(goalAmount, 2, RoundingMode.HALF_UP);
+        return current.multiply(new BigDecimal("100"))
+                .divide(goal, 2, RoundingMode.HALF_UP);
     }
 }

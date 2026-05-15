@@ -38,6 +38,7 @@ public class PoolRestMapper {
                 .imageContent(imageBytes)
                 .imageContentType(request.imageContentType())
                 .videoUrl(request.videoUrl())
+                .parentId(request.parentId())
                 .build();
     }
 
@@ -70,6 +71,9 @@ public class PoolRestMapper {
                 pool.getProgressPercentage(),
                 pool.getWallet() != null ? pool.getWallet().getAvailableBalance() : java.math.BigDecimal.ZERO,
                 pool.getWallet() != null ? pool.getWallet().getPendingBalance() : java.math.BigDecimal.ZERO,
+                pool.getChildren() != null ? 
+                        pool.getChildren().stream().map(this::toResponse).collect(java.util.stream.Collectors.toList()) : 
+                        new java.util.ArrayList<>(),
                 pool.getCreatedAt(),
                 pool.getUpdatedAt()
         );

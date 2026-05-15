@@ -39,9 +39,16 @@ public class DefaultCreateContributionService implements CreateContributionServi
             throw new IllegalStateException("Vous n'etes pas autorise a contribuer a cette cagnotte privee.");
         }
 
+        // Logic for phases: if it's a main pool with children, redirect to the active phase
+        Pool targetPool = pool;
+        if (pool.getChildren() != null && !pool.getChildren().isEmpty()) {
+            targetPool = pool.getActivePhase()
+                    .orElseThrow(() -> new IllegalStateException("Toutes les phases de cette cagnotte sont terminees."));
+        }
+
         // 2. Creer la contribution
         Contribution contribution = Contribution.builder()
-                .poolId(command.poolId())
+                .poolId(targetPool.getId())
                 .userId(command.userId())
                 .contributorEmail(command.contributorEmail())
                 .contributorName(command.contributorName())
@@ -58,12 +65,12 @@ public class DefaultCreateContributionService implements CreateContributionServi
 
         // 3. Mises a jour si la contribution est reussie
         if (savedContribution.isSuccessful()) {
-            // Mise a jour du montant global de la cagnotte
-            pool.setCurrentAmount(pool.getCurrentAmount().add(savedContribution.getAmount()));
-            poolRepositoryPort.save(pool);
+            // Mise a jour du montant global de la cagnotte (la phase cible)
+            targetPool.setCurrentAmount(targetPool.getCurrentAmount().add(savedContribution.getAmount()));
+            poolRepositoryPort.save(targetPool);
             
-            // Mise a jour du Wallet (Solde disponible)
-            walletRepositoryPort.findByPoolId(pool.getId()).ifPresent(wallet -> {
+            // Mise a jour du Wallet de la phase cible
+            walletRepositoryPort.findByPoolId(targetPool.getId()).ifPresent(wallet -> {
                 wallet.setAvailableBalance(wallet.getAvailableBalance().add(savedContribution.getAmount()));
                 walletRepositoryPort.save(wallet);
             });

@@ -3,8 +3,12 @@
     <q-card class="shadow-4" style="width: 100%; max-width: 600px; border-radius: 8px; overflow: hidden;">
       <!-- Header Akkodis Style -->
       <div class="q-pa-lg text-white" style="background: #0D1B2E;">
-        <div class="text-h5 text-weight-bold">Créer une nouvelle cagnotte</div>
-        <div class="text-subtitle2" style="color: rgba(255,255,255,0.7);">Donnez vie à votre projet solidaire en quelques étapes.</div>
+        <div class="text-h5 text-weight-bold">
+          {{ form.parentId ? 'Ajouter une phase' : 'Créer une nouvelle cagnotte' }}
+        </div>
+        <div class="text-subtitle2" style="color: rgba(255,255,255,0.7);">
+          {{ form.parentId ? 'Cette phase sera liée à votre cagnotte principale.' : 'Donnez vie à votre projet solidaire en quelques étapes.' }}
+        </div>
       </div>
 
       <q-form @submit="onSubmit" class="q-pa-xl q-gutter-md">
@@ -54,7 +58,66 @@
               lazy-rules
               :rules="[ val => val > 0 || 'Le montant doit être supérieur à 0']"
               color="secondary"
+              :readonly="form.hasPhases"
+              :hint="form.hasPhases ? 'Calculé automatiquement à partir des phases' : ''"
             />
+          </div>
+        </div>
+
+        <!-- SECTION PHASES -->
+        <div v-if="!form.parentId" class="q-mt-lg">
+          <div class="row items-center justify-between">
+            <div class="text-subtitle1 text-weight-bold" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
+              2. Phases du projet (Optionnel)
+            </div>
+            <q-toggle
+              v-model="form.hasPhases"
+              label="Diviser en plusieurs phases"
+              color="secondary"
+              keep-color
+            />
+          </div>
+
+          <div v-if="form.hasPhases" class="q-mt-md">
+            <q-input
+              outlined
+              v-model.number="form.phaseCount"
+              type="number"
+              label="Nombre de phases"
+              @update:model-value="updatePhases"
+              min="2"
+              max="10"
+              class="q-mb-md"
+              color="secondary"
+            />
+
+            <div v-for="(phase, index) in form.phases" :key="index" class="phase-config q-pa-md q-mb-md bg-grey-2 rounded-borders border-accent" style="border-left: 4px solid #FFB300;">
+              <div class="text-subtitle2 q-mb-sm">Phase {{ index + 1 }}</div>
+              <div class="row q-col-gutter-sm">
+                <div class="col-8">
+                  <q-input 
+                    outlined 
+                    v-model="phase.title" 
+                    dense 
+                    label="Titre de la phase" 
+                    placeholder="Ex: Achat du terrain" 
+                    bg-white
+                  />
+                </div>
+                <div class="col-4">
+                  <q-input 
+                    outlined 
+                    v-model.number="phase.goalAmount" 
+                    dense 
+                    type="number" 
+                    label="Objectif (€)" 
+                    suffix="€" 
+                    bg-white
+                    @update:model-value="calculateTotalGoal"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -185,7 +248,7 @@
 import { ref, reactive, computed } from 'vue'
 import { poolApi } from 'boot/axios'
 import { useQuasar } from 'quasar'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import authStore from '../../shared/stores/auth'
 
 const $q = useQuasar()
@@ -196,6 +259,7 @@ const imagePreview = ref(null)
 const videoFile = ref(null)
 const videoFilePreview = ref(null)
 const videoSource = ref('url')
+const route = useRoute()
 
 const onVideoSelected = (file) => {
   if (file) {
@@ -214,8 +278,33 @@ const form = reactive({
   goalAmount: 1000,
   type: 'PUBLIC',
   ownerId: '',
-  videoUrl: ''
+  videoUrl: '',
+  parentId: route.query.parentId || null,
+  hasPhases: false,
+  phaseCount: 2,
+  phases: [
+    { title: '', goalAmount: 500 },
+    { title: '', goalAmount: 500 }
+  ]
 })
+
+const updatePhases = (count) => {
+  const currentCount = form.phases.length
+  if (count > currentCount) {
+    for (let i = 0; i < count - currentCount; i++) {
+      form.phases.push({ title: '', goalAmount: 0 })
+    }
+  } else {
+    form.phases = form.phases.slice(0, count)
+  }
+  calculateTotalGoal()
+}
+
+const calculateTotalGoal = () => {
+  if (form.hasPhases) {
+    form.goalAmount = form.phases.reduce((sum, phase) => sum + (Number(phase.goalAmount) || 0), 0)
+  }
+}
 
 const videoPreviewId = computed(() => {
   if (!form.videoUrl) return null
@@ -233,19 +322,24 @@ const onFileSelected = (file) => {
 }
 
 const autoFill = () => {
-  form.title = 'Soutien pour le refuge animalier de la région'
-  form.description = 'Nous collectons des fonds pour aider les animaux abandonnés et assurer leur soins vétérinaires pendant l\'hiver. Votre aide est précieuse pour leur offrir un toit et de la nourriture.'
-  form.category = 'Animaux'
-  form.goalAmount = 2500
+  form.title = 'Construction d\'une École Primaire'
+  form.description = 'Ce projet vise à construire une école pour les enfants du village. Nous avons divisé le projet en étapes clés pour assurer un suivi transparent.'
+  form.category = 'Éducation'
+  form.hasPhases = true
+  form.phaseCount = 3
+  form.phases = [
+    { title: 'Achat du terrain', goalAmount: 2000 },
+    { title: 'Gros œuvre', goalAmount: 5000 },
+    { title: 'Finitons et Équipement', goalAmount: 3000 }
+  ]
+  calculateTotalGoal()
   form.type = 'PUBLIC'
-  form.videoUrl = 'https://www.youtube.com/watch?v=ysz5S6PUM-U'
   
   $q.notify({
     icon: 'bolt',
-    message: 'Formulaire auto-rempli !',
+    message: 'Projet multi-phases simulé !',
     color: 'amber-9',
-    position: 'top-right',
-    timeout: 1000
+    position: 'top-right'
   })
 }
 
@@ -255,10 +349,7 @@ const onSubmit = async () => {
     const userId = authStore.user.value?.id
     
     if (!userId) {
-      $q.notify({
-        type: 'negative',
-        message: 'Vous devez être connecté pour créer une cagnotte'
-      })
+      $q.notify({ type: 'negative', message: 'Vous devez être connecté' })
       loading.value = false
       return
     }
@@ -266,7 +357,6 @@ const onSubmit = async () => {
     let imageData = null
     let imageContentType = null
 
-    // 1. Conversion de l'image en Base64 si présente
     if (imageFile.value) {
       imageData = await new Promise((resolve) => {
         const reader = new FileReader()
@@ -276,15 +366,13 @@ const onSubmit = async () => {
       imageContentType = imageFile.value.type
     }
 
-    // 2. Gestion de la vidéo
     let finalVideoUrl = form.videoUrl
 
     if (videoSource.value === 'upload' && videoFile.value) {
       $q.notify({
-        message: 'Téléversement de la vidéo vers le cloud...',
+        message: 'Téléversement de la vidéo...',
         color: 'primary',
-        icon: 'cloud_upload',
-        timeout: 2000
+        icon: 'cloud_upload'
       })
       try {
         const formData = new FormData()
@@ -302,24 +390,47 @@ const onSubmit = async () => {
         finalVideoUrl = 'https://res.cloudinary.com/demo/video/upload/dog.mp4'
       }
     }
-
-    const payload = {
-      ...form,
+    
+    // Create Main Pool
+    const mainPoolPayload = {
+      title: form.title,
+      description: form.description,
+      category: form.category,
+      goalAmount: form.goalAmount,
+      type: form.type,
       ownerId: userId,
       imageData: imageData,
       imageContentType: imageContentType,
-      videoUrl: finalVideoUrl
+      videoUrl: finalVideoUrl,
+      parentId: form.parentId
     }
 
-    await poolApi.post('/pools', payload)
+    const response = await poolApi.post('/pools', mainPoolPayload)
+    const mainPoolId = response.data.id
+
+    // Create Phases if needed
+    if (form.hasPhases && form.phases.length > 0) {
+      $q.notify({ message: 'Création des phases...', color: 'info' })
+      for (const phase of form.phases) {
+        await poolApi.post('/pools', {
+          title: phase.title,
+          description: `Phase: ${phase.title} pour le projet ${form.title}`,
+          category: form.category,
+          goalAmount: phase.goalAmount,
+          type: form.type,
+          ownerId: userId,
+          parentId: mainPoolId
+        })
+      }
+    }
     
     $q.notify({
       type: 'positive',
-      message: 'Cagnotte créée avec succès !',
+      message: form.hasPhases ? 'Projet et phases créés !' : 'Cagnotte créée !',
       position: 'top'
     })
     
-    router.push('/')
+    router.push(form.hasPhases ? `/pools/${mainPoolId}` : '/')
   } catch (error) {
     console.error(error)
     $q.notify({

@@ -32,5 +32,6 @@ public record CreatePoolRequest(
     Set<String> invitedUserIds,
     String imageData, // Base64 string
     String imageContentType,
-    String videoUrl
+    String videoUrl,
+    String parentId
 ) {}

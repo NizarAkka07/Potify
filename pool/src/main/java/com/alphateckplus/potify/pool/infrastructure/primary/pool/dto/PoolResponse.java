@@ -26,6 +26,7 @@ public record PoolResponse(
     BigDecimal progressPercentage,
     BigDecimal availableBalance,
     BigDecimal pendingBalance,
+    java.util.List<PoolResponse> phases,
     Instant createdAt,
     Instant updatedAt
 ) {}

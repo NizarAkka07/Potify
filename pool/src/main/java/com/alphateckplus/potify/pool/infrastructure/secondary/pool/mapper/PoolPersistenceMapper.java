@@ -39,8 +39,8 @@ public class PoolPersistenceMapper {
                 .category(domain.getCategory())
                 .goalAmount(domain.getGoalAmount())
                 .currentAmount(domain.getCurrentAmount())
-                .status(CagnotteStatus.valueOf(domain.getStatus().name()))
-                .type(domain.getType().name())
+                .status(domain.getStatus() != null ? CagnotteStatus.valueOf(domain.getStatus().name()) : CagnotteStatus.BROUILLON)
+                .type(domain.getType() != null ? domain.getType().name() : "PUBLIC")
                 .invitedUserIds(invitedIds)
                 .imageContent(domain.getImageContent())
                 .imageContentType(domain.getImageContentType())
@@ -70,8 +70,8 @@ public class PoolPersistenceMapper {
                 .category(entity.getCategory())
                 .goalAmount(entity.getGoalAmount())
                 .currentAmount(entity.getCurrentAmount())
-                .status(PoolStatus.valueOf(entity.getStatus().name()))
-                .type(PoolType.valueOf(entity.getType()))
+                .status(entity.getStatus() != null ? PoolStatus.valueOf(entity.getStatus().name()) : PoolStatus.PUBLIEE)
+                .type(entity.getType() != null ? PoolType.valueOf(entity.getType()) : PoolType.PUBLIC)
                 .invitedUserIds(invitedIds)
                 .imageContent(entity.getImageContent())
                 .imageContentType(entity.getImageContentType())
@@ -82,6 +82,23 @@ public class PoolPersistenceMapper {
                 .invitations(entity.getInvitations() != null ? 
                         entity.getInvitations().stream().map(invitationPersistenceMapper::toDomain).collect(Collectors.toList()) : 
                         null)
+                .children(entity.getChildren() != null ?
+                        entity.getChildren().stream().map(this::toDomainShort).collect(Collectors.toList()) :
+                        new java.util.ArrayList<>())
+                .build();
+    }
+
+    /**
+     * Version courte de toDomain pour eviter la recursion infinie sur les enfants.
+     */
+    private Pool toDomainShort(PoolEntity entity) {
+        if (entity == null) return null;
+        return Pool.builder()
+                .id(entity.getId())
+                .title(entity.getTitle())
+                .currentAmount(entity.getCurrentAmount())
+                .goalAmount(entity.getGoalAmount())
+                .status(entity.getStatus() != null ? PoolStatus.valueOf(entity.getStatus().name()) : PoolStatus.PUBLIEE)
                 .build();
     }
 }
