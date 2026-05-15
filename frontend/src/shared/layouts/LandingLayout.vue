@@ -47,6 +47,7 @@
           </template>
           <template v-else>
             <q-btn flat no-caps label="Mon Espace" icon="dashboard" style="color: rgba(255,255,255,0.85); font-weight: 500;" to="/dashboard" />
+            <q-btn flat no-caps label="Profil" icon="person" style="color: rgba(255,255,255,0.85); font-weight: 500;" to="/profile" class="gt-sm" />
             <q-btn v-if="authStore.isAdmin.value" flat no-caps label="Administration" style="color: rgba(255,255,255,0.85);" to="/admin" />
             <q-btn flat round dense icon="logout" style="color: rgba(255,255,255,0.75);" @click="onLogout">
               <q-tooltip>Se déconnecter</q-tooltip>

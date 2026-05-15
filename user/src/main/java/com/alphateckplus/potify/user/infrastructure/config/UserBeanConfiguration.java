@@ -37,8 +37,13 @@ import com.alphateckplus.potify.user.application_service.primary.role.update_rol
 import com.alphateckplus.potify.user.application_service.primary.role.update_role.UpdateRoleService;
 import com.alphateckplus.potify.user.application_service.primary.user.update_user.DefaultUpdateUserService;
 import com.alphateckplus.potify.user.application_service.primary.user.update_user.UpdateUserService;
+import com.alphateckplus.potify.user.application_service.primary.user.update_profile.DefaultUpdateProfileService;
+import com.alphateckplus.potify.user.application_service.primary.user.update_profile.UpdateProfileService;
 import com.alphateckplus.potify.user.application_service.primary.user.verify_email.DefaultVerifyEmailService;
 import com.alphateckplus.potify.user.application_service.primary.user.verify_email.VerifyEmailService;
+import com.alphateckplus.potify.user.application_service.primary.user.change_password.DefaultChangePasswordService;
+import com.alphateckplus.potify.user.application_service.primary.user.change_password.ChangePasswordService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.alphateckplus.potify.user.application_service.secondary.permission.PermissionRepositoryPort;
 import com.alphateckplus.potify.user.application_service.secondary.role.RoleRepositoryPort;
 import com.alphateckplus.potify.user.application_service.secondary.user.UserRepositoryPort;
@@ -122,8 +127,8 @@ public class UserBeanConfiguration {
     }
 
     @Bean
-    public CreateUserService createUserService(UserRepositoryPort userRepositoryPort, NotificationPort notificationPort) {
-        return new DefaultCreateUserService(userRepositoryPort, notificationPort);
+    public CreateUserService createUserService(UserRepositoryPort userRepositoryPort, NotificationPort notificationPort, PasswordEncoder passwordEncoder) {
+        return new DefaultCreateUserService(userRepositoryPort, notificationPort, passwordEncoder);
     }
 
     @Bean
@@ -248,5 +253,15 @@ public class UserBeanConfiguration {
     @Bean
     public VerifyEmailService verifyEmailService(UserRepositoryPort userRepositoryPort) {
         return new DefaultVerifyEmailService(userRepositoryPort);
+    }
+
+    @Bean
+    public UpdateProfileService updateProfileService(UserRepositoryPort userRepositoryPort) {
+        return new DefaultUpdateProfileService(userRepositoryPort);
+    }
+
+    @Bean
+    public ChangePasswordService changePasswordService(UserRepositoryPort userRepositoryPort, PasswordEncoder passwordEncoder) {
+        return new DefaultChangePasswordService(userRepositoryPort, passwordEncoder);
     }
 }

@@ -44,6 +44,7 @@ public class PoolPersistenceMapper {
                 .invitedUserIds(invitedIds)
                 .imageContent(domain.getImageContent())
                 .imageContentType(domain.getImageContentType())
+                .videoUrl(domain.getVideoUrl())
                 .build();
     }
 
@@ -74,6 +75,7 @@ public class PoolPersistenceMapper {
                 .invitedUserIds(invitedIds)
                 .imageContent(entity.getImageContent())
                 .imageContentType(entity.getImageContentType())
+                .videoUrl(entity.getVideoUrl())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .wallet(walletPersistenceMapper.toDomain(entity.getWallet()))

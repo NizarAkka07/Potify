@@ -24,7 +24,9 @@ const routes = [
       // Acceptation d'invitation
       { path: 'pool/invitation', component: () => import('src/pool/pages/AcceptInvitationPage.vue') },
       // Dashboard utilisateur
-      { path: 'dashboard', component: () => import('src/pool/pages/UserDashboardPage.vue'), meta: { requiresAuth: true } }
+      { path: 'dashboard', component: () => import('src/pool/pages/UserDashboardPage.vue'), meta: { requiresAuth: true } },
+      // Profil utilisateur
+      { path: 'profile', component: () => import('src/user/pages/ProfilePage.vue'), meta: { requiresAuth: true } }
     ]
   },
   {

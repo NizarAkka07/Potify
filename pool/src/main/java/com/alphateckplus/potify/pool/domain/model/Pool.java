@@ -73,6 +73,9 @@ public class Pool {
     /** Type MIME de l'image (ex: image/png). */
     private String imageContentType;
 
+    /** URL d'une vidéo de présentation (YouTube, Vimeo, etc.). */
+    private String videoUrl;
+
     /** Portefeuille financier de la cagnotte. */
     private Wallet wallet;
 

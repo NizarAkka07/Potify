@@ -14,10 +14,12 @@ public class DefaultCreateUserService implements CreateUserService {
 
     private final UserRepositoryPort userRepositoryPort;
     private final NotificationPort notificationPort;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
-    public DefaultCreateUserService(UserRepositoryPort userRepositoryPort, NotificationPort notificationPort) {
+    public DefaultCreateUserService(UserRepositoryPort userRepositoryPort, NotificationPort notificationPort, org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.userRepositoryPort = userRepositoryPort;
         this.notificationPort = notificationPort;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -30,7 +32,7 @@ public class DefaultCreateUserService implements CreateUserService {
         User userToCreate = User.builder()
             .fullName(command.fullName())
             .email(command.email())
-            .password(command.password())
+            .password(passwordEncoder.encode(command.password()))
             .status(UserStatus.PENDING_VERIFICATION)
             .enabled(false)
             .verificationToken(token)

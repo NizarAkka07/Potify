@@ -56,7 +56,8 @@ public class SecurityConfig {
                                         "/swagger-ui.html"
                                 )
                                 .permitAll()
-                                .requestMatchers("/api/v1/**").hasRole("ADMIN")
+                                .requestMatchers("/api/v1/users/**").authenticated() // Autorise l'accès au profil pour tous les connectés
+                                .requestMatchers("/api/v1/access/**").hasRole("ADMIN") // Garde l'admin pour les rôles/permissions
                                 .anyRequest()
                                 .authenticated()
                 )

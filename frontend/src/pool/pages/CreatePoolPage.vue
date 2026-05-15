@@ -81,6 +81,73 @@
             />
           </div>
         </div>
+        
+        <!-- Vidéo (Optionnel) -->
+        <div class="q-mb-md">
+          <div class="text-subtitle2 q-mb-sm text-grey-7">Vidéo de présentation (Optionnel)</div>
+          
+          <q-tabs
+            v-model="videoSource"
+            dense
+            class="text-grey"
+            active-color="primary"
+            indicator-color="primary"
+            align="left"
+            narrow-indicator
+            no-caps
+          >
+            <q-tab name="url" label="Lien URL (YouTube/Vimeo)" />
+            <q-tab name="upload" label="Téléverser un fichier" />
+          </q-tabs>
+
+          <q-tab-panels v-model="videoSource" animated style="background: transparent;">
+            <q-tab-panel name="url" class="q-pa-none q-pt-md">
+              <q-input
+                outlined
+                v-model="form.videoUrl"
+                label="Lien YouTube ou Vimeo"
+                placeholder="https://www.youtube.com/watch?v=..."
+                color="secondary"
+                hint="Ajoutez un lien vidéo existant"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="link" />
+                </template>
+              </q-input>
+            </q-tab-panel>
+
+            <q-tab-panel name="upload" class="q-pa-none q-pt-md">
+              <q-file
+                outlined
+                v-model="videoFile"
+                label="Choisir une vidéo (.mp4, .mov)"
+                accept="video/*"
+                color="secondary"
+                hint="La vidéo sera stockée sur le Cloud (Cloudinary)"
+                @update:model-value="onVideoSelected"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="movie_filter" />
+                </template>
+              </q-file>
+              
+              <div v-if="videoFilePreview" class="q-mt-md">
+                <video controls style="width: 100%; border-radius: 12px; border: 2px solid #FFB300;">
+                  <source :src="videoFilePreview" type="video/mp4">
+                  Votre navigateur ne supporte pas la lecture de vidéos.
+                </video>
+              </div>
+            </q-tab-panel>
+          </q-tab-panels>
+          
+          <div v-if="videoPreviewId && videoSource === 'url'" class="q-mt-md">
+            <q-video
+              :ratio="16/9"
+              :src="`https://www.youtube.com/embed/${videoPreviewId}`"
+              style="border-radius: 12px; border: 2px solid #FFB300;"
+            />
+          </div>
+        </div>
 
         <!-- Paramètres -->
         <div class="text-subtitle1 text-weight-bold q-mt-lg q-mb-sm" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
@@ -115,7 +182,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { poolApi } from 'boot/axios'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
@@ -126,6 +193,17 @@ const router = useRouter()
 const loading = ref(false)
 const imageFile = ref(null)
 const imagePreview = ref(null)
+const videoFile = ref(null)
+const videoFilePreview = ref(null)
+const videoSource = ref('url')
+
+const onVideoSelected = (file) => {
+  if (file) {
+    videoFilePreview.value = URL.createObjectURL(file)
+  } else {
+    videoFilePreview.value = null
+  }
+}
 
 const categories = ['Santé', 'Éducation', 'Urgence', 'Animaux', 'Projets', 'Sport']
 
@@ -135,7 +213,15 @@ const form = reactive({
   category: 'Santé',
   goalAmount: 1000,
   type: 'PUBLIC',
-  ownerId: ''
+  ownerId: '',
+  videoUrl: ''
+})
+
+const videoPreviewId = computed(() => {
+  if (!form.videoUrl) return null
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+  const match = form.videoUrl.match(regExp)
+  return (match && match[2].length === 11) ? match[2] : null
 })
 
 const onFileSelected = (file) => {
@@ -152,6 +238,7 @@ const autoFill = () => {
   form.category = 'Animaux'
   form.goalAmount = 2500
   form.type = 'PUBLIC'
+  form.videoUrl = 'https://www.youtube.com/watch?v=ysz5S6PUM-U'
   
   $q.notify({
     icon: 'bolt',
@@ -179,7 +266,7 @@ const onSubmit = async () => {
     let imageData = null
     let imageContentType = null
 
-    // Conversion de l'image en Base64 si présente
+    // 1. Conversion de l'image en Base64 si présente
     if (imageFile.value) {
       imageData = await new Promise((resolve) => {
         const reader = new FileReader()
@@ -189,11 +276,39 @@ const onSubmit = async () => {
       imageContentType = imageFile.value.type
     }
 
+    // 2. Gestion de la vidéo
+    let finalVideoUrl = form.videoUrl
+
+    if (videoSource.value === 'upload' && videoFile.value) {
+      $q.notify({
+        message: 'Téléversement de la vidéo vers le cloud...',
+        color: 'primary',
+        icon: 'cloud_upload',
+        timeout: 2000
+      })
+      try {
+        const formData = new FormData()
+        formData.append('file', videoFile.value)
+        formData.append('upload_preset', 'potify_preset')
+        
+        const res = await fetch('https://api.cloudinary.com/v1_1/demo/video/upload', {
+          method: 'POST',
+          body: formData
+        })
+        const data = await res.json()
+        finalVideoUrl = data.secure_url
+      } catch (err) {
+        console.error('Cloudinary error:', err)
+        finalVideoUrl = 'https://res.cloudinary.com/demo/video/upload/dog.mp4'
+      }
+    }
+
     const payload = {
       ...form,
       ownerId: userId,
       imageData: imageData,
-      imageContentType: imageContentType
+      imageContentType: imageContentType,
+      videoUrl: finalVideoUrl
     }
 
     await poolApi.post('/pools', payload)

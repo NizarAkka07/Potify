@@ -36,6 +36,7 @@ public class DefaultCreatePoolService implements CreatePoolService {
                 .invitedUserIds(command.invitedUserIds())
                 .imageContent(command.imageContent())
                 .imageContentType(command.imageContentType())
+                .videoUrl(command.videoUrl())
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();

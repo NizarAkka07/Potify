@@ -22,6 +22,7 @@ public record PoolResponse(
     PoolType type,
     Set<String> invitedUserIds,
     String imageUrl,
+    String videoUrl,
     BigDecimal progressPercentage,
     BigDecimal availableBalance,
     BigDecimal pendingBalance,

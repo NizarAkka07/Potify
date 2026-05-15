@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Tests unitaires du service applicatif user.
@@ -36,12 +37,15 @@ class UserServiceTest {
     @Mock
     private NotificationPort notificationPort;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     private DefaultCreateUserService defaultCreateUserService;
     private DefaultUpdateUserService defaultUpdateUserService;
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        defaultCreateUserService = new DefaultCreateUserService(userRepositoryPort, notificationPort);
+        defaultCreateUserService = new DefaultCreateUserService(userRepositoryPort, notificationPort, passwordEncoder);
         defaultUpdateUserService = new DefaultUpdateUserService(userRepositoryPort);
     }
 
@@ -58,19 +62,20 @@ class UserServiceTest {
     }
 
     @Test
-    void createUserShouldPersistNewUserWithActiveStatus() {
+    void createUserShouldPersistNewUserWithPendingVerificationStatus() {
         // Arrange: commande de creation et resultat de persistence simule.
         CreateUserCommand command = new CreateUserCommand("Nizar Doe", "nizar@example.com", "secret123");
         User savedUser = User.builder()
             .id("u-1")
             .fullName("Nizar Doe")
             .email("nizar@example.com")
-            .password("secret123")
-            .status(UserStatus.ACTIVE)
+            .password("encodedSecret123")
+            .status(UserStatus.PENDING_VERIFICATION)
             .build();
 
         when(userRepositoryPort.existsByEmail("nizar@example.com")).thenReturn(false);
         when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
+        when(passwordEncoder.encode("secret123")).thenReturn("encodedSecret123");
 
         // Act: execution du cas d'usage.
         User result = defaultCreateUserService.execute(command);

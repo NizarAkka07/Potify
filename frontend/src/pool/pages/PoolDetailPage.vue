@@ -20,9 +20,19 @@
       <div class="row q-col-gutter-lg q-pt-lg">
         <div class="col-12 col-md-7">
           <q-card class="image-card no-shadow" style="border-radius: 16px; overflow: hidden;">
+            <!-- Vidéo si présente -->
+            <div v-if="youtubeId" class="q-mb-sm">
+              <q-video
+                :ratio="16/9"
+                :src="`https://www.youtube.com/embed/${youtubeId}`"
+                style="height: 400px; width: 100%;"
+              />
+            </div>
+            
             <q-img
+              v-if="!youtubeId || pool.imageUrl"
               :src="pool.imageUrl || getPoolImage(pool.category)"
-              style="height: 450px;"
+              :style="youtubeId ? 'height: 150px;' : 'height: 450px;'"
               fit="cover"
             >
               <div class="absolute-top-left q-ma-md">
@@ -416,6 +426,13 @@ let messageEventSource = null
 
 const isOwner = computed(() => {
   return authStore.isAuthenticated.value && pool.value.ownerId === authStore.user.value?.id
+})
+
+const youtubeId = computed(() => {
+  if (!pool.value.videoUrl) return null
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+  const match = pool.value.videoUrl.match(regExp)
+  return (match && match[2].length === 11) ? match[2] : null
 })
 
 // Gestion des commentaires (Pool Messages)

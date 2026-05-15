@@ -9,6 +9,12 @@ import com.alphateckplus.potify.user.application_service.primary.user.list_users
 import com.alphateckplus.potify.user.application_service.primary.user.update_user.UpdateUserService;
 import com.alphateckplus.potify.user.application_service.primary.command.CreateUserCommand;
 import com.alphateckplus.potify.user.application_service.primary.command.UpdateUserCommand;
+import com.alphateckplus.potify.user.application_service.primary.command.UpdateProfileCommand;
+import com.alphateckplus.potify.user.application_service.primary.command.ChangePasswordCommand;
+import com.alphateckplus.potify.user.infrastructure.primary.dto.UpdateProfileRequest;
+import com.alphateckplus.potify.user.infrastructure.primary.dto.ChangePasswordRequest;
+import com.alphateckplus.potify.user.application_service.primary.user.update_profile.UpdateProfileService;
+import com.alphateckplus.potify.user.application_service.primary.user.change_password.ChangePasswordService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -37,6 +43,8 @@ public class UserController {
     private final GetUserByIdService getUserByIdService;
     private final ListUsersService listUsersService;
     private final UpdateUserService updateUserService;
+    private final UpdateProfileService updateProfileService;
+    private final ChangePasswordService changePasswordService;
     private final UserRestMapper userRestMapper;
 
     /**
@@ -97,5 +105,44 @@ public class UserController {
         );
 
         return ResponseEntity.ok(userRestMapper.toResponse(updatedUser));
+    }
+
+    /**
+     * Endpoint de mise a jour du profil (pour l'utilisateur connecte).
+     * @param userId L'ID de l'utilisateur (on l'accepte via le path pour l'instant, 
+     *               mais on pourrait le recuperer via le Principal).
+     */
+    @PutMapping("/{userId}/profile")
+    public ResponseEntity<UserResponse> updateProfile(
+        @PathVariable String userId,
+        @Valid @RequestBody UpdateProfileRequest request
+    ) {
+        var updatedUser = updateProfileService.execute(
+            new UpdateProfileCommand(
+                userId,
+                request.fullName()
+            )
+        );
+
+        return ResponseEntity.ok(userRestMapper.toResponse(updatedUser));
+    }
+
+    /**
+     * Endpoint de changement de mot de passe.
+     */
+    @PutMapping("/{userId}/password")
+    public ResponseEntity<Void> changePassword(
+        @PathVariable String userId,
+        @Valid @RequestBody ChangePasswordRequest request
+    ) {
+        changePasswordService.execute(
+            new ChangePasswordCommand(
+                userId,
+                request.oldPassword(),
+                request.newPassword()
+            )
+        );
+
+        return ResponseEntity.noContent().build();
     }
 }

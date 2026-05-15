@@ -37,6 +37,7 @@ public class PoolRestMapper {
                 .invitedUserIds(request.invitedUserIds())
                 .imageContent(imageBytes)
                 .imageContentType(request.imageContentType())
+                .videoUrl(request.videoUrl())
                 .build();
     }
 
@@ -65,6 +66,7 @@ public class PoolRestMapper {
                 pool.getType(),
                 pool.getInvitedUserIds(),
                 finalImageUrl,
+                pool.getVideoUrl(),
                 pool.getProgressPercentage(),
                 pool.getWallet() != null ? pool.getWallet().getAvailableBalance() : java.math.BigDecimal.ZERO,
                 pool.getWallet() != null ? pool.getWallet().getPendingBalance() : java.math.BigDecimal.ZERO,
