@@ -1,10 +1,11 @@
 package com.alphateckplus.potify.user.infrastructure.primary.auth;
 
-import com.alphateckplus.potify.user.application_service.primary.auth.dto.AuthResponse;
-import com.alphateckplus.potify.user.application_service.primary.auth.dto.LoginRequest;
-import com.alphateckplus.potify.user.application_service.primary.auth.dto.RegisterRequest;
-import com.alphateckplus.potify.user.application_service.primary.auth.login_user.LoginUserUseCase;
-import com.alphateckplus.potify.user.application_service.primary.auth.register_user.RegisterUserUseCase;
+import com.alphateckplus.potify.user.infrastructure.primary.dto.auth.AuthResponse;
+import com.alphateckplus.potify.user.infrastructure.primary.dto.auth.LoginRequest;
+import com.alphateckplus.potify.user.infrastructure.primary.dto.auth.RegisterRequest;
+import com.alphateckplus.potify.user.application_service.primary.command.CreateUserCommand;
+import com.alphateckplus.potify.user.application_service.primary.user.create_user.CreateUserService;
+import com.alphateckplus.potify.user.infrastructure.primary.security.AuthFacade;
 import com.alphateckplus.potify.user.application_service.primary.user.verify_email.VerifyEmailService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,19 +25,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final LoginUserUseCase loginUserUseCase;
-    private final RegisterUserUseCase registerUserUseCase;
+    private final AuthFacade authFacade;
+    private final CreateUserService createUserService;
     private final VerifyEmailService verifyEmailService;
 
     @PostMapping("/signup")
     public ResponseEntity<Void> signup(@Valid @RequestBody RegisterRequest request) {
-        registerUserUseCase.execute(request);
+        CreateUserCommand command = new CreateUserCommand(
+                request.getFullName(),
+                request.getEmail(),
+                request.getPassword()
+        );
+        createUserService.execute(command);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/signin")
     public ResponseEntity<AuthResponse> signin(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(loginUserUseCase.execute(request));
+        return ResponseEntity.ok(authFacade.authenticate(request));
     }
 
     @GetMapping("/verify-email")

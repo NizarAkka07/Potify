@@ -101,10 +101,13 @@
         <div class="row q-col-gutter-lg">
           <div class="col-12 col-sm-6 col-md-4" v-for="pool in pools" :key="pool.id">
             <q-card class="shadow-2 hover-card" style="border-radius: 4px; border: 1px solid #E0E0E0;">
-              <img
-                :src="pool.imageUrl || getPoolImage(pool.category)"
-                style="height: 200px; object-fit: cover; width: 100%;"
-              />
+              <div style="height: 200px; width: 100%; background: #E0E0E0;" class="relative-position">
+                <img
+                  v-if="pool.imageUrl"
+                  :src="pool.imageUrl"
+                  style="height: 200px; object-fit: cover; width: 100%;"
+                />
+              </div>
               <q-card-section>
                 <div class="text-caption text-weight-bold q-mb-xs" style="color: #FFB300; text-transform: uppercase; letter-spacing: 1px;">{{ pool.category || 'Général' }}</div>
                 <div class="text-subtitle1 text-weight-bold q-mb-xs line-clamp-2" style="color: #1A1A2A;">{{ pool.title }}</div>
@@ -262,15 +265,7 @@ const fetchPools = async () => {
   }
 }
 
-const getPoolImage = (category) => {
-  const images = {
-    'Santé': 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-    'Éducation': 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-    'Animaux': 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-    'Sport': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-  }
-  return images[category] || 'https://images.unsplash.com/photo-1469571483350-f18203005d1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-}
+
 
 const contribute = (pool) => {
   // Logique de redirection vers le détail de la cagnotte

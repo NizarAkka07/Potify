@@ -27,4 +27,11 @@ public class RestExceptionHandler {
         error.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+    @ExceptionHandler(com.alphateckplus.potify.pool.domain.exception.UserNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleUserNotFound(com.alphateckplus.potify.pool.domain.exception.UserNotFoundException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
 }

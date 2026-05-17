@@ -54,6 +54,11 @@ public class PoolRestMapper {
             finalImageUrl = "http://localhost:8082/api/pools/" + pool.getId() + "/image";
         }
 
+        String finalVideoUrl = pool.getVideoUrl();
+        if (pool.getVideoContent() != null && pool.getVideoContent().length > 0) {
+            finalVideoUrl = "http://localhost:8082/api/pools/" + pool.getId() + "/video";
+        }
+
         return new PoolResponse(
                 pool.getId(),
                 pool.getOwnerId(),
@@ -67,7 +72,7 @@ public class PoolRestMapper {
                 pool.getType(),
                 pool.getInvitedUserIds(),
                 finalImageUrl,
-                pool.getVideoUrl(),
+                finalVideoUrl,
                 pool.getProgressPercentage(),
                 pool.getWallet() != null ? pool.getWallet().getAvailableBalance() : java.math.BigDecimal.ZERO,
                 pool.getWallet() != null ? pool.getWallet().getPendingBalance() : java.math.BigDecimal.ZERO,

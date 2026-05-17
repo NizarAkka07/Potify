@@ -20,27 +20,62 @@
       <div class="row q-col-gutter-lg q-pt-lg">
         <div class="col-12 col-md-7">
           <q-card class="image-card no-shadow" style="border-radius: 16px; overflow: hidden;">
-            <!-- Vidéo si présente -->
-            <div v-if="youtubeId" class="q-mb-sm">
-              <q-video
-                :ratio="16/9"
-                :src="`https://www.youtube.com/embed/${youtubeId}`"
-                style="height: 400px; width: 100%;"
-              />
-            </div>
-            
-            <q-img
-              v-if="!youtubeId || pool.imageUrl"
-              :src="pool.imageUrl || getPoolImage(pool.category)"
-              :style="youtubeId ? 'height: 150px;' : 'height: 450px;'"
-              fit="cover"
+            <q-carousel
+              v-if="pool.imageUrl || youtubeId || isDirectVideo"
+              v-model="mediaSlide"
+              swipeable
+              animated
+              :arrows="(pool.imageUrl && (youtubeId || isDirectVideo))"
+              :navigation="(pool.imageUrl && (youtubeId || isDirectVideo))"
+              control-color="primary"
+              height="450px"
+              class="bg-black"
             >
+              <q-carousel-slide v-if="pool.imageUrl" name="image" class="q-pa-none">
+                <q-img
+                  :src="pool.imageUrl"
+                  height="100%"
+                  fit="cover"
+                >
+                  <div class="absolute-top-left q-ma-md" style="background: transparent;">
+                    <q-chip color="secondary" text-white class="text-weight-bold shadow-2">
+                      {{ pool.category }}
+                    </q-chip>
+                  </div>
+                </q-img>
+              </q-carousel-slide>
+
+              <q-carousel-slide v-if="youtubeId || isDirectVideo" name="video" class="q-pa-none flex flex-center">
+                <q-video
+                  v-if="youtubeId"
+                  :ratio="16/9"
+                  :src="`https://www.youtube.com/embed/${youtubeId}`"
+                  style="height: 100%; width: 100%;"
+                />
+                <video
+                  v-else-if="isDirectVideo"
+                  controls
+                  style="height: 100%; width: 100%; object-fit: contain; background: #000;"
+                  :src="pool.videoUrl"
+                >
+                  Votre navigateur ne supporte pas la lecture de vidéos.
+                </video>
+                <div class="absolute-top-left q-ma-md" style="z-index: 10;">
+                  <q-chip color="secondary" text-white class="text-weight-bold shadow-2">
+                    {{ pool.category }}
+                  </q-chip>
+                </div>
+              </q-carousel-slide>
+            </q-carousel>
+
+            <div v-else class="bg-grey-3 relative-position flex flex-center" style="height: 450px;">
               <div class="absolute-top-left q-ma-md">
                 <q-chip color="secondary" text-white class="text-weight-bold shadow-2">
                   {{ pool.category }}
                 </q-chip>
               </div>
-            </q-img>
+              <q-icon name="image_not_supported" size="64px" color="grey-5" />
+            </div>
           </q-card>
         </div>
 
@@ -482,6 +517,7 @@ const messages = ref([])
 const invitations = ref([])
 const inviteEmail = ref('')
 const sendingInvite = ref(false)
+const mediaSlide = ref('image')
 let messageEventSource = null
 
 const isOwner = computed(() => {
@@ -493,6 +529,10 @@ const youtubeId = computed(() => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
   const match = pool.value.videoUrl.match(regExp)
   return (match && match[2].length === 11) ? match[2] : null
+})
+
+const isDirectVideo = computed(() => {
+  return pool.value.videoUrl && !youtubeId.value
 })
 
 // Logique pour les phases
@@ -597,18 +637,6 @@ const contributionForm = reactive({
   anonymous: false
 })
 
-const getPoolImage = (category) => {
-  const images = {
-    'Santé': 'https://images.unsplash.com/photo-1505751172107-5739a00774ad?q=80&w=1000&auto=format&fit=crop',
-    'Éducation': 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=1000&auto=format&fit=crop',
-    'Urgence': 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1000&auto=format&fit=crop',
-    'Animaux': 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?q=80&w=1000&auto=format&fit=crop',
-    'Projets': 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1000&auto=format&fit=crop',
-    'Sport': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=1000&auto=format&fit=crop'
-  }
-  return images[category] || 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=1000&auto=format&fit=crop'
-}
-
 const formatDate = (dateStr) => {
   if (!dateStr) return '-'
   return new Date(dateStr).toLocaleDateString('fr-FR', {
@@ -679,6 +707,9 @@ const fetchPool = async () => {
       }
     })
     pool.value = response.data
+    if (!pool.value.imageUrl && pool.value.videoUrl) {
+      mediaSlide.value = 'video'
+    }
     await fetchMessages()
     await fetchContributions()
     if (isOwner.value) {

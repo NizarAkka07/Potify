@@ -2,12 +2,12 @@
 
 // CSS Custom Properties exactes Akkodis
 :root {
-  --akkodis-yellow:      #FFB300;  /* Jaune CTA */
-  --akkodis-yellow-hover:#E6A000;  /* Jaune hover plus foncé */
+  --akkodis-yellow:      #FFA726;  /* Orange clair */
+  --akkodis-yellow-hover:#FB8C00;  /* Orange hover plus foncé */
   --akkodis-navy:        #0D1B2E;  /* Dark navy navbar */
   --akkodis-navy-mid:    #162540;  /* Navy intermédiaire */
-  --akkodis-white:       #FFFFFF;
-  --akkodis-bg:          #FFFFFF;  /* Fond blanc comme Akkodis */
+  --akkodis-white:       #E0E0E0;  /* Gris mat au lieu de blanc */
+  --akkodis-bg:          #E0E0E0;  /* Fond gris mat */
   --akkodis-text:        #1A1A2A;  /* Texte sombre */
   --akkodis-blue-link:   #1E6BE6;  /* Bleu lien corps de texte */
   --akkodis-grey-light:  #F5F5F5;  /* Fond sections alternées */
@@ -19,7 +19,7 @@
 body {
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   color: #1A1A2A;
-  background: #FFFFFF;
+  background: #E0E0E0;
 }
 
 // Bouton yellow Akkodis – texte sombre
@@ -30,8 +30,8 @@ body {
 
 // Hover sur CTA jaune
 .q-btn.bg-primary:hover {
-  background: #E6A000 !important;
-  box-shadow: 0 4px 12px rgba(255, 179, 0, 0.4) !important;
+  background: #FB8C00 !important;
+  box-shadow: 0 4px 12px rgba(255, 167, 38, 0.4) !important;
 }
 
 // Section alternée gris clair (comme Akkodis)

@@ -52,7 +52,7 @@
           <div v-else-if="userPools.length > 0" class="row q-col-gutter-lg">
             <div v-for="pool in userPools" :key="pool.id" class="col-12 col-sm-6 col-md-4">
               <q-card class="pool-card shadow-1" @click="$router.push(`/pools/${pool.id}`)">
-                <q-img :src="pool.imageUrl || getPlaceholder()" style="height: 180px;" fit="cover">
+                <q-img v-if="pool.imageUrl" :src="pool.imageUrl" style="height: 180px;" fit="cover">
                   <div class="absolute-top-left q-ma-sm">
                     <q-chip :color="getTypeColor(pool.type)" text-white size="sm" class="text-weight-bold">
                       {{ getTypeText(pool.type) }}
@@ -64,6 +64,18 @@
                     </q-chip>
                   </div>
                 </q-img>
+                <div v-else class="bg-grey-3 relative-position" style="height: 180px;">
+                  <div class="absolute-top-left q-ma-sm">
+                    <q-chip :color="getTypeColor(pool.type)" text-white size="sm" class="text-weight-bold">
+                      {{ getTypeText(pool.type) }}
+                    </q-chip>
+                  </div>
+                  <div class="absolute-top-right q-ma-sm">
+                    <q-chip :color="getStatusColor(pool.status)" text-white size="sm" class="text-weight-bold">
+                      {{ pool.status }}
+                    </q-chip>
+                  </div>
+                </div>
 
                 <q-card-section class="q-pa-md">
                   <div class="text-subtitle1 text-weight-bold q-mb-xs line-clamp-1" style="color: #0D1B2E;">{{ pool.title }}</div>
@@ -93,7 +105,7 @@
           <div v-else-if="invitedPools.length > 0" class="row q-col-gutter-lg">
             <div v-for="pool in invitedPools" :key="pool.id" class="col-12 col-sm-6 col-md-4">
               <q-card class="pool-card shadow-1" @click="$router.push(`/pools/${pool.id}`)">
-                <q-img :src="pool.imageUrl || getPlaceholder()" style="height: 180px;" fit="cover">
+                <q-img v-if="pool.imageUrl" :src="pool.imageUrl" style="height: 180px;" fit="cover">
                   <div class="absolute-top-left q-ma-sm">
                     <q-chip :color="getTypeColor(pool.type)" text-white size="sm" class="text-weight-bold">
                       {{ getTypeText(pool.type) }}
@@ -105,6 +117,18 @@
                     </q-chip>
                   </div>
                 </q-img>
+                <div v-else class="bg-grey-3 relative-position" style="height: 180px;">
+                  <div class="absolute-top-left q-ma-sm">
+                    <q-chip :color="getTypeColor(pool.type)" text-white size="sm" class="text-weight-bold">
+                      {{ getTypeText(pool.type) }}
+                    </q-chip>
+                  </div>
+                  <div class="absolute-bottom-right q-ma-sm">
+                    <q-chip color="orange-7" text-white size="sm" icon="group_add" class="text-weight-bold">
+                      Invité
+                    </q-chip>
+                  </div>
+                </div>
 
                 <q-card-section class="q-pa-md">
                   <div class="text-subtitle1 text-weight-bold q-mb-xs line-clamp-1" style="color: #0D1B2E;">{{ pool.title }}</div>
@@ -263,9 +287,7 @@ const getTypeText = (type) => {
   }
 }
 
-const getPlaceholder = () => {
-  return 'https://images.unsplash.com/photo-1469571483350-f18203005d1d?auto=format&fit=crop&q=80&w=800'
-}
+
 
 const formatDate = (dateStr) => {
   return new Date(dateStr).toLocaleDateString('fr-FR', {

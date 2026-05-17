@@ -73,6 +73,12 @@ public class Pool {
     /** Type MIME de l'image (ex: image/png). */
     private String imageContentType;
 
+    /** Contenu binaire de la vidéo (stockage DB). */
+    private byte[] videoContent;
+
+    /** Type MIME de la vidéo (ex: video/mp4). */
+    private String videoContentType;
+
     /** URL d'une vidéo de présentation (YouTube, Vimeo, etc.). */
     private String videoUrl;
 

@@ -1,4 +1,4 @@
-package com.alphateckplus.potify.user.application_service.primary.auth.dto;
+package com.alphateckplus.potify.user.infrastructure.primary.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

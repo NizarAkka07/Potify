@@ -26,6 +26,9 @@ public class DefaultUpdatePoolService implements UpdatePoolService {
         if (command.description() != null) pool.setDescription(command.description());
         if (command.goalAmount() != null) pool.setGoalAmount(command.goalAmount());
         if (command.status() != null) pool.setStatus(command.status());
+        if (command.videoContent() != null) pool.setVideoContent(command.videoContent());
+        if (command.videoContentType() != null) pool.setVideoContentType(command.videoContentType());
+        if (command.videoUrl() != null) pool.setVideoUrl(command.videoUrl());
 
         pool.setUpdatedAt(Instant.now());
 

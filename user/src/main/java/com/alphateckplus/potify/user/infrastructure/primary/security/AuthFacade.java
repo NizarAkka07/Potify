@@ -1,10 +1,9 @@
-package com.alphateckplus.potify.user.application_service.primary.auth.login_user;
+package com.alphateckplus.potify.user.infrastructure.primary.security;
 
-import com.alphateckplus.potify.user.application_service.primary.auth.dto.AuthResponse;
-import com.alphateckplus.potify.user.application_service.primary.auth.dto.LoginRequest;
+import com.alphateckplus.potify.user.infrastructure.primary.dto.auth.AuthResponse;
+import com.alphateckplus.potify.user.infrastructure.primary.dto.auth.LoginRequest;
 import com.alphateckplus.potify.user.application_service.secondary.user.UserRepositoryPort;
 import com.alphateckplus.potify.user.domain.model.User;
-import com.alphateckplus.potify.user.infrastructure.primary.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -18,12 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Cas d'utilisation pour la connexion d'un utilisateur.
- * Gère l'authentification, le verrouillage du compte et la génération de tokens.
+ * Façade d'infrastructure pour gérer l'authentification Spring Security et la génération de JWT.
  */
 @Service
 @RequiredArgsConstructor
-public class LoginUserUseCase {
+public class AuthFacade {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepositoryPort userRepositoryPort;
@@ -31,7 +29,7 @@ public class LoginUserUseCase {
     private final UserDetailsService userDetailsService;
 
     @Transactional
-    public AuthResponse execute(LoginRequest request) {
+    public AuthResponse authenticate(LoginRequest request) {
         User user = userRepositoryPort.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadCredentialsException("Email ou mot de passe incorrect"));
 

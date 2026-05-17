@@ -89,6 +89,12 @@ public class PoolEntity extends BaseEntity {
     @Column(name = "image_content_type", length = 50)
     private String imageContentType;
 
+    @Column(name = "video_content", columnDefinition = "bytea")
+    private byte[] videoContent;
+
+    @Column(name = "video_content_type", length = 50)
+    private String videoContentType;
+
     @Column(name = "video_url", length = 500)
     private String videoUrl;
 

@@ -6,6 +6,7 @@ import com.alphateckplus.potify.user.application_service.secondary.user.UserRepo
 import com.alphateckplus.potify.user.domain.exception.UserAlreadyExistsException;
 import com.alphateckplus.potify.user.domain.model.User;
 import com.alphateckplus.potify.user.domain.model.UserStatus;
+import com.alphateckplus.potify.user.application_service.secondary.user.PasswordHashingPort;
 
 /**
  * Implementation par defaut du cas d'usage de creation utilisateur.
@@ -14,12 +15,12 @@ public class DefaultCreateUserService implements CreateUserService {
 
     private final UserRepositoryPort userRepositoryPort;
     private final NotificationPort notificationPort;
-    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    private final PasswordHashingPort passwordHashingPort;
 
-    public DefaultCreateUserService(UserRepositoryPort userRepositoryPort, NotificationPort notificationPort, org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
+    public DefaultCreateUserService(UserRepositoryPort userRepositoryPort, NotificationPort notificationPort, PasswordHashingPort passwordHashingPort) {
         this.userRepositoryPort = userRepositoryPort;
         this.notificationPort = notificationPort;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordHashingPort = passwordHashingPort;
     }
 
     @Override
@@ -32,7 +33,7 @@ public class DefaultCreateUserService implements CreateUserService {
         User userToCreate = User.builder()
             .fullName(command.fullName())
             .email(command.email())
-            .password(passwordEncoder.encode(command.password()))
+            .password(passwordHashingPort.hash(command.password()))
             .status(UserStatus.PENDING_VERIFICATION)
             .enabled(false)
             .verificationToken(token)

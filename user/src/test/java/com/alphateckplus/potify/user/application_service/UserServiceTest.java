@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.alphateckplus.potify.user.application_service.secondary.user.PasswordHashingPort;
 
 /**
  * Tests unitaires du service applicatif user.
@@ -38,14 +38,14 @@ class UserServiceTest {
     private NotificationPort notificationPort;
 
     @Mock
-    private PasswordEncoder passwordEncoder;
+    private PasswordHashingPort passwordHashingPort;
 
     private DefaultCreateUserService defaultCreateUserService;
     private DefaultUpdateUserService defaultUpdateUserService;
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        defaultCreateUserService = new DefaultCreateUserService(userRepositoryPort, notificationPort, passwordEncoder);
+        defaultCreateUserService = new DefaultCreateUserService(userRepositoryPort, notificationPort, passwordHashingPort);
         defaultUpdateUserService = new DefaultUpdateUserService(userRepositoryPort);
     }
 
@@ -75,7 +75,7 @@ class UserServiceTest {
 
         when(userRepositoryPort.existsByEmail("nizar@example.com")).thenReturn(false);
         when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
-        when(passwordEncoder.encode("secret123")).thenReturn("encodedSecret123");
+        when(passwordHashingPort.hash("secret123")).thenReturn("encodedSecret123");
 
         // Act: execution du cas d'usage.
         User result = defaultCreateUserService.execute(command);

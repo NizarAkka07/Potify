@@ -368,29 +368,6 @@ const onSubmit = async () => {
 
     let finalVideoUrl = form.videoUrl
 
-    if (videoSource.value === 'upload' && videoFile.value) {
-      $q.notify({
-        message: 'Téléversement de la vidéo...',
-        color: 'primary',
-        icon: 'cloud_upload'
-      })
-      try {
-        const formData = new FormData()
-        formData.append('file', videoFile.value)
-        formData.append('upload_preset', 'potify_preset')
-        
-        const res = await fetch('https://api.cloudinary.com/v1_1/demo/video/upload', {
-          method: 'POST',
-          body: formData
-        })
-        const data = await res.json()
-        finalVideoUrl = data.secure_url
-      } catch (err) {
-        console.error('Cloudinary error:', err)
-        finalVideoUrl = 'https://res.cloudinary.com/demo/video/upload/dog.mp4'
-      }
-    }
-    
     // Create Main Pool
     const mainPoolPayload = {
       title: form.title,
@@ -407,6 +384,31 @@ const onSubmit = async () => {
 
     const response = await poolApi.post('/pools', mainPoolPayload)
     const mainPoolId = response.data.id
+
+    // Upload Video if selected
+    if (videoSource.value === 'upload' && videoFile.value) {
+      $q.notify({
+        message: 'Téléversement de la vidéo en cours...',
+        color: 'primary',
+        icon: 'movie'
+      })
+      try {
+        const formData = new FormData()
+        formData.append('file', videoFile.value)
+        
+        await poolApi.post(`/pools/${mainPoolId}/video`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+      } catch (err) {
+        console.error('Erreur upload vidéo:', err)
+        $q.notify({
+          type: 'negative',
+          message: 'Erreur lors de l\'enregistrement de la vidéo.'
+        })
+      }
+    }
 
     // Create Phases if needed
     if (form.hasPhases && form.phases.length > 0) {

@@ -44,6 +44,8 @@ import com.alphateckplus.potify.user.application_service.primary.user.verify_ema
 import com.alphateckplus.potify.user.application_service.primary.user.change_password.DefaultChangePasswordService;
 import com.alphateckplus.potify.user.application_service.primary.user.change_password.ChangePasswordService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.alphateckplus.potify.user.application_service.secondary.user.PasswordHashingPort;
+import com.alphateckplus.potify.user.infrastructure.secondary.user.SpringPasswordHashingAdapter;
 import com.alphateckplus.potify.user.application_service.secondary.permission.PermissionRepositoryPort;
 import com.alphateckplus.potify.user.application_service.secondary.role.RoleRepositoryPort;
 import com.alphateckplus.potify.user.application_service.secondary.user.UserRepositoryPort;
@@ -127,8 +129,13 @@ public class UserBeanConfiguration {
     }
 
     @Bean
-    public CreateUserService createUserService(UserRepositoryPort userRepositoryPort, NotificationPort notificationPort, PasswordEncoder passwordEncoder) {
-        return new DefaultCreateUserService(userRepositoryPort, notificationPort, passwordEncoder);
+    public PasswordHashingPort passwordHashingPort(PasswordEncoder passwordEncoder) {
+        return new SpringPasswordHashingAdapter(passwordEncoder);
+    }
+
+    @Bean
+    public CreateUserService createUserService(UserRepositoryPort userRepositoryPort, NotificationPort notificationPort, PasswordHashingPort passwordHashingPort) {
+        return new DefaultCreateUserService(userRepositoryPort, notificationPort, passwordHashingPort);
     }
 
     @Bean
@@ -261,7 +268,7 @@ public class UserBeanConfiguration {
     }
 
     @Bean
-    public ChangePasswordService changePasswordService(UserRepositoryPort userRepositoryPort, PasswordEncoder passwordEncoder) {
-        return new DefaultChangePasswordService(userRepositoryPort, passwordEncoder);
+    public ChangePasswordService changePasswordService(UserRepositoryPort userRepositoryPort, PasswordHashingPort passwordHashingPort) {
+        return new DefaultChangePasswordService(userRepositoryPort, passwordHashingPort);
     }
 }

@@ -26,8 +26,8 @@ spring:
             enable: true
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 server:
   port: 8082
@@ -37,3 +37,7 @@ application:
     jwt:
       secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
       expiration: 86400000
+  cloudinary:
+    cloud-name: dsoliwbee
+    api-key: "628423652634248"
+    api-secret: wL8TV51jdidtGpCP7ibcn4pFgNA

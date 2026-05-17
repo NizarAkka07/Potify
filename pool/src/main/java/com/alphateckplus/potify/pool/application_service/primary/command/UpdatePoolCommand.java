@@ -13,5 +13,8 @@ public record UpdatePoolCommand(
     String title,
     String description,
     BigDecimal goalAmount,
-    PoolStatus status
+    PoolStatus status,
+    byte[] videoContent,
+    String videoContentType,
+    String videoUrl
 ) {}

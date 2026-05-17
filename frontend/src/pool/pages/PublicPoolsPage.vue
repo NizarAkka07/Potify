@@ -91,8 +91,8 @@
             <div v-if="filteredPools.length > 0" class="row q-col-gutter-lg">
               <div v-for="pool in filteredPools" :key="pool.id" class="col-12 col-sm-6">
                 <q-card class="pool-card cursor-pointer" @click="goToPool(pool.id)">
-                  <div class="pool-image relative-position">
-                    <img :src="pool.imageUrl || getPoolImage(pool.category)" alt="Pool Image" style="width: 100%; height: 200px; object-fit: cover;">
+                  <div class="pool-image relative-position" style="background: #E0E0E0; min-height: 200px;">
+                    <img v-if="pool.imageUrl" :src="pool.imageUrl" alt="Pool Image" style="width: 100%; height: 200px; object-fit: cover;">
                     <div class="category-badge">{{ pool.category }}</div>
                   </div>
 
@@ -213,17 +213,7 @@ const getPercentage = (pool) => {
   return Math.round((pool.currentAmount / pool.goalAmount) * 100)
 }
 
-const getPoolImage = (category) => {
-  const images = {
-    'Santé': 'https://images.unsplash.com/photo-1505751172107-167429188f8d?auto=format&fit=crop&q=80&w=800',
-    'Éducation': 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80&w=800',
-    'Urgence': 'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&q=80&w=800',
-    'Animaux': 'https://images.unsplash.com/photo-1548191265-cc70d3d45ba1?auto=format&fit=crop&q=80&w=800',
-    'Projets': 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=800',
-    'Sport': 'https://images.unsplash.com/photo-1517649763962-0c6234978a0b?auto=format&fit=crop&q=80&w=800'
-  }
-  return images[category] || 'https://images.unsplash.com/photo-1454165833767-027ffea70288?auto=format&fit=crop&q=80&w=800'
-}
+
 
 onMounted(() => {
   fetchPools()
