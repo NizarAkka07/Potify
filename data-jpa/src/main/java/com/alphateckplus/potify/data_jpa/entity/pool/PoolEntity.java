@@ -13,7 +13,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -72,6 +74,17 @@ public class PoolEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
     private CagnotteStatus status;
+
+    @Column(name = "has_deadline")
+    @Builder.Default
+    private Boolean hasDeadline = false;
+
+    @Column(name = "deadline_date")
+    private LocalDateTime deadlineDate;
+
+    @OneToMany(mappedBy = "pool", cascade = jakarta.persistence.CascadeType.ALL, fetch = jakarta.persistence.FetchType.LAZY)
+    @Builder.Default
+    private List<PhaseEntity> phases = new java.util.ArrayList<>();
 
     @Column(name = "type", nullable = false, length = 20)
     private String type; // On stocke le type (PUBLIC, PRIVATE_TONTINE)

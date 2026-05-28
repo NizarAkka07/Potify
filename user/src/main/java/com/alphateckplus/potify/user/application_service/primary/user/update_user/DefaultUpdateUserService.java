@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.user.application_service.primary.user.update_user;
 
-import com.alphateckplus.potify.user.application_service.primary.command.UpdateUserCommand;
 import com.alphateckplus.potify.user.application_service.secondary.user.UserRepositoryPort;
 import com.alphateckplus.potify.user.domain.exception.UserAlreadyExistsException;
 import com.alphateckplus.potify.user.domain.exception.UserNotFoundException;
@@ -18,21 +17,21 @@ public class DefaultUpdateUserService implements UpdateUserService {
     }
 
     @Override
-    public User execute(UpdateUserCommand command) {
-        User existingUser = userRepositoryPort.findById(command.userId())
-            .orElseThrow(() -> new UserNotFoundException(command.userId()));
+    public User execute(User user) {
+        User existingUser = userRepositoryPort.findById(user.getId())
+            .orElseThrow(() -> new UserNotFoundException(user.getId()));
 
-        if (!existingUser.getEmail().equals(command.email())
-            && userRepositoryPort.existsByEmail(command.email())) {
-            throw new UserAlreadyExistsException(command.email());
+        if (!existingUser.getEmail().equals(user.getEmail())
+            && userRepositoryPort.existsByEmail(user.getEmail())) {
+            throw new UserAlreadyExistsException(user.getEmail());
         }
 
-        existingUser.setFullName(command.fullName());
-        existingUser.setEmail(command.email());
-        if (command.password() != null && !command.password().isEmpty()) {
-            existingUser.setPassword(command.password());
+        existingUser.setFullName(user.getFullName());
+        existingUser.setEmail(user.getEmail());
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            existingUser.setPassword(user.getPassword());
         }
-        existingUser.setStatus(command.status());
+        existingUser.setStatus(user.getStatus());
         return userRepositoryPort.save(existingUser);
     }
 }

@@ -22,5 +22,8 @@ public enum PoolStatus {
     CLOTUREE,
 
     /** La cagnotte est archivee et n'est plus visible dans les listes actives. */
-    ARCHIVEE
+    ARCHIVEE,
+
+    /** La sous-cagnotte a completé toutes ses phases. */
+    COMPLETED
 }

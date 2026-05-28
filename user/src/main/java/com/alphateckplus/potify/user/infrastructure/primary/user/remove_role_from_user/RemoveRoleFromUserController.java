@@ -1,7 +1,8 @@
 package com.alphateckplus.potify.user.infrastructure.primary.user.remove_role_from_user;
 
-import com.alphateckplus.potify.user.application_service.primary.command.RemoveRoleFromUserCommand;
 import com.alphateckplus.potify.user.application_service.primary.user.remove_role_from_user.RemoveRoleFromUserService;
+import com.alphateckplus.potify.user.domain.model.User;
+import com.alphateckplus.potify.user.domain.model.Role;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,7 +24,10 @@ public class RemoveRoleFromUserController {
         @PathVariable String userId,
         @PathVariable String roleId
     ) {
-        removeRoleFromUserService.execute(new RemoveRoleFromUserCommand(userId, roleId));
+        removeRoleFromUserService.execute(
+            User.builder().id(userId).build(),
+            Role.builder().id(roleId).build()
+        );
         return ResponseEntity.noContent().build();
     }
 }

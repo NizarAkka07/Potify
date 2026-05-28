@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.user.application_service.primary.user.create_user;
 
-import com.alphateckplus.potify.user.application_service.primary.command.CreateUserCommand;
 import com.alphateckplus.potify.user.application_service.secondary.notification.NotificationPort;
 import com.alphateckplus.potify.user.application_service.secondary.user.UserRepositoryPort;
 import com.alphateckplus.potify.user.domain.exception.UserAlreadyExistsException;
@@ -24,22 +23,18 @@ public class DefaultCreateUserService implements CreateUserService {
     }
 
     @Override
-    public User execute(CreateUserCommand command) {
-        if (userRepositoryPort.existsByEmail(command.email())) {
-            throw new UserAlreadyExistsException(command.email());
+    public User execute(User user) {
+        if (userRepositoryPort.existsByEmail(user.getEmail())) {
+            throw new UserAlreadyExistsException(user.getEmail());
         }
 
         String token = java.util.UUID.randomUUID().toString();
-        User userToCreate = User.builder()
-            .fullName(command.fullName())
-            .email(command.email())
-            .password(passwordHashingPort.hash(command.password()))
-            .status(UserStatus.PENDING_VERIFICATION)
-            .enabled(false)
-            .verificationToken(token)
-            .build();
+        user.setPassword(passwordHashingPort.hash(user.getPassword()));
+        user.setStatus(UserStatus.PENDING_VERIFICATION);
+        user.setEnabled(false);
+        user.setVerificationToken(token);
 
-        User createdUser = userRepositoryPort.save(userToCreate);
+        User createdUser = userRepositoryPort.save(user);
 
         // Envoi du mail de verification
         notificationPort.sendVerificationEmail(createdUser.getEmail(), createdUser.getFullName(), token);

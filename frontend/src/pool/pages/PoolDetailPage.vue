@@ -92,6 +92,11 @@
 
             <!-- Progression -->
             <div class="q-mb-xl">
+              <!-- Deadline Alert / Display -->
+              <div v-if="pool.hasDeadline && pool.deadlineDate" class="q-mb-sm q-pa-sm bg-amber-1 text-amber-9 rounded-borders text-subtitle2 text-weight-bold flex items-center">
+                <q-icon name="alarm" class="q-mr-xs" size="sm" />
+                Date limite : {{ formatDateWithTime(pool.deadlineDate) }}
+              </div>
               <div class="row items-end justify-between q-mb-sm">
                 <div class="text-h4 text-weight-bolder text-primary">
                   {{ pool.currentAmount || 0 }} €
@@ -188,48 +193,128 @@
               {{ pool.description }}
             </div>
 
-            <!-- SECTION : PHASES / ÉTAPES DU PROJET -->
-            <div v-if="pool.phases && pool.phases.length > 0" class="q-mb-xl">
+            <!-- SECTION : PHASES DE PROGRESSION (Cagnotte Simple) -->
+            <div v-if="(!pool.subPools || pool.subPools.length === 0) && pool.phases && pool.phases.length > 0" class="q-mb-xl">
               <div class="text-h5 text-weight-bold q-mb-lg row items-center" style="color: #0D1B2E;">
-                <q-icon name="account_tree" class="q-mr-sm" color="primary" />
-                Étapes du projet ({{ pool.phases.length }})
+                <q-icon name="flag" class="q-mr-sm" color="primary" />
+                Phases de progression ({{ pool.phases.length }})
               </div>
               
-              <q-card flat bordered style="border-radius: 16px; border: 1px solid #E0E0E0;">
-                <q-card-section class="q-pa-lg">
-                  <div class="phases-timeline">
-                    <div v-for="(phase, index) in pool.phases" :key="phase.id" class="phase-item q-mb-lg">
-                      <div class="row items-center q-mb-sm">
-                        <div class="phase-number-circle q-mr-md" :class="getPhaseStatusClass(phase)">
-                          {{ index + 1 }}
-                        </div>
-                        <div class="col">
-                          <div class="row items-center justify-between">
-                            <div class="text-subtitle1 text-weight-bold" :class="phase.status === 'CLOTUREE' ? 'text-grey-6' : 'text-dark'">
-                              {{ phase.title }}
-                              <q-badge v-if="isActivePhase(phase)" color="secondary" label="ACTIVE" class="q-ml-sm" />
-                            </div>
-                            <div class="text-caption text-weight-medium" :class="phase.status === 'CLOTUREE' ? 'text-green' : 'text-grey-7'">
-                              {{ phase.currentAmount }} € / {{ phase.goalAmount }} €
-                            </div>
+              <q-card flat bordered style="border-radius: 16px; border: 1px solid #E0E0E0; background: white;" class="q-pa-lg">
+                <div class="phases-timeline q-pl-sm">
+                  <div v-for="(phase, phIndex) in pool.phases" :key="phase.id" class="phase-item q-mb-md">
+                    <div class="row items-center q-mb-xs">
+                      <div class="phase-number-circle q-mr-md" :class="getPhaseStatusClass(phase)">
+                        {{ phIndex + 1 }}
+                      </div>
+                      <div class="col">
+                        <div class="row items-center justify-between">
+                          <div class="text-caption text-weight-bold" :class="phase.status === 'COMPLETED' ? 'text-grey-6' : 'text-dark'">
+                            {{ phase.title }}
+                            <q-badge v-if="phase.status === 'ACTIVE'" color="secondary" label="ACTIVE" class="q-ml-xs" />
+                          </div>
+                          <div class="text-caption text-weight-medium text-grey-7">
+                            {{ phase.currentAmount || 0 }} € / {{ phase.goalAmount }} €
                           </div>
                         </div>
                       </div>
-                      <div class="q-pl-xl">
-                        <q-linear-progress 
-                          :value="phase.currentAmount / phase.goalAmount" 
-                          :color="phase.status === 'CLOTUREE' ? 'green' : (isActivePhase(phase) ? 'secondary' : 'grey-4')" 
-                          size="8px" 
-                          rounded 
+                    </div>
+                    <div class="q-pl-xl">
+                      <q-linear-progress 
+                        :value="(phase.currentAmount || 0) / phase.goalAmount" 
+                        :color="phase.status === 'COMPLETED' ? 'green' : (phase.status === 'ACTIVE' ? 'secondary' : 'grey-4')" 
+                        size="6px" 
+                        rounded 
+                      />
+                    </div>
+                  </div>
+                </div>
+              </q-card>
+            </div>
+
+             <!-- SECTION : SOUS-CAGNOTTES / ÉTAPES DU PROJET -->
+            <div v-if="pool.subPools && pool.subPools.length > 0" class="q-mb-xl">
+              <div class="text-h5 text-weight-bold q-mb-lg row items-center" style="color: #0D1B2E;">
+                <q-icon name="account_tree" class="q-mr-sm" color="primary" />
+                Sous-cagnottes du projet ({{ pool.subPools.length }})
+              </div>
+              
+              <div v-for="subPool in pool.subPools" :key="subPool.id" class="q-mb-lg">
+                <q-card flat bordered style="border-radius: 16px; border: 1px solid #E0E0E0; background: white;">
+                  <q-card-section class="q-pa-lg">
+                    <!-- Title and Contribute button -->
+                    <div class="row items-center justify-between q-mb-md">
+                      <div class="col">
+                        <div class="text-h6 text-weight-bold text-dark">{{ subPool.title }}</div>
+                        <div v-if="subPool.description" class="text-body2 text-grey-7 q-mt-xs">{{ subPool.description }}</div>
+                        <!-- Subpool deadline -->
+                        <div v-if="subPool.hasDeadline && subPool.deadlineDate" class="text-caption text-amber-9 text-weight-bold q-mt-xs">
+                          <q-icon name="alarm" class="q-mr-xs" /> Fin le {{ formatDateWithTime(subPool.deadlineDate) }}
+                        </div>
+                      </div>
+                      
+                      <div class="col-auto">
+                        <q-btn 
+                          label="Contribuer" 
+                          color="secondary" 
+                          unelevated 
+                          no-caps 
+                          style="border-radius: 8px;"
+                          @click="contributeToSubPool(subPool.id)"
+                          :disable="subPool.status === 'COMPLETED'"
                         />
-                        <div v-if="isActivePhase(phase)" class="text-caption q-mt-xs text-secondary text-weight-medium">
-                          <q-icon name="info" size="xs" /> Les contributions actuelles financent cette étape.
+                      </div>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="q-mb-md">
+                      <div class="row justify-between text-caption text-grey-7 q-mb-xs">
+                        <span>{{ subPool.currentAmount || 0 }} € collectés sur {{ subPool.goalAmount }} €</span>
+                        <span class="text-weight-bold">{{ Math.round(((subPool.currentAmount || 0) / subPool.goalAmount) * 100) }}%</span>
+                      </div>
+                      <q-linear-progress 
+                        :value="(subPool.currentAmount || 0) / subPool.goalAmount" 
+                        color="primary" 
+                        size="10px" 
+                        rounded 
+                      />
+                    </div>
+
+                    <!-- Phases within this sub-pool -->
+                    <div v-if="subPool.phases && subPool.phases.length > 0" class="q-mt-md">
+                      <div class="text-subtitle2 text-weight-bold text-grey-8 q-mb-sm">Phases de progression :</div>
+                      <div class="phases-timeline q-pl-sm">
+                        <div v-for="(phase, phIndex) in subPool.phases" :key="phase.id" class="phase-item q-mb-md">
+                          <div class="row items-center q-mb-xs">
+                            <div class="phase-number-circle q-mr-md" :class="getPhaseStatusClass(phase)">
+                              {{ phIndex + 1 }}
+                            </div>
+                            <div class="col">
+                              <div class="row items-center justify-between">
+                                <div class="text-caption text-weight-bold" :class="phase.status === 'COMPLETED' ? 'text-grey-6' : 'text-dark'">
+                                  {{ phase.title }}
+                                  <q-badge v-if="phase.status === 'ACTIVE'" color="secondary" label="ACTIVE" class="q-ml-xs" />
+                                </div>
+                                <div class="text-caption text-weight-medium text-grey-7">
+                                  {{ phase.currentAmount }} € / {{ phase.goalAmount }} €
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="q-pl-xl">
+                            <q-linear-progress 
+                              :value="phase.currentAmount / phase.goalAmount" 
+                              :color="phase.status === 'COMPLETED' ? 'green' : (phase.status === 'ACTIVE' ? 'secondary' : 'grey-4')" 
+                              size="6px" 
+                              rounded 
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </q-card-section>
-              </q-card>
+                  </q-card-section>
+                </q-card>
+              </div>
             </div>
 
             <!-- SECTION FINANCIERE (Visible uniquement par le proprietaire) -->
@@ -438,9 +523,19 @@
             Soutenez "{{ pool?.title }}" en choisissant un montant.
           </div>
           
-          <div v-if="pool.phases && pool.phases.length > 0" class="q-mb-md q-pa-sm bg-blue-1 text-blue-9 rounded-borders text-caption">
-            <q-icon name="info" class="q-mr-xs" />
-            Cette cagnotte est divisée en phases. Votre contribution sera automatiquement attribuée à la phase active actuelle.
+          <div v-if="pool.subPools && pool.subPools.length > 0" class="q-mb-md">
+            <q-select
+              outlined
+              v-model="selectedSubPoolId"
+              :options="subPoolOptions"
+              option-value="value"
+              option-label="label"
+              emit-value
+              map-options
+              label="Sélectionner la sous-cagnotte *"
+              color="secondary"
+              :rules="[val => !!val || 'Veuillez choisir une sous-cagnotte']"
+            />
           </div>
 
           <q-form @submit="submitContribution" class="q-gutter-md">
@@ -535,16 +630,36 @@ const isDirectVideo = computed(() => {
   return pool.value.videoUrl && !youtubeId.value
 })
 
-// Logique pour les phases
-const isActivePhase = (phase) => {
-  if (!pool.value.phases) return false
-  const firstNonClosed = pool.value.phases.find(p => p.status !== 'CLOTUREE' && p.status !== 'ARCHIVEE')
-  return firstNonClosed && firstNonClosed.id === phase.id
+// Logique pour les phases et sous-cagnottes
+const selectedSubPoolId = ref(null)
+
+const subPoolOptions = computed(() => {
+  if (!pool.value.subPools) return []
+  return pool.value.subPools.map(sp => ({
+    label: `${sp.title} (${sp.currentAmount || 0} € / ${sp.goalAmount} €)`,
+    value: sp.id
+  }))
+})
+
+const contributeToSubPool = (subPoolId) => {
+  selectedSubPoolId.value = subPoolId
+  contributionDialog.value = true
+}
+
+const formatDateWithTime = (dateStr) => {
+  if (!dateStr) return '-'
+  return new Date(dateStr).toLocaleString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
 const getPhaseStatusClass = (phase) => {
-  if (phase.status === 'CLOTUREE') return 'bg-green text-white'
-  if (isActivePhase(phase)) return 'bg-secondary text-white'
+  if (phase.status === 'COMPLETED') return 'bg-green text-white'
+  if (phase.status === 'ACTIVE') return 'bg-secondary text-white'
   return 'bg-grey-3 text-grey-7'
 }
 
@@ -786,6 +901,12 @@ const sendInvitation = async () => {
 }
 
 const contribute = () => {
+  if (pool.value.subPools && pool.value.subPools.length > 0) {
+    if (!selectedSubPoolId.value) {
+      const firstActive = pool.value.subPools.find(sp => sp.status !== 'COMPLETED')
+      selectedSubPoolId.value = firstActive ? firstActive.id : pool.value.subPools[0].id
+    }
+  }
   contributionDialog.value = true
 }
 
@@ -807,7 +928,7 @@ const submitContribution = async () => {
     }
 
     const payload = {
-      poolId: pool.value.id,
+      poolId: selectedSubPoolId.value || pool.value.id,
       userId: user?.id || null,
       contributorEmail: user?.email || 'anonyme@potify.com',
       amount: contributionForm.amount,

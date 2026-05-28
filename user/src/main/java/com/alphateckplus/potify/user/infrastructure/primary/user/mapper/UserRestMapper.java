@@ -1,6 +1,6 @@
-package com.alphateckplus.potify.user.infrastructure.primary;
+package com.alphateckplus.potify.user.infrastructure.primary.user.mapper;
 
-import com.alphateckplus.potify.user.infrastructure.primary.dto.UserResponse;
+import com.alphateckplus.potify.user.infrastructure.primary.user.dto.UserResponse;
 import com.alphateckplus.potify.user.domain.model.User;
 import org.springframework.stereotype.Component;
 

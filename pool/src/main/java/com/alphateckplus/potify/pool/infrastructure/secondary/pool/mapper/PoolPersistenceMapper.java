@@ -2,6 +2,7 @@ package com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper;
 
 import com.alphateckplus.potify.data_jpa.entity.pool.CagnotteStatus;
 import com.alphateckplus.potify.data_jpa.entity.pool.PoolEntity;
+import com.alphateckplus.potify.data_jpa.entity.pool.PhaseEntity;
 import com.alphateckplus.potify.pool.domain.model.Pool;
 import com.alphateckplus.potify.pool.domain.model.PoolStatus;
 import com.alphateckplus.potify.pool.domain.model.PoolType;
@@ -20,6 +21,7 @@ public class PoolPersistenceMapper {
 
     private final WalletPersistenceMapper walletPersistenceMapper;
     private final InvitationPersistenceMapper invitationPersistenceMapper;
+    private final PhasePersistenceMapper phasePersistenceMapper;
 
     /**
      * Convertit un objet domaine vers son equivalent JPA.
@@ -32,7 +34,7 @@ public class PoolPersistenceMapper {
             invitedIds = String.join(",", domain.getInvitedUserIds());
         }
 
-        return PoolEntity.builder()
+        PoolEntity entity = PoolEntity.builder()
                 .id(domain.getId())
                 .title(domain.getTitle())
                 .description(domain.getDescription())
@@ -47,7 +49,19 @@ public class PoolPersistenceMapper {
                 .videoContent(domain.getVideoContent())
                 .videoContentType(domain.getVideoContentType())
                 .videoUrl(domain.getVideoUrl())
+                .hasDeadline(domain.getHasDeadline() != null ? domain.getHasDeadline() : false)
+                .deadlineDate(domain.getDeadlineDate())
                 .build();
+
+        if (domain.getPhases() != null) {
+            java.util.List<PhaseEntity> phaseEntities = domain.getPhases().stream()
+                    .map(phasePersistenceMapper::toEntity)
+                    .collect(Collectors.toList());
+            phaseEntities.forEach(p -> p.setPool(entity));
+            entity.setPhases(phaseEntities);
+        }
+
+        return entity;
     }
 
     /**
@@ -89,6 +103,11 @@ public class PoolPersistenceMapper {
                 .children(entity.getChildren() != null ?
                         entity.getChildren().stream().map(this::toDomainShort).collect(Collectors.toList()) :
                         new java.util.ArrayList<>())
+                .hasDeadline(entity.getHasDeadline() != null ? entity.getHasDeadline() : false)
+                .deadlineDate(entity.getDeadlineDate())
+                .phases(entity.getPhases() != null ?
+                        entity.getPhases().stream().map(phasePersistenceMapper::toDomain).collect(Collectors.toList()) :
+                        new java.util.ArrayList<>())
                 .build();
     }
 
@@ -103,6 +122,11 @@ public class PoolPersistenceMapper {
                 .currentAmount(entity.getCurrentAmount())
                 .goalAmount(entity.getGoalAmount())
                 .status(entity.getStatus() != null ? PoolStatus.valueOf(entity.getStatus().name()) : PoolStatus.PUBLIEE)
+                .hasDeadline(entity.getHasDeadline() != null ? entity.getHasDeadline() : false)
+                .deadlineDate(entity.getDeadlineDate())
+                .phases(entity.getPhases() != null ?
+                        entity.getPhases().stream().map(phasePersistenceMapper::toDomain).collect(Collectors.toList()) :
+                        new java.util.ArrayList<>())
                 .build();
     }
 }

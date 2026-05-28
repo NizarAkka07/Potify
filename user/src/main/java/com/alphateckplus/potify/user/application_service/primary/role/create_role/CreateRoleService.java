@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.user.application_service.primary.role.create_role;
 
-import com.alphateckplus.potify.user.application_service.primary.command.CreateRoleCommand;
 import com.alphateckplus.potify.user.domain.model.Role;
 
 /**
@@ -8,5 +7,5 @@ import com.alphateckplus.potify.user.domain.model.Role;
  */
 public interface CreateRoleService {
 
-    Role execute(CreateRoleCommand command);
+    Role execute(Role role);
 }

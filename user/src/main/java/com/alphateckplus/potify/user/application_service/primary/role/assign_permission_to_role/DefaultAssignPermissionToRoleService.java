@@ -1,10 +1,11 @@
 package com.alphateckplus.potify.user.application_service.primary.role.assign_permission_to_role;
 
-import com.alphateckplus.potify.user.application_service.primary.command.AssignPermissionToRoleCommand;
 import com.alphateckplus.potify.user.application_service.secondary.permission.PermissionRepositoryPort;
 import com.alphateckplus.potify.user.application_service.secondary.role.RoleRepositoryPort;
 import com.alphateckplus.potify.user.domain.exception.PermissionNotFoundException;
 import com.alphateckplus.potify.user.domain.exception.RoleNotFoundException;
+import com.alphateckplus.potify.user.domain.model.Role;
+import com.alphateckplus.potify.user.domain.model.Permission;
 
 /**
  * Implementation par defaut du cas d'usage d'affectation permission -> role.
@@ -23,13 +24,13 @@ public class DefaultAssignPermissionToRoleService implements AssignPermissionToR
     }
 
     @Override
-    public void execute(AssignPermissionToRoleCommand command) {
-        roleRepositoryPort.findById(command.roleId())
-            .orElseThrow(() -> new RoleNotFoundException(command.roleId()));
+    public void execute(Role role, Permission permission) {
+        roleRepositoryPort.findById(role.getId())
+            .orElseThrow(() -> new RoleNotFoundException(role.getId()));
 
-        permissionRepositoryPort.findById(command.permissionId())
-            .orElseThrow(() -> new PermissionNotFoundException(command.permissionId()));
+        permissionRepositoryPort.findById(permission.getId())
+            .orElseThrow(() -> new PermissionNotFoundException(permission.getId()));
 
-        roleRepositoryPort.addPermissionToRole(command.roleId(), command.permissionId());
+        roleRepositoryPort.addPermissionToRole(role.getId(), permission.getId());
     }
 }

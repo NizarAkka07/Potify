@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.user.application_service.primary.role.update_role;
 
-import com.alphateckplus.potify.user.application_service.primary.command.UpdateRoleCommand;
 import com.alphateckplus.potify.user.domain.model.Role;
 
 /**
@@ -8,5 +7,5 @@ import com.alphateckplus.potify.user.domain.model.Role;
  */
 public interface UpdateRoleService {
 
-    Role execute(UpdateRoleCommand command);
+    Role execute(Role role);
 }

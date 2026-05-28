@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.user.application_service.primary.user.update_profile;
 
-import com.alphateckplus.potify.user.application_service.primary.command.UpdateProfileCommand;
 import com.alphateckplus.potify.user.domain.model.User;
 
 /**
@@ -10,8 +9,8 @@ import com.alphateckplus.potify.user.domain.model.User;
 public interface UpdateProfileService {
     /**
      * Execute la mise a jour du profil.
-     * @param command Les donnees de mise a jour
+     * @param user Les donnees de mise a jour
      * @return L'utilisateur mis a jour
      */
-    User execute(UpdateProfileCommand command);
+    User execute(User user);
 }

@@ -28,7 +28,7 @@ public class AddPermissionController {
         @Valid @RequestBody CreatePermissionRequest request
     ) {
         PermissionRestMapper mapper = new PermissionRestMapper();
-        var createdPermission = createPermissionService.execute(mapper.toCreateCommand(request));
+        var createdPermission = createPermissionService.execute(mapper.toDomain(request));
 
         return ResponseEntity
             .created(URI.create("/api/v1/access/permissions/" + createdPermission.getId()))

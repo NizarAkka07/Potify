@@ -9,5 +9,6 @@ public enum CagnotteStatus {
     PUBLIEE,
     SUSPENDUE,
     CLOTUREE,
-    ARCHIVEE
+    ARCHIVEE,
+    COMPLETED
 }

@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.user.application_service.primary.user.change_password;
 
-import com.alphateckplus.potify.user.application_service.primary.command.ChangePasswordCommand;
 import com.alphateckplus.potify.user.application_service.secondary.user.UserRepositoryPort;
 import com.alphateckplus.potify.user.domain.exception.UserNotFoundException;
 import com.alphateckplus.potify.user.domain.model.User;
@@ -18,18 +17,18 @@ public class DefaultChangePasswordService implements ChangePasswordService {
     private final PasswordHashingPort passwordHashingPort;
 
     @Override
-    public void execute(ChangePasswordCommand command) {
+    public void execute(User user, String oldPassword) {
         // 1. Recuperation de l'utilisateur
-        User user = userRepositoryPort.findById(command.userId())
-                .orElseThrow(() -> new UserNotFoundException(command.userId()));
+        User existingUser = userRepositoryPort.findById(user.getId())
+                .orElseThrow(() -> new UserNotFoundException(user.getId()));
 
         // 2. Verification de l'ancien mot de passe
-        if (!passwordHashingPort.matches(command.oldPassword(), user.getPassword())) {
+        if (!passwordHashingPort.matches(oldPassword, existingUser.getPassword())) {
             throw new IllegalArgumentException("L'ancien mot de passe est incorrect");
         }
 
         // 3. Hashing du nouveau mot de passe et sauvegarde
-        user.setPassword(passwordHashingPort.hash(command.newPassword()));
-        userRepositoryPort.save(user);
+        existingUser.setPassword(passwordHashingPort.hash(user.getPassword()));
+        userRepositoryPort.save(existingUser);
     }
 }

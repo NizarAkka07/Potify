@@ -3,7 +3,7 @@ package com.alphateckplus.potify.user.infrastructure.primary.auth;
 import com.alphateckplus.potify.user.infrastructure.primary.dto.auth.AuthResponse;
 import com.alphateckplus.potify.user.infrastructure.primary.dto.auth.LoginRequest;
 import com.alphateckplus.potify.user.infrastructure.primary.dto.auth.RegisterRequest;
-import com.alphateckplus.potify.user.application_service.primary.command.CreateUserCommand;
+import com.alphateckplus.potify.user.domain.model.User;
 import com.alphateckplus.potify.user.application_service.primary.user.create_user.CreateUserService;
 import com.alphateckplus.potify.user.infrastructure.primary.security.AuthFacade;
 import com.alphateckplus.potify.user.application_service.primary.user.verify_email.VerifyEmailService;
@@ -31,12 +31,12 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<Void> signup(@Valid @RequestBody RegisterRequest request) {
-        CreateUserCommand command = new CreateUserCommand(
-                request.getFullName(),
-                request.getEmail(),
-                request.getPassword()
-        );
-        createUserService.execute(command);
+        User user = User.builder()
+                .fullName(request.getFullName())
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .build();
+        createUserService.execute(user);
         return ResponseEntity.ok().build();
     }
 

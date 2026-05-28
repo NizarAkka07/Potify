@@ -35,6 +35,7 @@ import com.alphateckplus.potify.pool.application_service.primary.pool.update_poo
 import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolRepositoryPort;
 import com.alphateckplus.potify.pool.infrastructure.secondary.pool.repository.PoolJpaAdapter;
 import com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper.PoolPersistenceMapper;
+import com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper.PhasePersistenceMapper;
 import com.alphateckplus.potify.pool.infrastructure.secondary.contribution.repository.ContributionJpaAdapter;
 import com.alphateckplus.potify.pool.infrastructure.secondary.contribution.mapper.ContributionPersistenceMapper;
 import com.alphateckplus.potify.pool.application_service.secondary.contribution.ContributionRepositoryPort;
@@ -107,10 +108,16 @@ public class PoolBeanConfiguration {
     }
 
     @Bean
+    public PhasePersistenceMapper phasePersistenceMapper() {
+        return new PhasePersistenceMapper();
+    }
+
+    @Bean
     public PoolPersistenceMapper poolPersistenceMapper(
             WalletPersistenceMapper walletPersistenceMapper,
-            InvitationPersistenceMapper invitationPersistenceMapper) {
-        return new PoolPersistenceMapper(walletPersistenceMapper, invitationPersistenceMapper);
+            InvitationPersistenceMapper invitationPersistenceMapper,
+            PhasePersistenceMapper phasePersistenceMapper) {
+        return new PoolPersistenceMapper(walletPersistenceMapper, invitationPersistenceMapper, phasePersistenceMapper);
     }
 
     @Bean
@@ -149,8 +156,8 @@ public class PoolBeanConfiguration {
     }
 
     @Bean
-    public ListContributionsService listContributionsService(ContributionRepositoryPort contributionRepositoryPort) {
-        return new DefaultListContributionsService(contributionRepositoryPort);
+    public ListContributionsService listContributionsService(ContributionRepositoryPort contributionRepositoryPort, PoolRepositoryPort poolRepositoryPort) {
+        return new DefaultListContributionsService(contributionRepositoryPort, poolRepositoryPort);
     }
 
     @Bean

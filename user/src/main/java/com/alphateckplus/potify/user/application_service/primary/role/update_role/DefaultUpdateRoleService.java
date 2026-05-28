@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.user.application_service.primary.role.update_role;
 
-import com.alphateckplus.potify.user.application_service.primary.command.UpdateRoleCommand;
 import com.alphateckplus.potify.user.application_service.secondary.role.RoleRepositoryPort;
 import com.alphateckplus.potify.user.domain.exception.RoleAlreadyExistsException;
 import com.alphateckplus.potify.user.domain.exception.RoleNotFoundException;
@@ -18,19 +17,19 @@ public class DefaultUpdateRoleService implements UpdateRoleService {
     }
 
     @Override
-    public Role execute(UpdateRoleCommand command) {
-        Role existingRole = roleRepositoryPort.findById(command.roleId())
-            .orElseThrow(() -> new RoleNotFoundException(command.roleId()));
+    public Role execute(Role role) {
+        Role existingRole = roleRepositoryPort.findById(role.getId())
+            .orElseThrow(() -> new RoleNotFoundException(role.getId()));
 
-        roleRepositoryPort.findByName(command.name())
-            .ifPresent(role -> {
-                if (!role.getId().equals(existingRole.getId())) {
-                    throw new RoleAlreadyExistsException(command.name());
+        roleRepositoryPort.findByName(role.getName())
+            .ifPresent(r -> {
+                if (!r.getId().equals(existingRole.getId())) {
+                    throw new RoleAlreadyExistsException(role.getName());
                 }
             });
 
-        existingRole.setName(command.name());
-        existingRole.setDescription(command.description());
+        existingRole.setName(role.getName());
+        existingRole.setDescription(role.getDescription());
         return roleRepositoryPort.save(existingRole);
     }
 }

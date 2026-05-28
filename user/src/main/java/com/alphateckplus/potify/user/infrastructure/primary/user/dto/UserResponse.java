@@ -1,4 +1,4 @@
-package com.alphateckplus.potify.user.infrastructure.primary.dto;
+package com.alphateckplus.potify.user.infrastructure.primary.user.dto;
 
 import com.alphateckplus.potify.user.domain.model.UserStatus;
 import java.time.Instant;

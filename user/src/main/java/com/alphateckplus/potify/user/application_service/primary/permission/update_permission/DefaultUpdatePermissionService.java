@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.user.application_service.primary.permission.update_permission;
 
-import com.alphateckplus.potify.user.application_service.primary.command.UpdatePermissionCommand;
 import com.alphateckplus.potify.user.application_service.secondary.permission.PermissionRepositoryPort;
 import com.alphateckplus.potify.user.domain.exception.PermissionAlreadyExistsException;
 import com.alphateckplus.potify.user.domain.exception.PermissionNotFoundException;
@@ -18,19 +17,19 @@ public class DefaultUpdatePermissionService implements UpdatePermissionService {
     }
 
     @Override
-    public Permission execute(UpdatePermissionCommand command) {
-        Permission existingPermission = permissionRepositoryPort.findById(command.permissionId())
-            .orElseThrow(() -> new PermissionNotFoundException(command.permissionId()));
+    public Permission execute(Permission permission) {
+        Permission existingPermission = permissionRepositoryPort.findById(permission.getId())
+            .orElseThrow(() -> new PermissionNotFoundException(permission.getId()));
 
-        permissionRepositoryPort.findByCode(command.code())
-            .ifPresent(permission -> {
-                if (!permission.getId().equals(existingPermission.getId())) {
-                    throw new PermissionAlreadyExistsException(command.code());
+        permissionRepositoryPort.findByCode(permission.getCode())
+            .ifPresent(p -> {
+                if (!p.getId().equals(existingPermission.getId())) {
+                    throw new PermissionAlreadyExistsException(permission.getCode());
                 }
             });
 
-        existingPermission.setCode(command.code());
-        existingPermission.setDescription(command.description());
+        existingPermission.setCode(permission.getCode());
+        existingPermission.setDescription(permission.getDescription());
         return permissionRepositoryPort.save(existingPermission);
     }
 }

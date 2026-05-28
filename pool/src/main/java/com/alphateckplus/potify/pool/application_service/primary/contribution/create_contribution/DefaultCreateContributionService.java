@@ -39,12 +39,11 @@ public class DefaultCreateContributionService implements CreateContributionServi
             throw new IllegalStateException("Vous n'etes pas autorise a contribuer a cette cagnotte privee.");
         }
 
-        // Logic for phases: if it's a main pool with children, redirect to the active phase
-        Pool targetPool = pool;
-        if (pool.getChildren() != null && !pool.getChildren().isEmpty()) {
-            targetPool = pool.getActivePhase()
-                    .orElseThrow(() -> new IllegalStateException("Toutes les phases de cette cagnotte sont terminees."));
+        if (pool.getParentId() == null && pool.getChildren() != null && !pool.getChildren().isEmpty()) {
+            throw new IllegalStateException("Cette cagnotte principale contient des sous-cagnottes. Les contributions doivent être ciblées sur l'une d'elles.");
         }
+
+        Pool targetPool = pool;
 
         // 2. Creer la contribution
         Contribution contribution = Contribution.builder()
@@ -65,11 +64,19 @@ public class DefaultCreateContributionService implements CreateContributionServi
 
         // 3. Mises a jour si la contribution est reussie
         if (savedContribution.isSuccessful()) {
-            // Mise a jour du montant global de la cagnotte (la phase cible)
-            targetPool.setCurrentAmount(targetPool.getCurrentAmount().add(savedContribution.getAmount()));
+            // Mise a jour du montant global de la sous-cagnotte et recalcul des phases
+            targetPool.addContributionAmount(savedContribution.getAmount());
             poolRepositoryPort.save(targetPool);
             
-            // Mise a jour du Wallet de la phase cible
+            // Mise a jour du montant de la cagnotte principale associée (uniquement si c'est une sous-cagnotte)
+            if (targetPool.getParentId() != null) {
+                poolRepositoryPort.findById(targetPool.getParentId()).ifPresent(parent -> {
+                    parent.setCurrentAmount((parent.getCurrentAmount() != null ? parent.getCurrentAmount() : java.math.BigDecimal.ZERO).add(savedContribution.getAmount()));
+                    poolRepositoryPort.save(parent);
+                });
+            }
+            
+            // Mise a jour du Wallet de la sous-cagnotte
             walletRepositoryPort.findByPoolId(targetPool.getId()).ifPresent(wallet -> {
                 wallet.setAvailableBalance(wallet.getAvailableBalance().add(savedContribution.getAmount()));
                 walletRepositoryPort.save(wallet);

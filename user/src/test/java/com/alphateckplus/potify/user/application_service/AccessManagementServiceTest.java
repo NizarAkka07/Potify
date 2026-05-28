@@ -7,12 +7,6 @@ import static org.mockito.Mockito.when;
 
 import com.alphateckplus.potify.user.application_service.primary.role.assign_permission_to_role.DefaultAssignPermissionToRoleService;
 import com.alphateckplus.potify.user.application_service.primary.user.assign_role_to_user.DefaultAssignRoleToUserService;
-import com.alphateckplus.potify.user.application_service.primary.command.AssignPermissionToRoleCommand;
-import com.alphateckplus.potify.user.application_service.primary.command.AssignRoleToUserCommand;
-import com.alphateckplus.potify.user.application_service.primary.command.CreatePermissionCommand;
-import com.alphateckplus.potify.user.application_service.primary.command.CreateRoleCommand;
-import com.alphateckplus.potify.user.application_service.primary.command.UpdatePermissionCommand;
-import com.alphateckplus.potify.user.application_service.primary.command.UpdateRoleCommand;
 import com.alphateckplus.potify.user.application_service.primary.permission.create_permission.DefaultCreatePermissionService;
 import com.alphateckplus.potify.user.application_service.primary.role.create_role.DefaultCreateRoleService;
 import com.alphateckplus.potify.user.application_service.primary.permission.delete_permission.DefaultDeletePermissionService;
@@ -94,68 +88,72 @@ class AccessManagementServiceTest {
 
     @Test
     void createRoleShouldFailWhenNameAlreadyExists() {
-        CreateRoleCommand command = new CreateRoleCommand("ADMIN", "Administrator");
+        Role role = Role.builder().name("ADMIN").description("Administrator").build();
         when(roleRepositoryPort.findByName("ADMIN")).thenReturn(Optional.of(new Role()));
 
-        assertThatThrownBy(() -> defaultCreateRoleService.execute(command))
+        assertThatThrownBy(() -> defaultCreateRoleService.execute(role))
             .isInstanceOf(RoleAlreadyExistsException.class)
             .hasMessageContaining("ADMIN");
     }
 
     @Test
     void createPermissionShouldFailWhenCodeAlreadyExists() {
-        CreatePermissionCommand command = new CreatePermissionCommand("PLAYLIST_READ", "Read playlist");
+        Permission permission = Permission.builder().code("PLAYLIST_READ").description("Read playlist").build();
         when(permissionRepositoryPort.findByCode("PLAYLIST_READ")).thenReturn(Optional.of(new Permission()));
 
-        assertThatThrownBy(() -> defaultCreatePermissionService.execute(command))
+        assertThatThrownBy(() -> defaultCreatePermissionService.execute(permission))
             .isInstanceOf(PermissionAlreadyExistsException.class)
             .hasMessageContaining("PLAYLIST_READ");
     }
 
     @Test
     void assignRoleToUserShouldFailWhenRoleDoesNotExist() {
-        AssignRoleToUserCommand command = new AssignRoleToUserCommand("u-1", "r-1");
+        User user = User.builder().id("u-1").build();
+        Role role = Role.builder().id("r-1").build();
 
         when(userRepositoryPort.findById("u-1")).thenReturn(Optional.of(User.builder().id("u-1").build()));
         when(roleRepositoryPort.findById("r-1")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> defaultAssignRoleToUserService.execute(command))
+        assertThatThrownBy(() -> defaultAssignRoleToUserService.execute(user, role))
             .isInstanceOf(RoleNotFoundException.class)
             .hasMessageContaining("r-1");
     }
 
     @Test
     void assignRoleToUserShouldCallRepositoryWhenDataExists() {
-        AssignRoleToUserCommand command = new AssignRoleToUserCommand("u-1", "r-1");
+        User user = User.builder().id("u-1").build();
+        Role role = Role.builder().id("r-1").build();
 
         when(userRepositoryPort.findById("u-1")).thenReturn(Optional.of(User.builder().id("u-1").build()));
         when(roleRepositoryPort.findById("r-1")).thenReturn(Optional.of(Role.builder().id("r-1").build()));
 
-        defaultAssignRoleToUserService.execute(command);
+        defaultAssignRoleToUserService.execute(user, role);
 
         verify(userRepositoryPort).addRoleToUser("u-1", "r-1");
     }
 
     @Test
     void assignPermissionToRoleShouldFailWhenPermissionDoesNotExist() {
-        AssignPermissionToRoleCommand command = new AssignPermissionToRoleCommand("r-1", "p-1");
+        Role role = Role.builder().id("r-1").build();
+        Permission permission = Permission.builder().id("p-1").build();
 
         when(roleRepositoryPort.findById("r-1")).thenReturn(Optional.of(Role.builder().id("r-1").build()));
         when(permissionRepositoryPort.findById("p-1")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> defaultAssignPermissionToRoleService.execute(command))
+        assertThatThrownBy(() -> defaultAssignPermissionToRoleService.execute(role, permission))
             .isInstanceOf(PermissionNotFoundException.class)
             .hasMessageContaining("p-1");
     }
 
     @Test
     void assignPermissionToRoleShouldCallRepositoryWhenDataExists() {
-        AssignPermissionToRoleCommand command = new AssignPermissionToRoleCommand("r-1", "p-1");
+        Role role = Role.builder().id("r-1").build();
+        Permission permission = Permission.builder().id("p-1").build();
 
         when(roleRepositoryPort.findById("r-1")).thenReturn(Optional.of(Role.builder().id("r-1").build()));
         when(permissionRepositoryPort.findById("p-1")).thenReturn(Optional.of(Permission.builder().id("p-1").build()));
 
-        defaultAssignPermissionToRoleService.execute(command);
+        defaultAssignPermissionToRoleService.execute(role, permission);
 
         verify(roleRepositoryPort).addPermissionToRole("r-1", "p-1");
     }
@@ -206,7 +204,7 @@ class AccessManagementServiceTest {
 
     @Test
     void updateRoleShouldThrowWhenNameAlreadyUsedByAnotherRole() {
-        UpdateRoleCommand command = new UpdateRoleCommand("r-1", "ADMIN", "Updated");
+        Role role = Role.builder().id("r-1").name("ADMIN").description("Updated").build();
 
         when(roleRepositoryPort.findById("r-1")).thenReturn(
             Optional.of(Role.builder().id("r-1").name("OLD").description("Old").build())
@@ -215,7 +213,7 @@ class AccessManagementServiceTest {
             Optional.of(Role.builder().id("r-2").name("ADMIN").description("Admin").build())
         );
 
-        assertThatThrownBy(() -> defaultUpdateRoleService.execute(command))
+        assertThatThrownBy(() -> defaultUpdateRoleService.execute(role))
             .isInstanceOf(RoleAlreadyExistsException.class)
             .hasMessageContaining("ADMIN");
     }
@@ -245,7 +243,7 @@ class AccessManagementServiceTest {
 
     @Test
     void updatePermissionShouldThrowWhenCodeAlreadyUsedByAnotherPermission() {
-        UpdatePermissionCommand command = new UpdatePermissionCommand("p-1", "USER_WRITE", "Updated");
+        Permission permission = Permission.builder().id("p-1").code("USER_WRITE").description("Updated").build();
 
         when(permissionRepositoryPort.findById("p-1")).thenReturn(
             Optional.of(Permission.builder().id("p-1").code("USER_READ").description("Read").build())
@@ -254,7 +252,7 @@ class AccessManagementServiceTest {
             Optional.of(Permission.builder().id("p-2").code("USER_WRITE").description("Write").build())
         );
 
-        assertThatThrownBy(() -> defaultUpdatePermissionService.execute(command))
+        assertThatThrownBy(() -> defaultUpdatePermissionService.execute(permission))
             .isInstanceOf(PermissionAlreadyExistsException.class)
             .hasMessageContaining("USER_WRITE");
     }

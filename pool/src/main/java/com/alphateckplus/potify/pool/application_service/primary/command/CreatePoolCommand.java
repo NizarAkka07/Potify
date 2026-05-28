@@ -20,5 +20,9 @@ public record CreatePoolCommand(
     byte[] imageContent,
     String imageContentType,
     String videoUrl,
-    String parentId
+    String parentId,
+    Boolean hasDeadline,
+    java.time.LocalDateTime deadlineDate,
+    java.util.List<PhaseCommand> phases,
+    java.util.List<SubPoolCommand> subPools
 ) {}

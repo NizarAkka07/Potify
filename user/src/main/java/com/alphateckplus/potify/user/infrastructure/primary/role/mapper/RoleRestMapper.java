@@ -1,7 +1,5 @@
 package com.alphateckplus.potify.user.infrastructure.primary.role.mapper;
 
-import com.alphateckplus.potify.user.application_service.primary.command.CreateRoleCommand;
-import com.alphateckplus.potify.user.application_service.primary.command.UpdateRoleCommand;
 import com.alphateckplus.potify.user.domain.model.Role;
 import com.alphateckplus.potify.user.infrastructure.primary.role.dto.CreateRoleRequest;
 import com.alphateckplus.potify.user.infrastructure.primary.role.dto.RoleResponse;
@@ -15,12 +13,19 @@ import java.util.List;
  */
 public class RoleRestMapper {
 
-    public CreateRoleCommand toCreateCommand(CreateRoleRequest request) {
-        return new CreateRoleCommand(request.name(), request.description());
+    public Role toDomain(CreateRoleRequest request) {
+        return Role.builder()
+            .name(request.name())
+            .description(request.description())
+            .build();
     }
 
-    public UpdateRoleCommand toUpdateCommand(String roleId, UpdateRoleRequest request) {
-        return new UpdateRoleCommand(roleId, request.name(), request.description());
+    public Role toDomain(String roleId, UpdateRoleRequest request) {
+        return Role.builder()
+            .id(roleId)
+            .name(request.name())
+            .description(request.description())
+            .build();
     }
 
     public RoleResponse toResponse(Role role) {

@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.user.application_service.primary.permission.create_permission;
 
-import com.alphateckplus.potify.user.application_service.primary.command.CreatePermissionCommand;
 import com.alphateckplus.potify.user.application_service.secondary.permission.PermissionRepositoryPort;
 import com.alphateckplus.potify.user.domain.exception.PermissionAlreadyExistsException;
 import com.alphateckplus.potify.user.domain.model.Permission;
@@ -17,16 +16,11 @@ public class DefaultCreatePermissionService implements CreatePermissionService {
     }
 
     @Override
-    public Permission execute(CreatePermissionCommand command) {
-        if (permissionRepositoryPort.findByCode(command.code()).isPresent()) {
-            throw new PermissionAlreadyExistsException(command.code());
+    public Permission execute(Permission permission) {
+        if (permissionRepositoryPort.findByCode(permission.getCode()).isPresent()) {
+            throw new PermissionAlreadyExistsException(permission.getCode());
         }
 
-        Permission permissionToCreate = Permission.builder()
-            .code(command.code())
-            .description(command.description())
-            .build();
-
-        return permissionRepositoryPort.save(permissionToCreate);
+        return permissionRepositoryPort.save(permission);
     }
 }

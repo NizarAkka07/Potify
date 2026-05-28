@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Contrat d'entree pour la creation d'une cagnotte.
@@ -33,5 +35,9 @@ public record CreatePoolRequest(
     String imageData, // Base64 string
     String imageContentType,
     String videoUrl,
-    String parentId
+    String parentId,
+    Boolean hasDeadline,
+    LocalDateTime deadlineDate,
+    List<PhaseRequest> phases,
+    List<SubPoolRequest> subPools
 ) {}

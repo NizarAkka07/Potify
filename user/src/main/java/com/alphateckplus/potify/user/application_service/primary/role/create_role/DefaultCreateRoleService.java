@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.user.application_service.primary.role.create_role;
 
-import com.alphateckplus.potify.user.application_service.primary.command.CreateRoleCommand;
 import com.alphateckplus.potify.user.application_service.secondary.role.RoleRepositoryPort;
 import com.alphateckplus.potify.user.domain.exception.RoleAlreadyExistsException;
 import com.alphateckplus.potify.user.domain.model.Role;
@@ -17,16 +16,11 @@ public class DefaultCreateRoleService implements CreateRoleService {
     }
 
     @Override
-    public Role execute(CreateRoleCommand command) {
-        if (roleRepositoryPort.findByName(command.name()).isPresent()) {
-            throw new RoleAlreadyExistsException(command.name());
+    public Role execute(Role role) {
+        if (roleRepositoryPort.findByName(role.getName()).isPresent()) {
+            throw new RoleAlreadyExistsException(role.getName());
         }
 
-        Role roleToCreate = Role.builder()
-            .name(command.name())
-            .description(command.description())
-            .build();
-
-        return roleRepositoryPort.save(roleToCreate);
+        return roleRepositoryPort.save(role);
     }
 }

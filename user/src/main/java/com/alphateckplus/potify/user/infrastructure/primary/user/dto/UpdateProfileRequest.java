@@ -1,6 +1,5 @@
-package com.alphateckplus.potify.user.infrastructure.primary.dto;
+package com.alphateckplus.potify.user.infrastructure.primary.user.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 

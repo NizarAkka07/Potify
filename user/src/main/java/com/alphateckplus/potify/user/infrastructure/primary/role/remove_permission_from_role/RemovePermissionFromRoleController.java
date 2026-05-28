@@ -1,7 +1,8 @@
 package com.alphateckplus.potify.user.infrastructure.primary.role.remove_permission_from_role;
 
-import com.alphateckplus.potify.user.application_service.primary.command.RemovePermissionFromRoleCommand;
 import com.alphateckplus.potify.user.application_service.primary.role.remove_permission_from_role.RemovePermissionFromRoleService;
+import com.alphateckplus.potify.user.domain.model.Role;
+import com.alphateckplus.potify.user.domain.model.Permission;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,7 +24,10 @@ public class RemovePermissionFromRoleController {
         @PathVariable String roleId,
         @PathVariable String permissionId
     ) {
-        removePermissionFromRoleService.execute(new RemovePermissionFromRoleCommand(roleId, permissionId));
+        removePermissionFromRoleService.execute(
+            Role.builder().id(roleId).build(),
+            Permission.builder().id(permissionId).build()
+        );
         return ResponseEntity.noContent().build();
     }
 }

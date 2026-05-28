@@ -1,10 +1,11 @@
 package com.alphateckplus.potify.user.application_service.primary.role.remove_permission_from_role;
 
-import com.alphateckplus.potify.user.application_service.primary.command.RemovePermissionFromRoleCommand;
 import com.alphateckplus.potify.user.application_service.secondary.permission.PermissionRepositoryPort;
 import com.alphateckplus.potify.user.application_service.secondary.role.RoleRepositoryPort;
 import com.alphateckplus.potify.user.domain.exception.PermissionNotFoundException;
 import com.alphateckplus.potify.user.domain.exception.RoleNotFoundException;
+import com.alphateckplus.potify.user.domain.model.Role;
+import com.alphateckplus.potify.user.domain.model.Permission;
 
 public class DefaultRemovePermissionFromRoleService implements RemovePermissionFromRoleService {
 
@@ -20,13 +21,13 @@ public class DefaultRemovePermissionFromRoleService implements RemovePermissionF
     }
 
     @Override
-    public void execute(RemovePermissionFromRoleCommand command) {
-        roleRepositoryPort.findById(command.roleId())
-            .orElseThrow(() -> new RoleNotFoundException(command.roleId()));
+    public void execute(Role role, Permission permission) {
+        roleRepositoryPort.findById(role.getId())
+            .orElseThrow(() -> new RoleNotFoundException(role.getId()));
 
-        permissionRepositoryPort.findById(command.permissionId())
-            .orElseThrow(() -> new PermissionNotFoundException(command.permissionId()));
+        permissionRepositoryPort.findById(permission.getId())
+            .orElseThrow(() -> new PermissionNotFoundException(permission.getId()));
 
-        roleRepositoryPort.removePermissionFromRole(command.roleId(), command.permissionId());
+        roleRepositoryPort.removePermissionFromRole(role.getId(), permission.getId());
     }
 }

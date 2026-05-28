@@ -29,7 +29,7 @@ public class UpdateRoleController {
         @Valid @RequestBody UpdateRoleRequest request
     ) {
         RoleRestMapper mapper = new RoleRestMapper();
-        var updatedRole = updateRoleService.execute(mapper.toUpdateCommand(roleId, request));
+        var updatedRole = updateRoleService.execute(mapper.toDomain(roleId, request));
         return ResponseEntity.ok(mapper.toResponse(updatedRole));
     }
 }

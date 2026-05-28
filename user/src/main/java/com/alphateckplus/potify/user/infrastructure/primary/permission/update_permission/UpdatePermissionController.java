@@ -30,7 +30,7 @@ public class UpdatePermissionController {
     ) {
         PermissionRestMapper mapper = new PermissionRestMapper();
         var updatedPermission = updatePermissionService.execute(
-            mapper.toUpdateCommand(permissionId, request)
+            mapper.toDomain(permissionId, request)
         );
 
         return ResponseEntity.ok(mapper.toResponse(updatedPermission));

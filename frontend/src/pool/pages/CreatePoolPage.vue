@@ -1,27 +1,61 @@
 <template>
   <q-page class="flex flex-center" style="background: #F5F5F5; padding: 40px 20px;">
-    <q-card class="shadow-4" style="width: 100%; max-width: 600px; border-radius: 8px; overflow: hidden;">
+    <q-card class="shadow-4" style="width: 100%; max-width: 800px; border-radius: 12px; overflow: hidden;">
       <!-- Header Akkodis Style -->
       <div class="q-pa-lg text-white" style="background: #0D1B2E;">
         <div class="text-h5 text-weight-bold">
-          {{ form.parentId ? 'Ajouter une phase' : 'Créer une nouvelle cagnotte' }}
+          Créer une nouvelle cagnotte
         </div>
         <div class="text-subtitle2" style="color: rgba(255,255,255,0.7);">
-          {{ form.parentId ? 'Cette phase sera liée à votre cagnotte principale.' : 'Donnez vie à votre projet solidaire en quelques étapes.' }}
+          Donnez vie à votre projet solidaire en quelques étapes.
         </div>
       </div>
 
       <q-form @submit="onSubmit" class="q-pa-xl q-gutter-md">
+        <!-- Mode selection -->
+        <div class="text-subtitle1 text-weight-bold q-mb-sm" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
+          1. Structure de la cagnotte
+        </div>
+        
+        <div class="row q-col-gutter-md q-mb-md">
+          <div class="col-12 col-sm-6">
+            <q-card 
+              flat 
+              bordered 
+              class="cursor-pointer q-pa-md text-center" 
+              :style="mode === 'simple' ? 'border: 2px solid #FFB300; background: #FFFBF0;' : ''"
+              @click="setMode('simple')"
+            >
+              <q-icon name="filter_1" size="md" color="primary" class="q-mb-xs" />
+              <div class="text-weight-bold">Cagnotte Simple</div>
+              <div class="text-caption text-grey-7">Une seule étape de financement</div>
+            </q-card>
+          </div>
+          <div class="col-12 col-sm-6">
+            <q-card 
+              flat 
+              bordered 
+              class="cursor-pointer q-pa-md text-center" 
+              :style="mode === 'multi' ? 'border: 2px solid #FFB300; background: #FFFBF0;' : ''"
+              @click="setMode('multi')"
+            >
+              <q-icon name="account_tree" size="md" color="primary" class="q-mb-xs" />
+              <div class="text-weight-bold">Cagnotte Complexe (Multi-Sous-Cagnottes)</div>
+              <div class="text-caption text-grey-7">Divisée en plusieurs sous-cagnottes et phases</div>
+            </q-card>
+          </div>
+        </div>
+
         <!-- Informations de base -->
         <div class="text-subtitle1 text-weight-bold q-mb-sm" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
-          1. Détails de la collecte
+          2. Détails généraux de la cagnotte
         </div>
 
         <q-input
           outlined
           v-model="form.title"
-          label="Titre de la cagnotte *"
-          placeholder="Ex: Soutien pour l'éducation des enfants de..."
+          label="Titre de la cagnotte principale *"
+          placeholder="Ex: Projet Éco-Solidaire Village"
           lazy-rules
           :rules="[ val => val && val.length > 0 || 'Le titre est obligatoire']"
           color="secondary"
@@ -32,7 +66,7 @@
           v-model="form.description"
           type="textarea"
           label="Description *"
-          placeholder="Expliquez pourquoi vous collectez des fonds..."
+          placeholder="Expliquez votre projet en détails..."
           lazy-rules
           :rules="[ val => val && val.length > 0 || 'La description est obligatoire']"
           color="secondary"
@@ -53,75 +87,269 @@
               outlined
               v-model.number="form.goalAmount"
               type="number"
-              label="Objectif financier (€) *"
+              label="Objectif financier total (€) *"
               suffix="€"
               lazy-rules
               :rules="[ val => val > 0 || 'Le montant doit être supérieur à 0']"
               color="secondary"
-              :readonly="form.hasPhases"
-              :hint="form.hasPhases ? 'Calculé automatiquement à partir des phases' : ''"
+              :readonly="mode === 'multi' || (mode === 'simple' && form.simplePhases.length > 1)"
+              :hint="mode === 'multi' || (mode === 'simple' && form.simplePhases.length > 1) ? 'Calculé automatiquement à partir des phases' : ''"
+              @update:model-value="onTotalGoalUpdate"
             />
           </div>
         </div>
 
-        <!-- SECTION PHASES -->
-        <div v-if="!form.parentId" class="q-mt-lg">
+        <!-- Deadline principale -->
+        <div class="q-mt-md">
           <div class="row items-center justify-between">
+            <div class="text-subtitle2 text-weight-bold text-grey-8">Date limite pour la cagnotte principale</div>
+            <q-toggle v-model="form.hasDeadline" color="secondary" />
+          </div>
+          
+          <q-input 
+            v-if="form.hasDeadline" 
+            outlined 
+            v-model="form.deadlineDate" 
+            label="Date de fin *" 
+            placeholder="Sélectionnez une date limite"
+            :rules="[val => !form.hasDeadline || !!val || 'La date est obligatoire']"
+          >
+            <template v-slot:prepend>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                  <q-date v-model="form.deadlineDate" mask="YYYY-MM-DDTHH:mm:ss">
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Fermer" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+            <template v-slot:append>
+              <q-icon name="access_time" class="cursor-pointer">
+                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                  <q-time v-model="form.deadlineDate" mask="YYYY-MM-DDTHH:mm:ss" format24h>
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Fermer" color="primary" flat />
+                    </div>
+                  </q-time>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+        </div>
+
+        <!-- SOUS-CAGNOTTES SECTION (Only if mode === 'multi') -->
+        <div v-if="mode === 'multi'" class="q-mt-lg">
+          <div class="row items-center justify-between q-mb-md">
             <div class="text-subtitle1 text-weight-bold" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
-              2. Phases du projet (Optionnel)
+              3. Configuration des Sous-Cagnottes
             </div>
-            <q-toggle
-              v-model="form.hasPhases"
-              label="Diviser en plusieurs phases"
-              color="secondary"
-              keep-color
+            <q-btn 
+              label="Ajouter une sous-cagnotte" 
+              icon="add" 
+              color="primary" 
+              outline 
+              no-caps 
+              @click="addSubPool" 
             />
           </div>
 
-          <div v-if="form.hasPhases" class="q-mt-md">
-            <q-input
-              outlined
-              v-model.number="form.phaseCount"
-              type="number"
-              label="Nombre de phases"
-              @update:model-value="updatePhases"
-              min="2"
-              max="10"
-              class="q-mb-md"
-              color="secondary"
+          <div v-for="(subPool, spIndex) in form.subPools" :key="spIndex" class="q-pa-md q-mb-md bg-grey-2 rounded-borders border-accent relative-position" style="border-left: 6px solid #0D1B2E;">
+            <q-btn 
+              v-if="form.subPools.length > 1"
+              icon="close" 
+              flat 
+              round 
+              dense 
+              color="negative" 
+              class="absolute-top-right q-ma-sm"
+              @click="removeSubPool(spIndex)" 
             />
+            
+            <div class="text-subtitle2 text-weight-bold q-mb-md">Sous-cagnotte {{ spIndex + 1 }}</div>
 
-            <div v-for="(phase, index) in form.phases" :key="index" class="phase-config q-pa-md q-mb-md bg-grey-2 rounded-borders border-accent" style="border-left: 4px solid #FFB300;">
-              <div class="text-subtitle2 q-mb-sm">Phase {{ index + 1 }}</div>
-              <div class="row q-col-gutter-sm">
-                <div class="col-8">
-                  <q-input 
-                    outlined 
-                    v-model="phase.title" 
+            <div class="q-gutter-y-sm">
+              <q-input 
+                outlined 
+                v-model="subPool.title" 
+                dense 
+                label="Titre de la sous-cagnotte *" 
+                placeholder="Ex: Phase 1: Fondation" 
+                bg-white
+                :rules="[val => !!val || 'Le titre est obligatoire']"
+              />
+
+              <q-input 
+                outlined 
+                v-model="subPool.description" 
+                dense 
+                type="textarea"
+                rows="2"
+                label="Description" 
+                placeholder="Détails de cette sous-cagnotte..." 
+                bg-white
+              />
+
+              <div class="row items-center justify-between">
+                <span class="text-caption text-grey-8">Date limite pour cette sous-cagnotte</span>
+                <q-toggle v-model="subPool.hasDeadline" dense color="secondary" />
+              </div>
+
+              <q-input 
+                v-if="subPool.hasDeadline" 
+                outlined 
+                dense 
+                v-model="subPool.deadlineDate" 
+                label="Date de fin sous-cagnotte *" 
+                bg-white
+                :rules="[val => !subPool.hasDeadline || !!val || 'La date est obligatoire']"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                      <q-date v-model="subPool.deadlineDate" mask="YYYY-MM-DDTHH:mm:ss">
+                        <div class="row items-center justify-end">
+                          <q-btn v-close-popup label="Fermer" color="primary" flat />
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+                <template v-slot:append>
+                  <q-icon name="access_time" class="cursor-pointer">
+                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                      <q-time v-model="subPool.deadlineDate" mask="YYYY-MM-DDTHH:mm:ss" format24h>
+                        <div class="row items-center justify-end">
+                          <q-btn v-close-popup label="Fermer" color="primary" flat />
+                        </div>
+                      </q-time>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+
+              <!-- PHASES for this subPool -->
+              <div class="q-mt-md">
+                <div class="row items-center justify-between q-mb-sm">
+                  <span class="text-weight-bold text-caption">Phases de progression (au moins une phase requise)</span>
+                  <q-btn 
+                    label="Ajouter phase" 
+                    icon="add" 
                     dense 
-                    label="Titre de la phase" 
-                    placeholder="Ex: Achat du terrain" 
-                    bg-white
+                    flat 
+                    color="secondary" 
+                    no-caps 
+                    @click="addPhaseToSubPool(spIndex)" 
                   />
                 </div>
-                <div class="col-4">
-                  <q-input 
-                    outlined 
-                    v-model.number="phase.goalAmount" 
-                    dense 
-                    type="number" 
-                    label="Objectif (€)" 
-                    suffix="€" 
-                    bg-white
-                    @update:model-value="calculateTotalGoal"
-                  />
+
+                <div v-for="(phase, phIndex) in subPool.phases" :key="phIndex" class="row q-col-gutter-sm items-center q-mb-xs">
+                  <div class="col-6">
+                    <q-input 
+                      outlined 
+                      v-model="phase.title" 
+                      dense 
+                      label="Titre de la phase *" 
+                      placeholder="Ex: Étape 1" 
+                      bg-white
+                      :rules="[val => !!val || 'Titre requis']"
+                    />
+                  </div>
+                  <div class="col-4">
+                    <q-input 
+                      outlined 
+                      v-model.number="phase.goalAmount" 
+                      dense 
+                      type="number"
+                      label="Objectif (€) *" 
+                      suffix="€" 
+                      bg-white
+                      :rules="[val => val > 0 || 'Montant > 0']"
+                      @update:model-value="calculateTotalGoal"
+                    />
+                  </div>
+                  <div class="col-2 text-right">
+                    <q-btn 
+                      v-if="subPool.phases.length > 1"
+                      icon="delete" 
+                      flat 
+                      round 
+                      dense 
+                      color="negative" 
+                      @click="removePhaseFromSubPool(spIndex, phIndex)" 
+                    />
+                  </div>
                 </div>
+              </div>
+
+              <div class="text-right text-caption text-weight-bold text-primary q-mt-xs">
+                Objectif sous-cagnotte: {{ getSubPoolGoal(subPool) }} €
               </div>
             </div>
           </div>
         </div>
 
+        <!-- PHASES SECTION (Only if mode === 'simple') -->
+        <div v-if="mode === 'simple'" class="q-mt-lg">
+          <div class="row items-center justify-between q-mb-md">
+            <div class="text-subtitle1 text-weight-bold" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
+              3. Phases de progression (Optionnel)
+            </div>
+            <q-btn 
+              label="Ajouter une phase" 
+              icon="add" 
+              color="primary" 
+              outline 
+              no-caps 
+              @click="addSimplePhase" 
+            />
+          </div>
+
+          <div v-for="(phase, phIndex) in form.simplePhases" :key="phIndex" class="row q-col-gutter-sm items-center q-mb-sm">
+            <div class="col-6">
+              <q-input 
+                outlined 
+                v-model="phase.title" 
+                dense 
+                label="Titre de la phase *" 
+                placeholder="Ex: Achat de matériel" 
+                bg-white
+                :rules="[val => !!val || 'Le titre de la phase est obligatoire']"
+              />
+            </div>
+            <div class="col-4">
+              <q-input 
+                outlined 
+                v-model.number="phase.goalAmount" 
+                dense 
+                type="number"
+                label="Objectif (€) *" 
+                suffix="€" 
+                bg-white
+                :rules="[val => val > 0 || 'Le montant doit être supérieur à 0']"
+                @update:model-value="calculateTotalGoal"
+              />
+            </div>
+            <div class="col-2 text-right">
+              <q-btn 
+                v-if="form.simplePhases.length > 1"
+                icon="delete" 
+                flat 
+                round 
+                dense 
+                color="negative" 
+                @click="removeSimplePhase(phIndex)" 
+              />
+            </div>
+          </div>
+        </div>
+
         <!-- Upload d'image -->
+        <div class="text-subtitle1 text-weight-bold q-mt-lg q-mb-sm" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
+          Media de présentation
+        </div>
+
         <div class="q-mb-md">
           <q-file
             outlined
@@ -186,7 +414,7 @@
                 label="Choisir une vidéo (.mp4, .mov)"
                 accept="video/*"
                 color="secondary"
-                hint="La vidéo sera stockée sur le Cloud (Cloudinary)"
+                hint="La vidéo sera stockée"
                 @update:model-value="onVideoSelected"
               >
                 <template v-slot:prepend>
@@ -212,9 +440,9 @@
           </div>
         </div>
 
-        <!-- Paramètres -->
+        <!-- Paramètres de visibilité -->
         <div class="text-subtitle1 text-weight-bold q-mt-lg q-mb-sm" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
-          2. Type de cagnotte
+          Options de confidentialité
         </div>
 
         <div class="row q-gutter-md">
@@ -253,13 +481,20 @@ import authStore from '../../shared/stores/auth'
 
 const $q = useQuasar()
 const router = useRouter()
+const route = useRoute()
 const loading = ref(false)
 const imageFile = ref(null)
 const imagePreview = ref(null)
 const videoFile = ref(null)
 const videoFilePreview = ref(null)
 const videoSource = ref('url')
-const route = useRoute()
+
+const mode = ref('simple')
+
+const setMode = (newMode) => {
+  mode.value = newMode
+  calculateTotalGoal()
+}
 
 const onVideoSelected = (file) => {
   if (file) {
@@ -280,29 +515,95 @@ const form = reactive({
   ownerId: '',
   videoUrl: '',
   parentId: route.query.parentId || null,
-  hasPhases: false,
-  phaseCount: 2,
-  phases: [
-    { title: '', goalAmount: 500 },
-    { title: '', goalAmount: 500 }
+  hasDeadline: false,
+  deadlineDate: '',
+  simplePhases: [
+    { title: 'Phase unique', goalAmount: 1000 }
+  ],
+  subPools: [
+    {
+      title: 'Sous-cagnotte 1',
+      description: 'Financement de base',
+      hasDeadline: false,
+      deadlineDate: '',
+      phases: [
+        { title: 'Étape 1', goalAmount: 500 }
+      ]
+    }
   ]
 })
 
-const updatePhases = (count) => {
-  const currentCount = form.phases.length
-  if (count > currentCount) {
-    for (let i = 0; i < count - currentCount; i++) {
-      form.phases.push({ title: '', goalAmount: 0 })
-    }
-  } else {
-    form.phases = form.phases.slice(0, count)
-  }
+const addSubPool = () => {
+  form.subPools.push({
+    title: `Sous-cagnotte ${form.subPools.length + 1}`,
+    description: '',
+    hasDeadline: false,
+    deadlineDate: '',
+    phases: [
+      { title: 'Étape 1', goalAmount: 500 }
+    ]
+  })
   calculateTotalGoal()
 }
 
+const removeSubPool = (index) => {
+  if (form.subPools.length > 1) {
+    form.subPools.splice(index, 1)
+    calculateTotalGoal()
+  }
+}
+
+const addPhaseToSubPool = (spIndex) => {
+  form.subPools[spIndex].phases.push({
+    title: `Étape ${form.subPools[spIndex].phases.length + 1}`,
+    goalAmount: 500
+  })
+  calculateTotalGoal()
+}
+
+const removePhaseFromSubPool = (spIndex, phIndex) => {
+  if (form.subPools[spIndex].phases.length > 1) {
+    form.subPools[spIndex].phases.splice(phIndex, 1)
+    calculateTotalGoal()
+  }
+}
+
+const addSimplePhase = () => {
+  if (form.simplePhases.length === 1 && form.simplePhases[0].title === 'Phase unique') {
+    form.simplePhases[0].title = 'Phase 1'
+  }
+  form.simplePhases.push({
+    title: `Phase ${form.simplePhases.length + 1}`,
+    goalAmount: 500
+  })
+  calculateTotalGoal()
+}
+
+const removeSimplePhase = (index) => {
+  if (form.simplePhases.length > 1) {
+    form.simplePhases.splice(index, 1)
+    if (form.simplePhases.length === 1) {
+      form.simplePhases[0].title = 'Phase unique'
+    }
+    calculateTotalGoal()
+  }
+}
+
+const onTotalGoalUpdate = (val) => {
+  if (mode.value === 'simple' && form.simplePhases.length === 1) {
+    form.simplePhases[0].goalAmount = Number(val) || 0
+  }
+}
+
+const getSubPoolGoal = (subPool) => {
+  return subPool.phases.reduce((sum, phase) => sum + (Number(phase.goalAmount) || 0), 0)
+}
+
 const calculateTotalGoal = () => {
-  if (form.hasPhases) {
-    form.goalAmount = form.phases.reduce((sum, phase) => sum + (Number(phase.goalAmount) || 0), 0)
+  if (mode.value === 'multi') {
+    form.goalAmount = form.subPools.reduce((sum, subPool) => sum + getSubPoolGoal(subPool), 0)
+  } else if (mode.value === 'simple') {
+    form.goalAmount = form.simplePhases.reduce((sum, phase) => sum + (Number(phase.goalAmount) || 0), 0)
   }
 }
 
@@ -325,12 +626,30 @@ const autoFill = () => {
   form.title = 'Construction d\'une École Primaire'
   form.description = 'Ce projet vise à construire une école pour les enfants du village. Nous avons divisé le projet en étapes clés pour assurer un suivi transparent.'
   form.category = 'Éducation'
-  form.hasPhases = true
-  form.phaseCount = 3
-  form.phases = [
-    { title: 'Achat du terrain', goalAmount: 2000 },
-    { title: 'Gros œuvre', goalAmount: 5000 },
-    { title: 'Finitons et Équipement', goalAmount: 3000 }
+  mode.value = 'multi'
+  form.hasDeadline = true
+  form.deadlineDate = '2026-12-31T18:00:00'
+  form.subPools = [
+    {
+      title: 'Infrastructure de base',
+      description: 'Fondations et murs du bâtiment principal',
+      hasDeadline: true,
+      deadlineDate: '2026-06-30T18:00:00',
+      phases: [
+        { title: 'Terrassement', goalAmount: 2000 },
+        { title: 'Dalle de béton', goalAmount: 3000 }
+      ]
+    },
+    {
+      title: 'Finition & Toiture',
+      description: 'Mise hors d\'eau hors d\'air',
+      hasDeadline: false,
+      deadlineDate: '',
+      phases: [
+        { title: 'Charpente', goalAmount: 4000 },
+        { title: 'Second œuvre', goalAmount: 2000 }
+      ]
+    }
   ]
   calculateTotalGoal()
   form.type = 'PUBLIC'
@@ -368,7 +687,7 @@ const onSubmit = async () => {
 
     let finalVideoUrl = form.videoUrl
 
-    // Create Main Pool
+    // Build the payload
     const mainPoolPayload = {
       title: form.title,
       description: form.description,
@@ -379,7 +698,29 @@ const onSubmit = async () => {
       imageData: imageData,
       imageContentType: imageContentType,
       videoUrl: finalVideoUrl,
-      parentId: form.parentId
+      parentId: form.parentId,
+      hasDeadline: form.hasDeadline,
+      deadlineDate: form.hasDeadline ? form.deadlineDate : null,
+      phases: [],
+      subPools: []
+    }
+
+    if (mode.value === 'simple') {
+      mainPoolPayload.phases = form.simplePhases.map(p => ({
+        title: p.title,
+        goalAmount: p.goalAmount
+      }))
+    } else {
+      mainPoolPayload.subPools = form.subPools.map(sp => ({
+        title: sp.title,
+        description: sp.description,
+        hasDeadline: sp.hasDeadline,
+        deadlineDate: sp.hasDeadline ? sp.deadlineDate : null,
+        phases: sp.phases.map(p => ({
+          title: p.title,
+          goalAmount: p.goalAmount
+        }))
+      }))
     }
 
     const response = await poolApi.post('/pools', mainPoolPayload)
@@ -409,30 +750,14 @@ const onSubmit = async () => {
         })
       }
     }
-
-    // Create Phases if needed
-    if (form.hasPhases && form.phases.length > 0) {
-      $q.notify({ message: 'Création des phases...', color: 'info' })
-      for (const phase of form.phases) {
-        await poolApi.post('/pools', {
-          title: phase.title,
-          description: `Phase: ${phase.title} pour le projet ${form.title}`,
-          category: form.category,
-          goalAmount: phase.goalAmount,
-          type: form.type,
-          ownerId: userId,
-          parentId: mainPoolId
-        })
-      }
-    }
     
     $q.notify({
       type: 'positive',
-      message: form.hasPhases ? 'Projet et phases créés !' : 'Cagnotte créée !',
+      message: 'Cagnotte créée avec succès !',
       position: 'top'
     })
     
-    router.push(form.hasPhases ? `/pools/${mainPoolId}` : '/')
+    router.push(`/pools/${mainPoolId}`)
   } catch (error) {
     console.error(error)
     $q.notify({
@@ -448,6 +773,9 @@ const onSubmit = async () => {
 
 <style scoped>
 .q-card {
+  transition: all 0.3s ease;
+}
+.phase-config {
   transition: all 0.3s ease;
 }
 </style>

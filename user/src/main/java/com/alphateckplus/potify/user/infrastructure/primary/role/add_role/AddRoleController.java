@@ -26,7 +26,7 @@ public class AddRoleController {
     @PostMapping
     public ResponseEntity<RoleResponse> createRole(@Valid @RequestBody CreateRoleRequest request) {
         RoleRestMapper mapper = new RoleRestMapper();
-        var createdRole = createRoleService.execute(mapper.toCreateCommand(request));
+        var createdRole = createRoleService.execute(mapper.toDomain(request));
 
         return ResponseEntity
             .created(URI.create("/api/v1/access/roles/" + createdRole.getId()))

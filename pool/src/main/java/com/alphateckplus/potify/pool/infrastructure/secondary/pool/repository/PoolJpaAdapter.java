@@ -68,7 +68,7 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     @Override
     @Transactional(readOnly = true)
     public List<Pool> findPublicPools() {
-        return poolEntityRepository.findByType("PUBLIC").stream()
+        return poolEntityRepository.findByTypeAndParentIsNull("PUBLIC").stream()
                 .map(poolPersistenceMapper::toDomain)
                 .toList();
     }
@@ -76,7 +76,7 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     @Override
     @Transactional(readOnly = true)
     public List<Pool> searchPublicPools(String query) {
-        return poolEntityRepository.findByTypeAndTitleContainingIgnoreCase("PUBLIC", query).stream()
+        return poolEntityRepository.findByTypeAndTitleContainingIgnoreCaseAndParentIsNull("PUBLIC", query).stream()
                 .map(poolPersistenceMapper::toDomain)
                 .toList();
     }
@@ -84,7 +84,7 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     @Override
     @Transactional(readOnly = true)
     public List<Pool> findByOwnerId(String ownerId) {
-        return poolEntityRepository.findByOwnerId(ownerId).stream()
+        return poolEntityRepository.findByOwnerIdAndParentIsNull(ownerId).stream()
                 .map(poolPersistenceMapper::toDomain)
                 .toList();
     }

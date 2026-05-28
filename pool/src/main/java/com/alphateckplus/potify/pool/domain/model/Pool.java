@@ -85,18 +85,30 @@ public class Pool {
     /** Portefeuille financier de la cagnotte. */
     private Wallet wallet;
 
-    /** Liste des cagnottes filles (phases). */
+    /** Liste des cagnottes filles (sous-cagnottes). */
     @Builder.Default
     private java.util.List<Pool> children = new java.util.ArrayList<>();
 
+    /** Liste des phases de la sous-cagnotte. */
+    @Builder.Default
+    private java.util.List<Phase> phases = new java.util.ArrayList<>();
+
     /** Liste des invitations pour cette cagnotte. */
     private java.util.List<Invitation> invitations;
+
+    /** Indique si la cagnotte/sous-cagnotte a une deadline. */
+    @Builder.Default
+    private Boolean hasDeadline = false;
+
+    /** Date limite si applicable. */
+    private java.time.LocalDateTime deadlineDate;
 
     // --- Logique Metier ---
 
     /**
      * Recupere le montant actuel. 
-     * Si la cagnotte a des phases, le montant est la somme des montants des phases.
+     * Si c'est une cagnotte principale, c'est la somme des montants des sous-cagnottes.
+     * Si c'est une sous-cagnotte, c'est le currentAmount.
      */
     public BigDecimal getCurrentAmount() {
         if (children != null && !children.isEmpty()) {
@@ -109,7 +121,8 @@ public class Pool {
 
     /**
      * Recupere l'objectif financier.
-     * Si la cagnotte a des phases, l'objectif est la somme des objectifs des phases.
+     * Si c'est une cagnotte principale, l'objectif est la somme des objectifs des sous-cagnottes.
+     * Si c'est une sous-cagnotte, l'objectif est la somme des objectifs des phases.
      */
     public BigDecimal getGoalAmount() {
         if (children != null && !children.isEmpty()) {
@@ -117,18 +130,23 @@ public class Pool {
                     .map(Pool::getGoalAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
         }
+        if (phases != null && !phases.isEmpty()) {
+            return phases.stream()
+                    .map(Phase::getGoalAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
         return goalAmount != null ? goalAmount : BigDecimal.ZERO;
     }
 
     /**
-     * Identifie la phase active (la premiere qui n'est pas cloturee).
+     * Identifie la phase active (la premiere qui n'est pas terminee).
      */
-    public java.util.Optional<Pool> getActivePhase() {
-        if (children == null || children.isEmpty()) {
+    public java.util.Optional<Phase> getActivePhase() {
+        if (phases == null || phases.isEmpty()) {
             return java.util.Optional.empty();
         }
-        return children.stream()
-                .filter(p -> !PoolStatus.CLOTUREE.equals(p.getStatus()) && !PoolStatus.ARCHIVEE.equals(p.getStatus()))
+        return phases.stream()
+                .filter(p -> !PhaseStatus.COMPLETED.equals(p.getStatus()))
                 .findFirst();
     }
 
@@ -172,12 +190,44 @@ public class Pool {
         this.status = PoolStatus.EN_REVUE;
     }
 
+    public void addContributionAmount(BigDecimal amount) {
+        if (this.parentId != null) {
+            this.currentAmount = (this.currentAmount != null ? this.currentAmount : BigDecimal.ZERO).add(amount);
+            updatePhasesAndStatus();
+        } else if (this.children == null || this.children.isEmpty()) {
+            this.currentAmount = (this.currentAmount != null ? this.currentAmount : BigDecimal.ZERO).add(amount);
+            updatePhasesAndStatus();
+        } else {
+            throw new IllegalStateException("Cette cagnotte contient des sous-cagnottes. Les contributions doivent être ciblées sur les sous-cagnottes.");
+        }
+    }
+
+    public void updatePhasesAndStatus() {
+        if (phases == null || phases.isEmpty()) {
+            return;
+        }
+        BigDecimal tempAmount = this.currentAmount != null ? this.currentAmount : BigDecimal.ZERO;
+        boolean allCompleted = true;
+        for (Phase phase : phases) {
+            if (tempAmount.compareTo(phase.getGoalAmount()) >= 0) {
+                phase.setStatus(PhaseStatus.COMPLETED);
+                tempAmount = tempAmount.subtract(phase.getGoalAmount());
+            } else {
+                phase.setStatus(PhaseStatus.ACTIVE);
+                allCompleted = false;
+            }
+        }
+        if (allCompleted) {
+            this.status = PoolStatus.COMPLETED;
+        }
+    }
+
     /**
      * Calcule le pourcentage de progression.
      */
     public BigDecimal getProgressPercentage() {
         BigDecimal goal = getGoalAmount();
-        BigDecimal current = getCurrentAmount();
+        BigDecimal current = getCurrentAmount() != null ? getCurrentAmount() : BigDecimal.ZERO;
         if (goal == null || goal.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }

@@ -8,8 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.alphateckplus.potify.user.application_service.primary.user.create_user.DefaultCreateUserService;
 import com.alphateckplus.potify.user.application_service.primary.user.update_user.DefaultUpdateUserService;
-import com.alphateckplus.potify.user.application_service.primary.command.CreateUserCommand;
-import com.alphateckplus.potify.user.application_service.primary.command.UpdateUserCommand;
 import com.alphateckplus.potify.user.application_service.secondary.notification.NotificationPort;
 import com.alphateckplus.potify.user.application_service.secondary.user.UserRepositoryPort;
 import com.alphateckplus.potify.user.domain.exception.UserAlreadyExistsException;
@@ -52,11 +50,15 @@ class UserServiceTest {
     @Test
     void createUserShouldThrowWhenEmailAlreadyExists() {
         // Arrange: on simule la presence d'un utilisateur avec le meme email.
-        CreateUserCommand command = new CreateUserCommand("Nizar Doe", "nizar@example.com", "secret123");
+        User user = User.builder()
+            .fullName("Nizar Doe")
+            .email("nizar@example.com")
+            .password("secret123")
+            .build();
         when(userRepositoryPort.existsByEmail("nizar@example.com")).thenReturn(true);
 
         // Act + Assert: le service doit refuser la creation.
-        assertThatThrownBy(() -> defaultCreateUserService.execute(command))
+        assertThatThrownBy(() -> defaultCreateUserService.execute(user))
             .isInstanceOf(UserAlreadyExistsException.class)
             .hasMessageContaining("nizar@example.com");
     }
@@ -64,7 +66,11 @@ class UserServiceTest {
     @Test
     void createUserShouldPersistNewUserWithPendingVerificationStatus() {
         // Arrange: commande de creation et resultat de persistence simule.
-        CreateUserCommand command = new CreateUserCommand("Nizar Doe", "nizar@example.com", "secret123");
+        User user = User.builder()
+            .fullName("Nizar Doe")
+            .email("nizar@example.com")
+            .password("secret123")
+            .build();
         User savedUser = User.builder()
             .id("u-1")
             .fullName("Nizar Doe")
@@ -78,7 +84,7 @@ class UserServiceTest {
         when(passwordHashingPort.hash("secret123")).thenReturn("encodedSecret123");
 
         // Act: execution du cas d'usage.
-        User result = defaultCreateUserService.execute(command);
+        User result = defaultCreateUserService.execute(user);
 
         // Assert: verification de l'etat metier et de l'appel repository.
         assertThat(result.getStatus()).isEqualTo(UserStatus.PENDING_VERIFICATION);
@@ -97,20 +103,20 @@ class UserServiceTest {
             .status(UserStatus.SUSPENDED)
             .build();
 
-        UpdateUserCommand command = new UpdateUserCommand(
-            "u-1",
-            "Nouveau Nom",
-            "nouveau@example.com",
-            "newPass123",
-            UserStatus.ACTIVE
-        );
+        User userToUpdate = User.builder()
+            .id("u-1")
+            .fullName("Nouveau Nom")
+            .email("nouveau@example.com")
+            .password("newPass123")
+            .status(UserStatus.ACTIVE)
+            .build();
 
         when(userRepositoryPort.findById("u-1")).thenReturn(Optional.of(existingUser));
         when(userRepositoryPort.existsByEmail("nouveau@example.com")).thenReturn(false);
         when(userRepositoryPort.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        User result = defaultUpdateUserService.execute(command);
+        User result = defaultUpdateUserService.execute(userToUpdate);
 
         // Assert: les champs de profil changent, et le statut aussi.
         assertThat(result.getFullName()).isEqualTo("Nouveau Nom");
@@ -130,19 +136,19 @@ class UserServiceTest {
             .status(UserStatus.ACTIVE)
             .build();
 
-        UpdateUserCommand command = new UpdateUserCommand(
-            "u-1",
-            "Nouveau Nom",
-            "deja-pris@example.com",
-            "newPass123",
-            UserStatus.SUSPENDED
-        );
+        User userToUpdate = User.builder()
+            .id("u-1")
+            .fullName("Nouveau Nom")
+            .email("deja-pris@example.com")
+            .password("newPass123")
+            .status(UserStatus.SUSPENDED)
+            .build();
 
         when(userRepositoryPort.findById("u-1")).thenReturn(Optional.of(existingUser));
         when(userRepositoryPort.existsByEmail("deja-pris@example.com")).thenReturn(true);
 
         // Act + Assert
-        assertThatThrownBy(() -> defaultUpdateUserService.execute(command))
+        assertThatThrownBy(() -> defaultUpdateUserService.execute(userToUpdate))
             .isInstanceOf(UserAlreadyExistsException.class)
             .hasMessageContaining("deja-pris@example.com");
     }

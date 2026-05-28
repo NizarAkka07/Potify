@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.user.application_service.primary.user.create_user;
 
-import com.alphateckplus.potify.user.application_service.primary.command.CreateUserCommand;
 import com.alphateckplus.potify.user.domain.model.User;
 
 /**
@@ -11,5 +10,5 @@ public interface CreateUserService {
     /**
      * Cree un nouvel utilisateur selon les regles metier.
      */
-    User execute(CreateUserCommand command);
+    User execute(User user);
 }
