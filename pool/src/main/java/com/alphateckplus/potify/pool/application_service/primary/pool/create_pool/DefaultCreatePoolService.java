@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.pool.application_service.primary.pool.create_pool;
 
-import com.alphateckplus.potify.pool.application_service.primary.command.CreatePoolCommand;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolRepositoryPort;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.WalletRepositoryPort;
 import com.alphateckplus.potify.pool.domain.model.Pool;
@@ -23,88 +22,64 @@ public class DefaultCreatePoolService implements CreatePoolService {
     }
 
     @Override
-    public Pool execute(CreatePoolCommand command) {
+    public Pool execute(Pool pool) {
         BigDecimal mainGoal = BigDecimal.ZERO;
-        if (command.subPools() != null && !command.subPools().isEmpty()) {
-            for (com.alphateckplus.potify.pool.application_service.primary.command.SubPoolCommand subPoolCmd : command.subPools()) {
-                BigDecimal subPoolGoal = subPoolCmd.phases().stream()
-                        .map(com.alphateckplus.potify.pool.application_service.primary.command.PhaseCommand::goalAmount)
+        if (pool.getChildren() != null && !pool.getChildren().isEmpty()) {
+            for (Pool subPool : pool.getChildren()) {
+                BigDecimal subPoolGoal = subPool.getPhases().stream()
+                        .map(com.alphateckplus.potify.pool.domain.model.Phase::getGoalAmount)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
                 mainGoal = mainGoal.add(subPoolGoal);
             }
-        } else if (command.phases() != null && !command.phases().isEmpty()) {
-            mainGoal = command.phases().stream()
-                    .map(com.alphateckplus.potify.pool.application_service.primary.command.PhaseCommand::goalAmount)
+        } else if (pool.getPhases() != null && !pool.getPhases().isEmpty()) {
+            mainGoal = pool.getPhases().stream()
+                    .map(com.alphateckplus.potify.pool.domain.model.Phase::getGoalAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
         } else {
-            mainGoal = command.goalAmount() != null ? command.goalAmount() : BigDecimal.ZERO;
+            mainGoal = pool.getGoalAmount() != null ? pool.getGoalAmount() : BigDecimal.ZERO;
         }
 
-        Pool pool = Pool.builder()
-                .ownerId(command.ownerId())
-                .title(command.title())
-                .description(command.description())
-                .category(command.category())
-                .goalAmount(mainGoal)
-                .currentAmount(BigDecimal.ZERO)
-                .status(PoolStatus.PUBLIEE)
-                .type(command.type())
-                .invitedUserIds(command.invitedUserIds())
-                .imageContent(command.imageContent())
-                .imageContentType(command.imageContentType())
-                .videoUrl(command.videoUrl())
-                .parentId(command.parentId())
-                .hasDeadline(command.hasDeadline() != null ? command.hasDeadline() : false)
-                .deadlineDate(command.deadlineDate())
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .build();
+        pool.setGoalAmount(mainGoal);
+        pool.setCurrentAmount(BigDecimal.ZERO);
+        pool.setStatus(PoolStatus.PUBLIEE);
+        pool.setCreatedAt(Instant.now());
+        pool.setUpdatedAt(Instant.now());
+        if (pool.getHasDeadline() == null) {
+            pool.setHasDeadline(false);
+        }
 
-        if (command.phases() != null && !command.phases().isEmpty()) {
-            java.util.List<com.alphateckplus.potify.pool.domain.model.Phase> phases = new java.util.ArrayList<>();
-            for (com.alphateckplus.potify.pool.application_service.primary.command.PhaseCommand pc : command.phases()) {
-                phases.add(com.alphateckplus.potify.pool.domain.model.Phase.builder()
-                        .title(pc.title())
-                        .goalAmount(pc.goalAmount())
-                        .status(com.alphateckplus.potify.pool.domain.model.PhaseStatus.ACTIVE)
-                        .build());
+        if (pool.getPhases() != null && !pool.getPhases().isEmpty()) {
+            for (com.alphateckplus.potify.pool.domain.model.Phase phase : pool.getPhases()) {
+                phase.setStatus(com.alphateckplus.potify.pool.domain.model.PhaseStatus.ACTIVE);
             }
-            pool.setPhases(phases);
         }
 
         Pool savedPool = poolRepositoryPort.save(pool);
         walletRepositoryPort.save(Wallet.createEmpty(savedPool.getId()));
 
-        if (command.subPools() != null && !command.subPools().isEmpty()) {
-            for (com.alphateckplus.potify.pool.application_service.primary.command.SubPoolCommand subPoolCmd : command.subPools()) {
-                java.util.List<com.alphateckplus.potify.pool.domain.model.Phase> subPhases = new java.util.ArrayList<>();
-                for (com.alphateckplus.potify.pool.application_service.primary.command.PhaseCommand pc : subPoolCmd.phases()) {
-                    subPhases.add(com.alphateckplus.potify.pool.domain.model.Phase.builder()
-                            .title(pc.title())
-                            .goalAmount(pc.goalAmount())
-                            .status(com.alphateckplus.potify.pool.domain.model.PhaseStatus.ACTIVE)
-                            .build());
+        if (pool.getChildren() != null && !pool.getChildren().isEmpty()) {
+            for (Pool subPool : pool.getChildren()) {
+                if (subPool.getPhases() != null && !subPool.getPhases().isEmpty()) {
+                    for (com.alphateckplus.potify.pool.domain.model.Phase phase : subPool.getPhases()) {
+                        phase.setStatus(com.alphateckplus.potify.pool.domain.model.PhaseStatus.ACTIVE);
+                    }
                 }
-                BigDecimal subGoal = subPhases.stream()
+                BigDecimal subGoal = subPool.getPhases() != null ? subPool.getPhases().stream()
                         .map(com.alphateckplus.potify.pool.domain.model.Phase::getGoalAmount)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                        .reduce(BigDecimal.ZERO, BigDecimal::add) : BigDecimal.ZERO;
 
-                Pool subPool = Pool.builder()
-                        .ownerId(command.ownerId())
-                        .title(subPoolCmd.title())
-                        .description(subPoolCmd.description())
-                        .category(command.category())
-                        .goalAmount(subGoal)
-                        .currentAmount(BigDecimal.ZERO)
-                        .status(PoolStatus.PUBLIEE)
-                        .type(command.type())
-                        .parentId(savedPool.getId())
-                        .hasDeadline(subPoolCmd.hasDeadline() != null ? subPoolCmd.hasDeadline() : false)
-                        .deadlineDate(subPoolCmd.deadlineDate())
-                        .phases(subPhases)
-                        .createdAt(Instant.now())
-                        .updatedAt(Instant.now())
-                        .build();
+                subPool.setOwnerId(savedPool.getOwnerId());
+                subPool.setCategory(savedPool.getCategory());
+                subPool.setGoalAmount(subGoal);
+                subPool.setCurrentAmount(BigDecimal.ZERO);
+                subPool.setStatus(PoolStatus.PUBLIEE);
+                subPool.setType(savedPool.getType());
+                subPool.setParentId(savedPool.getId());
+                if (subPool.getHasDeadline() == null) {
+                    subPool.setHasDeadline(false);
+                }
+                subPool.setCreatedAt(Instant.now());
+                subPool.setUpdatedAt(Instant.now());
 
                 Pool savedSubPool = poolRepositoryPort.save(subPool);
                 walletRepositoryPort.save(Wallet.createEmpty(savedSubPool.getId()));
@@ -114,3 +89,4 @@ public class DefaultCreatePoolService implements CreatePoolService {
         return savedPool;
     }
 }
+

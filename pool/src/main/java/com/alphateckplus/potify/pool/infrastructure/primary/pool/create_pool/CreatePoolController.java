@@ -28,7 +28,7 @@ public class CreatePoolController {
     @PostMapping
     @Operation(summary = "Creer une nouvelle cagnotte")
     public ResponseEntity<PoolResponse> createPool(@Valid @RequestBody CreatePoolRequest request) {
-        Pool createdPool = createPoolService.execute(poolRestMapper.toCommand(request));
+        Pool createdPool = createPoolService.execute(poolRestMapper.toDomain(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(poolRestMapper.toResponse(createdPool));
     }
 }

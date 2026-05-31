@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.pool.application_service.primary.pool.create_pool;
 
-import com.alphateckplus.potify.pool.application_service.primary.command.CreatePoolCommand;
 import com.alphateckplus.potify.pool.domain.model.Pool;
 
 /**
@@ -11,8 +10,9 @@ public interface CreatePoolService {
     /**
      * Cree une nouvelle cagnotte selon les regles métier.
      *
-     * @param command Les donnees de creation.
+     * @param pool La cagnotte a creer.
      * @return La cagnotte creee.
      */
-    Pool execute(CreatePoolCommand command);
+    Pool execute(Pool pool);
 }
+

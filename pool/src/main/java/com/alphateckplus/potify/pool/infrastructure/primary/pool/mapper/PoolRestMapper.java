@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.pool.infrastructure.primary.pool.mapper;
 
-import com.alphateckplus.potify.pool.application_service.primary.command.CreatePoolCommand;
 import com.alphateckplus.potify.pool.domain.model.Pool;
 import com.alphateckplus.potify.pool.infrastructure.primary.pool.dto.CreatePoolRequest;
 import com.alphateckplus.potify.pool.infrastructure.primary.pool.dto.PoolResponse;
@@ -13,7 +12,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class PoolRestMapper {
 
-    public CreatePoolCommand toCommand(CreatePoolRequest request) {
+    public Pool toDomain(CreatePoolRequest request) {
+        if (request == null) return null;
+
         byte[] imageBytes = null;
         if (request.imageData() != null && !request.imageData().isBlank()) {
             try {
@@ -28,27 +29,36 @@ public class PoolRestMapper {
             }
         }
 
-        java.util.List<com.alphateckplus.potify.pool.application_service.primary.command.PhaseCommand> phaseCmds = null;
+        java.util.List<com.alphateckplus.potify.pool.domain.model.Phase> phaseList = null;
         if (request.phases() != null) {
-            phaseCmds = request.phases().stream()
-                    .map(p -> new com.alphateckplus.potify.pool.application_service.primary.command.PhaseCommand(p.title(), p.goalAmount()))
+            phaseList = request.phases().stream()
+                    .map(p -> com.alphateckplus.potify.pool.domain.model.Phase.builder()
+                            .title(p.title())
+                            .goalAmount(p.goalAmount())
+                            .status(com.alphateckplus.potify.pool.domain.model.PhaseStatus.ACTIVE)
+                            .build())
                     .collect(java.util.stream.Collectors.toList());
         }
 
-        java.util.List<com.alphateckplus.potify.pool.application_service.primary.command.SubPoolCommand> subPoolCmds = null;
+        java.util.List<Pool> subPoolList = null;
         if (request.subPools() != null) {
-            subPoolCmds = request.subPools().stream()
-                    .map(sp -> new com.alphateckplus.potify.pool.application_service.primary.command.SubPoolCommand(
-                            sp.title(),
-                            sp.description(),
-                            sp.hasDeadline(),
-                            sp.deadlineDate(),
-                            sp.phases() != null ? sp.phases().stream().map(p -> new com.alphateckplus.potify.pool.application_service.primary.command.PhaseCommand(p.title(), p.goalAmount())).collect(java.util.stream.Collectors.toList()) : null
-                    ))
+            subPoolList = request.subPools().stream()
+                    .map(sp -> Pool.builder()
+                            .title(sp.title())
+                            .description(sp.description())
+                            .hasDeadline(sp.hasDeadline())
+                            .deadlineDate(sp.deadlineDate())
+                            .phases(sp.phases() != null ? sp.phases().stream().map(p -> com.alphateckplus.potify.pool.domain.model.Phase.builder()
+                                    .title(p.title())
+                                    .goalAmount(p.goalAmount())
+                                    .status(com.alphateckplus.potify.pool.domain.model.PhaseStatus.ACTIVE)
+                                    .build()).collect(java.util.stream.Collectors.toList()) : null)
+                            .build()
+                    )
                     .collect(java.util.stream.Collectors.toList());
         }
 
-        return CreatePoolCommand.builder()
+        return Pool.builder()
                 .ownerId(request.ownerId())
                 .title(request.title())
                 .description(request.description())
@@ -62,8 +72,8 @@ public class PoolRestMapper {
                 .parentId(request.parentId())
                 .hasDeadline(request.hasDeadline())
                 .deadlineDate(request.deadlineDate())
-                .phases(phaseCmds)
-                .subPools(subPoolCmds)
+                .phases(phaseList != null ? phaseList : new java.util.ArrayList<>())
+                .children(subPoolList != null ? subPoolList : new java.util.ArrayList<>())
                 .build();
     }
 

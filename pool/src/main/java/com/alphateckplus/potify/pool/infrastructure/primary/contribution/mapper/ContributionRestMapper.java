@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.pool.infrastructure.primary.contribution.mapper;
 
-import com.alphateckplus.potify.pool.application_service.primary.command.CreateContributionCommand;
 import com.alphateckplus.potify.pool.domain.model.Contribution;
 import com.alphateckplus.potify.pool.infrastructure.primary.contribution.dto.CreateContributionRequest;
 import com.alphateckplus.potify.pool.infrastructure.primary.contribution.dto.ContributionResponse;
@@ -12,8 +11,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class ContributionRestMapper {
 
-    public CreateContributionCommand toCommand(CreateContributionRequest request) {
-        return CreateContributionCommand.builder()
+    public Contribution toDomain(CreateContributionRequest request) {
+        if (request == null) return null;
+        return Contribution.builder()
                 .poolId(request.poolId())
                 .userId(request.userId())
                 .contributorEmail(request.contributorEmail())

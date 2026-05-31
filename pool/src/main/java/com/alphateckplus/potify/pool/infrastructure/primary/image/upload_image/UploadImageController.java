@@ -1,4 +1,4 @@
-package com.alphateckplus.potify.pool.infrastructure.primary.image;
+package com.alphateckplus.potify.pool.infrastructure.primary.image.upload_image;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/images")
-public class ImageUploadController {
+public class UploadImageController {
 
     private static final String UPLOAD_DIR = "uploads/";
 

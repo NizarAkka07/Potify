@@ -28,7 +28,7 @@ public class CreateContributionController {
     @PostMapping
     @Operation(summary = "Effectuer une nouvelle contribution")
     public ResponseEntity<ContributionResponse> createContribution(@Valid @RequestBody CreateContributionRequest request) {
-        Contribution created = createContributionService.execute(contributionRestMapper.toCommand(request));
+        Contribution created = createContributionService.execute(contributionRestMapper.toDomain(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(contributionRestMapper.toResponse(created));
     }
 }

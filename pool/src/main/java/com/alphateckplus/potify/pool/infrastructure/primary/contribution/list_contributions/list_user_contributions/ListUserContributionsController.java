@@ -1,4 +1,4 @@
-package com.alphateckplus.potify.pool.infrastructure.primary.contribution;
+package com.alphateckplus.potify.pool.infrastructure.primary.contribution.list_contributions.list_user_contributions;
 
 import com.alphateckplus.potify.pool.application_service.primary.contribution.list_contributions.ListContributionsService;
 import com.alphateckplus.potify.pool.infrastructure.primary.contribution.dto.ContributionResponse;
@@ -17,7 +17,7 @@ import java.util.List;
 @RequestMapping("/api/contributions")
 @RequiredArgsConstructor
 @Tag(name = "Contribution Management")
-public class ListContributionsController {
+public class ListUserContributionsController {
 
     private final ListContributionsService listContributionsService;
     private final ContributionRestMapper mapper;
@@ -26,15 +26,6 @@ public class ListContributionsController {
     @Operation(summary = "Lister les contributions d'un utilisateur specifique")
     public ResponseEntity<List<ContributionResponse>> listUserContributions(@PathVariable String userId) {
         List<ContributionResponse> contributions = listContributionsService.findByUserId(userId).stream()
-                .map(mapper::toResponse)
-                .toList();
-        return ResponseEntity.ok(contributions);
-    }
-
-    @GetMapping("/pool/{poolId}")
-    @Operation(summary = "Lister les contributions pour une cagnotte")
-    public ResponseEntity<List<ContributionResponse>> listPoolContributions(@PathVariable String poolId) {
-        List<ContributionResponse> contributions = listContributionsService.findByPoolId(poolId).stream()
                 .map(mapper::toResponse)
                 .toList();
         return ResponseEntity.ok(contributions);

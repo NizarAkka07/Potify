@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.pool.application_service.primary.pool.update_pool;
 
-import com.alphateckplus.potify.pool.application_service.primary.command.UpdatePoolCommand;
 import com.alphateckplus.potify.pool.domain.model.Pool;
 
 /**
@@ -11,8 +10,9 @@ public interface UpdatePoolService {
     /**
      * Met a jour une cagnotte existante.
      *
-     * @param command Les donnees de mise a jour.
+     * @param pool La cagnotte avec les modifications.
      * @return La cagnotte mise a jour.
      */
-    Pool execute(UpdatePoolCommand command);
+    Pool execute(Pool pool);
 }
+

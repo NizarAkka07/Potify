@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.pool.application_service.primary.contribution.create_contribution;
 
-import com.alphateckplus.potify.pool.application_service.primary.command.CreateContributionCommand;
 import com.alphateckplus.potify.pool.domain.model.Contribution;
 
 /**
@@ -11,8 +10,9 @@ public interface CreateContributionService {
     /**
      * Cree une contribution et met a jour la cagnotte si necessaire.
      *
-     * @param command Les donnees de la contribution.
+     * @param contribution Les donnees de la contribution.
      * @return La contribution creee.
      */
-    Contribution execute(CreateContributionCommand command);
+    Contribution execute(Contribution contribution);
 }
+

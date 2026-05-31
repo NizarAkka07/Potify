@@ -1,6 +1,5 @@
 package com.alphateckplus.potify.pool.application_service.primary.pool.update_pool;
 
-import com.alphateckplus.potify.pool.application_service.primary.command.UpdatePoolCommand;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolRepositoryPort;
 import com.alphateckplus.potify.pool.domain.exception.PoolNotFoundException;
 import com.alphateckplus.potify.pool.domain.model.Pool;
@@ -18,17 +17,17 @@ public class DefaultUpdatePoolService implements UpdatePoolService {
     }
 
     @Override
-    public Pool execute(UpdatePoolCommand command) {
-        Pool pool = poolRepositoryPort.findById(command.id())
-                .orElseThrow(() -> new PoolNotFoundException("Cagnotte non trouvee avec l'id : " + command.id()));
+    public Pool execute(Pool poolToUpdate) {
+        Pool pool = poolRepositoryPort.findById(poolToUpdate.getId())
+                .orElseThrow(() -> new PoolNotFoundException("Cagnotte non trouvee avec l'id : " + poolToUpdate.getId()));
 
-        if (command.title() != null) pool.setTitle(command.title());
-        if (command.description() != null) pool.setDescription(command.description());
-        if (command.goalAmount() != null) pool.setGoalAmount(command.goalAmount());
-        if (command.status() != null) pool.setStatus(command.status());
-        if (command.videoContent() != null) pool.setVideoContent(command.videoContent());
-        if (command.videoContentType() != null) pool.setVideoContentType(command.videoContentType());
-        if (command.videoUrl() != null) pool.setVideoUrl(command.videoUrl());
+        if (poolToUpdate.getTitle() != null) pool.setTitle(poolToUpdate.getTitle());
+        if (poolToUpdate.getDescription() != null) pool.setDescription(poolToUpdate.getDescription());
+        if (poolToUpdate.getGoalAmount() != null) pool.setGoalAmount(poolToUpdate.getGoalAmount());
+        if (poolToUpdate.getStatus() != null) pool.setStatus(poolToUpdate.getStatus());
+        if (poolToUpdate.getVideoContent() != null) pool.setVideoContent(poolToUpdate.getVideoContent());
+        if (poolToUpdate.getVideoContentType() != null) pool.setVideoContentType(poolToUpdate.getVideoContentType());
+        if (poolToUpdate.getVideoUrl() != null) pool.setVideoUrl(poolToUpdate.getVideoUrl());
 
         pool.setUpdatedAt(Instant.now());
 
