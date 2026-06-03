@@ -9,12 +9,14 @@ import axios from 'axios'
 // for each client)
 const api = axios.create({ baseURL: 'http://localhost:8081/api' })
 const poolApi = axios.create({ baseURL: 'http://localhost:8082/api' })
+const paymentApi = axios.create({ baseURL: 'http://localhost:8083/api' })
 
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
   app.config.globalProperties.$axios = axios
   app.config.globalProperties.$api = api
   app.config.globalProperties.$poolApi = poolApi
+  app.config.globalProperties.$paymentApi = paymentApi
 })
 
 // Request interceptor for API calls
@@ -28,6 +30,7 @@ const requestInterceptor = (config) => {
 
 api.interceptors.request.use(requestInterceptor, (error) => Promise.reject(error))
 poolApi.interceptors.request.use(requestInterceptor, (error) => Promise.reject(error))
+paymentApi.interceptors.request.use(requestInterceptor, (error) => Promise.reject(error))
 
 // Response interceptor for handling 401 errors
 api.interceptors.response.use(
@@ -42,4 +45,15 @@ api.interceptors.response.use(
   }
 )
 
-export { api, poolApi }
+paymentApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token')
+      window.location.href = '#/login'
+    }
+    return Promise.reject(error)
+  }
+)
+
+export { api, poolApi, paymentApi }

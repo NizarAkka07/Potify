@@ -1,4 +1,4 @@
-import { poolApi } from 'boot/axios'
+import { poolApi, paymentApi } from 'boot/axios'
 
 /**
  * Service pour interagir avec l'API des cagnottes (Pools).
@@ -51,21 +51,47 @@ export const poolService = {
   },
 
   /**
-   * Effectue une contribution vers une cagnotte.
-   * @param {Object} data - Données de la contribution (poolId, amount, etc.).
-   * @returns {Promise}
+   * Initie un paiement Stripe.
    */
-  contributeToPool(data) {
-    return poolApi.post('/contributions', data)
+  initiateStripeCheckout(data) {
+    return paymentApi.post('/payments/checkout/stripe', data)
   },
 
   /**
-   * Récupère la liste des contributions pour une cagnotte.
+   * Confirme un paiement Stripe.
+   */
+  confirmStripePayment(sessionId) {
+    return paymentApi.get('/payments/confirm/stripe', { params: { session_id: sessionId } })
+  },
+
+  /**
+   * Initie un paiement PayPal.
+   */
+  initiatePayPalCheckout(data) {
+    return paymentApi.post('/payments/checkout/paypal', data)
+  },
+
+  /**
+   * Confirme un paiement PayPal.
+   */
+  confirmPayPalPayment(orderId) {
+    return paymentApi.get('/payments/confirm/paypal', { params: { token: orderId } })
+  },
+
+  /**
+   * Récupère la liste des contributions pour une cagnotte (via le service paiement).
    * @param {string} poolId - ID de la cagnotte.
    * @returns {Promise}
    */
   getPoolContributions(poolId) {
-    return poolApi.get(`/contributions/pool/${poolId}`)
+    return paymentApi.get(`/contributions/pool/${poolId}`)
+  },
+
+  /**
+   * Récupère la liste des contributions d'un utilisateur.
+   */
+  getUserContributions(userId) {
+    return paymentApi.get(`/contributions/user/${userId}`)
   }
 }
 

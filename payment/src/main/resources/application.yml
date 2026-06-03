@@ -1,1 +1,29 @@
-spring.application.name=payment
+spring:
+  application:
+    name: payment
+  datasource:
+    url: jdbc:postgresql://localhost:5432/potify
+    username: postgres
+    password: "123456"
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+server:
+  port: 8083
+
+stripe:
+  api:
+    key: ${STRIPE_API_KEY:sk_test_51SezNMLcOzCMO02ZyUV8xpTzxVtaVcq0Xr2mL3OdN2zWlLUshYifyTAvPuBF4LNfHmEpUeAlMjB40sj9FS0PLkRE00PxQ5kDtj}
+  frontend-url: ${FRONTEND_URL:http://localhost:9000}
+
+paypal:
+  client-id: ${PAYPAL_CLIENT_ID:AeguYpyNk0WMR5IzqJ8XlJiaK0cpK8Ko3XePRRlTBvag945B8XVg2nQO5tWlky9K975vmIbMAMQFmlpd}
+  client-secret: ${PAYPAL_CLIENT_SECRET:EJrTmR7jth77I_jgnqDeDfeZN5lnuZ8ylaifZLCvEsh4NGkW3SCN3Nr4J40N04I2i8jYy1kZ0nuKlL7w}
+  mode: ${PAYPAL_MODE:sandbox}
+  api-url: ${PAYPAL_API_URL:https://api-m.sandbox.paypal.com} # URL de l'API de test PayPal

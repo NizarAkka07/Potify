@@ -26,7 +26,9 @@ const routes = [
       // Dashboard utilisateur
       { path: 'dashboard', component: () => import('src/pool/pages/UserDashboardPage.vue'), meta: { requiresAuth: true } },
       // Profil utilisateur
-      { path: 'profile', component: () => import('src/user/pages/ProfilePage.vue'), meta: { requiresAuth: true } }
+      { path: 'profile', component: () => import('src/user/pages/ProfilePage.vue'), meta: { requiresAuth: true } },
+      // Redirection de succès de paiement Stripe / PayPal
+      { path: 'payment/success', component: () => import('src/pool/pages/PaymentSuccessPage.vue') }
     ]
   },
   {

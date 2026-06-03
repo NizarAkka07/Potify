@@ -538,12 +538,12 @@
             />
           </div>
 
-          <q-form @submit="submitContribution" class="q-gutter-md">
+          <div class="q-gutter-md">
             <q-input
               outlined
               v-model.number="contributionForm.amount"
               type="number"
-              label="Montant du don (€)"
+              label="Montant du don (€) *"
               suffix="€"
               :rules="[val => val > 0 || 'Le montant doit être supérieur à 0']"
               color="secondary"
@@ -557,6 +557,17 @@
               label="Votre nom (facultatif)"
               placeholder="Ex: Jean Dupont"
               color="secondary"
+            />
+
+            <q-input
+              v-if="!authStore.isAuthenticated.value"
+              outlined
+              v-model="contributionForm.contributorEmail"
+              label="Votre adresse email *"
+              type="email"
+              placeholder="Ex: jean.dupont@example.com"
+              color="secondary"
+              :rules="[val => !!val || 'L\'email est requis pour recevoir votre reçu de paiement', val => val.includes('@') || 'Veuillez saisir un email valide']"
             />
 
             <q-input
@@ -576,16 +587,43 @@
             />
 
             <div class="q-mt-lg">
-              <q-btn
-                label="Confirmer le paiement"
-                type="submit"
-                class="full-width q-py-sm text-weight-bold"
-                style="background: #FFB300; color: #1A1A2A;"
-                :loading="submitting"
-                no-caps
-              />
+              <div class="text-subtitle2 q-mb-sm text-grey-8 font-weight-bold">
+                Sélectionnez votre moyen de paiement :
+              </div>
+              <div class="row q-col-gutter-sm">
+                <div class="col-6">
+                  <q-btn
+                    unelevated
+                    color="indigo-7"
+                    class="full-width q-py-sm text-weight-bold"
+                    no-caps
+                    style="border-radius: 8px;"
+                    @click="submitPayment('stripe')"
+                    :loading="submitting && selectedMethod === 'stripe'"
+                    :disable="submitting"
+                  >
+                    <q-icon name="credit_card" class="q-mr-xs" />
+                    Stripe
+                  </q-btn>
+                </div>
+                <div class="col-6">
+                  <q-btn
+                    unelevated
+                    color="blue-8"
+                    class="full-width q-py-sm text-weight-bold text-white"
+                    no-caps
+                    style="border-radius: 8px;"
+                    @click="submitPayment('paypal')"
+                    :loading="submitting && selectedMethod === 'paypal'"
+                    :disable="submitting"
+                  >
+                    <q-icon name="payment" class="q-mr-xs" />
+                    PayPal
+                  </q-btn>
+                </div>
+              </div>
             </div>
-          </q-form>
+          </div>
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -745,9 +783,11 @@ const postComment = async () => {
 // Gestion des contributions
 const contributionDialog = ref(false)
 const submitting = ref(false)
+const selectedMethod = ref(null)
 const contributionForm = reactive({
   amount: 20,
   contributorName: '',
+  contributorEmail: '',
   message: '',
   anonymous: false
 })
@@ -910,53 +950,67 @@ const contribute = () => {
   contributionDialog.value = true
 }
 
-const submitContribution = async () => {
+const submitPayment = async (method) => {
+  if (!contributionForm.amount || contributionForm.amount <= 0) {
+    $q.notify({
+      type: 'warning',
+      message: 'Le montant doit être supérieur à 0 €'
+    })
+    return
+  }
+
+  if (!authStore.isAuthenticated.value && (!contributionForm.contributorEmail || !contributionForm.contributorEmail.includes('@'))) {
+    $q.notify({
+      type: 'warning',
+      message: 'Veuillez saisir une adresse email valide'
+    })
+    return
+  }
+
+  selectedMethod.value = method
   submitting.value = true
   try {
     const isAuth = authStore.isAuthenticated.value
     const user = authStore.user.value
-    
-    // Détermination du nom du contributeur
+
     let name = contributionForm.contributorName || 'Donateur anonyme'
-    
-    // Si anonyme est coché, on force le nom à "Anonyme"
     if (contributionForm.anonymous) {
       name = 'Anonyme'
     } else if (isAuth && user) {
-      // Sinon on prend le nom complet de l'utilisateur connecté
       name = user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Utilisateur'
     }
 
     const payload = {
       poolId: selectedSubPoolId.value || pool.value.id,
       userId: user?.id || null,
-      contributorEmail: user?.email || 'anonyme@potify.com',
+      contributorEmail: user?.email || contributionForm.contributorEmail || 'anonyme@potify.com',
       amount: contributionForm.amount,
       contributorName: name,
       message: contributionForm.message,
-      anonymous: contributionForm.anonymous,
-      paymentMethod: 'CARD' // Simulé pour l'instant
+      anonymous: contributionForm.anonymous
     }
 
-    await poolService.contributeToPool(payload)
+    let response
+    if (method === 'stripe') {
+      response = await poolService.initiateStripeCheckout(payload)
+    } else {
+      response = await poolService.initiatePayPalCheckout(payload)
+    }
 
-    $q.notify({
-      type: 'positive',
-      message: 'Merci pour votre contribution !',
-      position: 'top'
-    })
-
-    contributionDialog.value = false
-    // Recharger la cagnotte et les contributions
-    await fetchPool()
+    if (response.data && response.data.checkoutUrl) {
+      window.location.href = response.data.checkoutUrl
+    } else {
+      throw new Error("L'URL de redirection de paiement n'a pas pu être générée.")
+    }
   } catch (err) {
-    console.error('Erreur contribution:', err)
+    console.error('Erreur initiation paiement:', err)
     $q.notify({
       type: 'negative',
-      message: 'Erreur lors du traitement du don.'
+      message: err.response?.data?.message || 'Erreur lors de l\'initiation du paiement.'
     })
   } finally {
     submitting.value = false
+    selectedMethod.value = null
   }
 }
 

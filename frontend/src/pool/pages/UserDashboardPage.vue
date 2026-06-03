@@ -200,6 +200,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { poolApi } from 'boot/axios'
+import { poolService } from 'src/shared/services/poolService'
 import authStore from 'src/shared/stores/auth'
 
 const tab = ref('pools')
@@ -251,10 +252,10 @@ const fetchUserContributions = async () => {
   if (!userId.value) return
   loadingContributions.value = true
   try {
-    const response = await poolApi.get(`/contributions/user/${userId.value}`)
+    const response = await poolService.getUserContributions(userId.value)
     userContributions.value = response.data
   } catch (error) {
-    console.error(error)
+    console.error("Erreur chargement contributions:", error)
   } finally {
     loadingContributions.value = false
   }

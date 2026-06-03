@@ -61,7 +61,7 @@ public class ContributionEntity extends BaseEntity {
     @Column(name = "anonymous", nullable = false)
     private boolean anonymous;
 
-    @Column(name = "payment_method", length = 50)
+    @Column(name = "payment_method", length = 255)
     private String paymentMethod;
 
     @Enumerated(EnumType.STRING)

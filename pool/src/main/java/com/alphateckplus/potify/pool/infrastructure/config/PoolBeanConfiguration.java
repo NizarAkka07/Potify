@@ -1,9 +1,5 @@
 package com.alphateckplus.potify.pool.infrastructure.config;
 
-import com.alphateckplus.potify.pool.application_service.primary.contribution.create_contribution.CreateContributionService;
-import com.alphateckplus.potify.pool.application_service.primary.contribution.create_contribution.DefaultCreateContributionService;
-import com.alphateckplus.potify.pool.application_service.primary.contribution.list_contributions.DefaultListContributionsService;
-import com.alphateckplus.potify.pool.application_service.primary.contribution.list_contributions.ListContributionsService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.create_pool.CreatePoolService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.create_pool.DefaultCreatePoolService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.delete_pool.DefaultDeletePoolService;
@@ -36,12 +32,8 @@ import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolRepo
 import com.alphateckplus.potify.pool.infrastructure.secondary.pool.repository.PoolJpaAdapter;
 import com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper.PoolPersistenceMapper;
 import com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper.PhasePersistenceMapper;
-import com.alphateckplus.potify.pool.infrastructure.secondary.contribution.repository.ContributionJpaAdapter;
-import com.alphateckplus.potify.pool.infrastructure.secondary.contribution.mapper.ContributionPersistenceMapper;
-import com.alphateckplus.potify.pool.application_service.secondary.contribution.ContributionRepositoryPort;
 import com.alphateckplus.potify.data_jpa.repository.pool.PoolEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.pool.CagnotteWalletEntityRepository;
-import com.alphateckplus.potify.data_jpa.repository.payment.ContributionEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.user.UserEntityRepository;
 import com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationPort;
 import com.alphateckplus.potify.pool.infrastructure.secondary.notification.EmailNotificationAdapter;
@@ -128,37 +120,7 @@ public class PoolBeanConfiguration {
         return new PoolJpaAdapter(poolEntityRepository, userEntityRepository, poolPersistenceMapper);
     }
 
-    @Bean
-    public ContributionPersistenceMapper contributionPersistenceMapper() {
-        return new ContributionPersistenceMapper();
-    }
 
-    @Bean
-    public ContributionRepositoryPort contributionRepositoryPort(
-            ContributionEntityRepository contributionEntityRepository,
-            PoolEntityRepository poolEntityRepository,
-            UserEntityRepository userEntityRepository,
-            ContributionPersistenceMapper contributionPersistenceMapper) {
-        return new ContributionJpaAdapter(
-                contributionEntityRepository,
-                poolEntityRepository,
-                userEntityRepository,
-                contributionPersistenceMapper
-        );
-    }
-
-    @Bean
-    public CreateContributionService createContributionService(
-            ContributionRepositoryPort contributionRepositoryPort,
-            PoolRepositoryPort poolRepositoryPort,
-            WalletRepositoryPort walletRepositoryPort) {
-        return new DefaultCreateContributionService(contributionRepositoryPort, poolRepositoryPort, walletRepositoryPort);
-    }
-
-    @Bean
-    public ListContributionsService listContributionsService(ContributionRepositoryPort contributionRepositoryPort, PoolRepositoryPort poolRepositoryPort) {
-        return new DefaultListContributionsService(contributionRepositoryPort, poolRepositoryPort);
-    }
 
     @Bean
     public CreatePoolService createPoolService(PoolRepositoryPort poolRepositoryPort, WalletRepositoryPort walletRepositoryPort) {
