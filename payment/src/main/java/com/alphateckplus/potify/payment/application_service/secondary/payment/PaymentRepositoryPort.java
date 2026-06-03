@@ -11,6 +11,7 @@ public interface PaymentRepositoryPort {
     Contribution saveContribution(Contribution contribution);
     Optional<Contribution> findContributionById(String id);
     Optional<Contribution> findContributionByPayPalOrderId(String orderId);
+    Optional<Contribution> findContributionByPaymentMethod(String paymentMethod);
     List<Contribution> findContributionsByPoolId(String poolId);
     List<Contribution> findContributionsByUserId(String userId);
     Transaction saveTransaction(Transaction transaction);

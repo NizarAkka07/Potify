@@ -27,29 +27,9 @@ public class DefaultConfirmStripePaymentService implements ConfirmStripePaymentS
 
         stripeGatewayPort.confirmStripePayment(sessionId);
 
-        String lookupId = sessionId.startsWith("STRIPE:") ? sessionId.substring(7) : sessionId;
-        Contribution contribution = repositoryPort.findContributionById(lookupId)
-                .orElse(null);
-
-        if (contribution == null) {
-            contribution = repositoryPort.findContributionsByPoolId(lookupId).stream()
-                    .filter(c -> c != null && ("STRIPE:" + sessionId).equals(c.getPaymentMethod()))
-                    .findFirst()
-                    .orElse(null);
-            
-            if (contribution == null) {
-                // Double fallback search across all transactions
-                contribution = repositoryPort.findAllTransactions().stream()
-                        .map(tx -> repositoryPort.findContributionById(tx.getContributionId()).orElse(null))
-                        .filter(c -> c != null && ("STRIPE:" + sessionId).equals(c.getPaymentMethod()))
-                        .findFirst()
-                        .orElse(null);
-            }
-
-            if (contribution == null) {
-                throw new IllegalArgumentException("Contribution introuvable pour la session Stripe: " + sessionId);
-            }
-        }
+        String stripeSessionId = sessionId.startsWith("STRIPE:") ? sessionId : "STRIPE:" + sessionId;
+        Contribution contribution = repositoryPort.findContributionByPaymentMethod(stripeSessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Contribution introuvable pour la session Stripe: " + sessionId));
 
         if (contribution.getStatus() == ContributionStatus.CONFIRMED) {
             log.info("Stripe payment already confirmed for contribution: {}", contribution.getId());

@@ -15,6 +15,8 @@ public class DefaultGetPoolContributionsService implements GetPoolContributionsS
     @Override
     @Transactional(readOnly = true)
     public List<Contribution> execute(String poolId) {
-        return repositoryPort.findContributionsByPoolId(poolId);
+        return repositoryPort.findContributionsByPoolId(poolId).stream()
+                .filter(c -> c.getStatus() == com.alphateckplus.potify.payment.domain.model.ContributionStatus.CONFIRMED)
+                .collect(java.util.stream.Collectors.toList());
     }
 }

@@ -15,6 +15,8 @@ public class DefaultGetUserContributionsService implements GetUserContributionsS
     @Override
     @Transactional(readOnly = true)
     public List<Contribution> execute(String userId) {
-        return repositoryPort.findContributionsByUserId(userId);
+        return repositoryPort.findContributionsByUserId(userId).stream()
+                .filter(c -> c.getStatus() == com.alphateckplus.potify.payment.domain.model.ContributionStatus.CONFIRMED)
+                .collect(java.util.stream.Collectors.toList());
     }
 }

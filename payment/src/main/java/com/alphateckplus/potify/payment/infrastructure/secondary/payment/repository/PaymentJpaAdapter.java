@@ -80,8 +80,13 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
 
     @Override
     public Optional<Contribution> findContributionByPayPalOrderId(String orderId) {
+        return findContributionByPaymentMethod("PAYPAL:" + orderId);
+    }
+
+    @Override
+    public Optional<Contribution> findContributionByPaymentMethod(String paymentMethod) {
         return contributionRepository.findAll().stream()
-                .filter(c -> ("PAYPAL:" + orderId).equals(c.getPaymentMethod()))
+                .filter(c -> paymentMethod.equals(c.getPaymentMethod()))
                 .findFirst()
                 .map(this::mapToDomain);
     }
@@ -117,7 +122,10 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
 
         if (domain.getWalletId() != null) {
             CagnotteWalletEntity wallet = walletRepository.findById(domain.getWalletId())
-                    .orElseThrow(() -> new IllegalArgumentException("Portefeuille introuvable: " + domain.getWalletId()));
+                    .orElseGet(() -> walletRepository.findByPoolId(domain.getWalletId()).orElse(null));
+            if (wallet == null) {
+                throw new IllegalArgumentException("Portefeuille introuvable: " + domain.getWalletId());
+            }
             entity.setWallet(wallet);
         }
 
