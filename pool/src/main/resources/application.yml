@@ -41,3 +41,6 @@ application:
     cloud-name: dsoliwbee
     api-key: "628423652634248"
     api-secret: wL8TV51jdidtGpCP7ibcn4pFgNA
+  ai:
+    gemini:
+      api-key: AIzaSyA4GiqGfc56ZqG2ObiQ5htbsDmscCRJr7E

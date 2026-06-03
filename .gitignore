@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Exclude report folder if moved inside
+Rapport_PFE_Finale/

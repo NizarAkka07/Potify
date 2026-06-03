@@ -12,6 +12,87 @@
       </div>
 
       <q-form @submit="onSubmit" class="q-pa-xl q-gutter-md">
+        <!-- Assistant IA Panel -->
+        <q-card class="q-mb-xl q-pa-md text-white bg-gradient-ai shadow-3" style="border-radius: 12px; position: relative; overflow: hidden; background: linear-gradient(135deg, #0D1B2E 0%, #1e3a5f 100%); border-left: 6px solid #FFB300;">
+          <div class="row items-center q-col-gutter-sm q-mb-md">
+            <div class="col-auto">
+              <q-avatar color="amber" text-color="dark" icon="auto_awesome" class="animate-pulse" />
+            </div>
+            <div class="col">
+              <div class="text-subtitle1 text-weight-bold text-amber">PotiBuddy ✨ - Assistant de Création Intelligent </div>
+              <div class="text-caption text-grey-3" style="line-height: 1.4;">Je suis PotiBuddy, votre assistant intelligent. Décrivez votre projet de cagnotte en quelques mots, et je vous aiderai à le concevoir, le structurer et remplir le formulaire automatiquement (titre, budget, description et phases de financement) !</div>
+            </div>
+          </div>
+          
+          <div class="row q-col-gutter-sm items-start">
+            <div class="col-12 col-md-9">
+              <q-input
+                v-model="aiPrompt"
+                type="textarea"
+                rows="2"
+                dark
+                filled
+                color="amber"
+                placeholder="Ex: Je veux lancer une collecte pour aider un refuge d'animaux abandonnés à acheter des croquettes et financer les soins vétérinaires urgents."
+                class="q-mb-none"
+              />
+            </div>
+            <div class="col-12 col-md-3 text-center q-pt-sm">
+              <q-btn
+                label="Générer avec l'IA"
+                icon="bolt"
+                color="amber"
+                text-color="dark"
+                class="full-width q-py-sm text-weight-bold"
+                no-caps
+                :loading="aiLoading"
+                @click="generateWithAi"
+              />
+            </div>
+          </div>
+
+          <!-- Suggestion Preview Panel (shows up when a suggestion is generated) -->
+          <div v-if="aiSuggestion" class="q-mt-md q-pa-md bg-white text-dark rounded-borders shadow-1 animate-fade-in" style="border: 1px solid #e0e0e0;">
+            <div class="row items-center justify-between q-mb-sm border-bottom q-pb-xs">
+              <div class="text-subtitle2 text-weight-bold text-primary">
+                <q-icon name="lightbulb" color="warning" class="q-mr-xs" /> Suggestion générée :
+              </div>
+              <q-badge :label="aiSuggestion.category" color="secondary" />
+            </div>
+
+            <div class="q-mb-xs"><strong>Titre suggéré :</strong> {{ aiSuggestion.title }}</div>
+            <div class="q-mb-xs"><strong>Budget total :</strong> {{ aiSuggestion.goalAmount }} €</div>
+            <div class="q-mb-sm text-grey-8" style="font-size: 0.9em; line-height: 1.4;">
+              <strong>Description :</strong> {{ aiSuggestion.description }}
+            </div>
+
+            <!-- Suggested Structure / Phases preview -->
+            <div class="q-mb-md q-pa-sm bg-grey-1 rounded-borders">
+              <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">STRUCTURE ET PHASES SUGGÉRÉES :</div>
+              <div v-if="aiSuggestion.mode === 'simple'">
+                <div class="text-caption text-weight-bold text-secondary q-mb-xs">Cagnotte Simple avec Phases :</div>
+                <div v-for="(p, i) in aiSuggestion.simplePhases" :key="i" class="text-caption q-pl-sm">
+                  • {{ p.title }} : <strong>{{ p.goalAmount }} €</strong>
+                </div>
+              </div>
+              <div v-else>
+                <div class="text-caption text-weight-bold text-secondary q-mb-xs">Cagnotte Multi-sous-cagnottes :</div>
+                <div v-for="(sp, i) in aiSuggestion.subPools" :key="i" class="text-caption q-pl-sm q-mb-xs">
+                  <strong>{{ sp.title }}</strong> :
+                  <div v-for="(p, j) in sp.phases" :key="j" class="text-caption q-pl-md" style="font-size: 0.95em;">
+                    - {{ p.title }} : {{ p.goalAmount }} €
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row justify-end q-gutter-sm">
+              <q-btn label="Ignorer" flat color="grey-7" size="md" @click="aiSuggestion = null" no-caps />
+              <q-btn label="Appliquer le projet " color="primary" class="text-weight-bold" size="md" @click="applyAiSuggestion" no-caps />
+            </div>
+          </div>
+        </q-card>
+
         <!-- Mode selection -->
         <div class="text-subtitle1 text-weight-bold q-mb-sm" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
           1. Structure de la cagnotte
@@ -484,6 +565,102 @@ const router = useRouter()
 const route = useRoute()
 const loading = ref(false)
 const imageFile = ref(null)
+
+const aiPrompt = ref('')
+const aiLoading = ref(false)
+const aiSuggestion = ref(null)
+
+const generateWithAi = async () => {
+  if (!aiPrompt.value.trim()) {
+    $q.notify({
+      type: 'warning',
+      message: 'Veuillez décrire votre projet pour que l\'IA puisse vous aider.'
+    })
+    return
+  }
+  
+  aiLoading.value = true
+  aiSuggestion.value = null
+  
+  try {
+    const response = await poolApi.post('/pools/ai/generate', {
+      prompt: aiPrompt.value
+    })
+    aiSuggestion.value = response.data
+    $q.notify({
+      type: 'positive',
+      message: 'Structure générée avec succès ! Vous pouvez la relire avant de l\'appliquer.',
+      position: 'top-right'
+    })
+  } catch (error) {
+    console.error(error)
+    $q.notify({
+      type: 'negative',
+      message: 'Erreur lors de la génération avec l\'IA : ' + (error.response?.data?.message || 'Serveur injoignable'),
+      position: 'top-right'
+    })
+  } finally {
+    aiLoading.value = false
+  }
+}
+
+const applyAiSuggestion = () => {
+  if (!aiSuggestion.value) return
+  
+  const sugg = aiSuggestion.value
+  
+  form.title = sugg.title || ''
+  form.description = sugg.description || ''
+  
+  if (categories.includes(sugg.category)) {
+    form.category = sugg.category
+  } else {
+    form.category = 'Projets'
+  }
+  
+  mode.value = sugg.mode || 'simple'
+  
+  if (mode.value === 'simple') {
+    if (sugg.simplePhases && sugg.simplePhases.length > 0) {
+      form.simplePhases = sugg.simplePhases.map(p => ({
+        title: p.title,
+        goalAmount: Number(p.goalAmount) || 0
+      }))
+    } else {
+      form.simplePhases = [{ title: 'Phase unique', goalAmount: Number(sugg.goalAmount) || 1000 }]
+    }
+  } else {
+    if (sugg.subPools && sugg.subPools.length > 0) {
+      form.subPools = sugg.subPools.map(sp => ({
+        title: sp.title || 'Sous-cagnotte',
+        description: sp.description || '',
+        hasDeadline: !!sp.hasDeadline,
+        deadlineDate: '',
+        phases: sp.phases && sp.phases.length > 0 ? sp.phases.map(p => ({
+          title: p.title,
+          goalAmount: Number(p.goalAmount) || 0
+        })) : [{ title: 'Étape 1', goalAmount: 500 }]
+      }))
+    } else {
+      form.subPools = [{
+        title: 'Sous-cagnotte 1',
+        description: 'Financement de base',
+        hasDeadline: false,
+        deadlineDate: '',
+        phases: [{ title: 'Étape 1', goalAmount: Number(sugg.goalAmount) || 1000 }]
+      }]
+    }
+  }
+  
+  calculateTotalGoal()
+  
+  $q.notify({
+    icon: 'auto_awesome',
+    message: 'Structure IA appliquée à votre formulaire ! ✨',
+    color: 'primary',
+    position: 'top-right'
+  })
+}
 const imagePreview = ref(null)
 const videoFile = ref(null)
 const videoFilePreview = ref(null)
