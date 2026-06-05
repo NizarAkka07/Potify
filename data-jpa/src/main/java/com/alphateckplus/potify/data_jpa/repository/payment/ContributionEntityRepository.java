@@ -16,4 +16,7 @@ public interface ContributionEntityRepository extends JpaRepository<Contribution
     
     @Query("SELECT c FROM ContributionEntity c WHERE c.user.id = :userId")
     List<ContributionEntity> findByUserId(@Param("userId") String userId);
+
+    @Query("SELECT c FROM ContributionEntity c WHERE LOWER(c.contributorEmail) = LOWER(:email)")
+    List<ContributionEntity> findByContributorEmail(@Param("email") String email);
 }

@@ -3,6 +3,7 @@ package com.alphateckplus.potify.user.infrastructure.config;
 import com.alphateckplus.potify.data_jpa.repository.user.PermissionEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.user.RoleEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.user.UserEntityRepository;
+import com.alphateckplus.potify.data_jpa.repository.payment.ContributionEntityRepository;
 import com.alphateckplus.potify.user.application_service.primary.role.assign_permission_to_role.AssignPermissionToRoleService;
 import com.alphateckplus.potify.user.application_service.primary.role.assign_permission_to_role.DefaultAssignPermissionToRoleService;
 import com.alphateckplus.potify.user.application_service.primary.user.assign_role_to_user.AssignRoleToUserService;
@@ -113,13 +114,15 @@ public class UserBeanConfiguration {
         UserEntityRepository userEntityRepository,
         RoleEntityRepository roleEntityRepository,
         UserPersistenceMapper userPersistenceMapper,
-        RolePersistenceMapper rolePersistenceMapper
+        RolePersistenceMapper rolePersistenceMapper,
+        ContributionEntityRepository contributionEntityRepository
     ) {
         return new UserJpaAdapter(
             userEntityRepository,
             roleEntityRepository,
             userPersistenceMapper,
-            rolePersistenceMapper
+            rolePersistenceMapper,
+            contributionEntityRepository
         );
     }
 

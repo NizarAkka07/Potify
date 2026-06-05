@@ -24,6 +24,10 @@ public class DefaultVerifyEmailService implements VerifyEmailService {
             user.setEnabled(true);
             user.setVerificationToken(null);
             userRepositoryPort.save(user);
+            
+            // Associer les contributions visiteur faites avec cet email
+            userRepositoryPort.associateContributionsToUser(user.getEmail(), user.getId());
+            
             return true;
         }
         

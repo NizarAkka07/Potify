@@ -11,6 +11,8 @@ import com.alphateckplus.potify.user.infrastructure.secondary.role.mapper.RolePe
 import java.util.List;
 import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
+import com.alphateckplus.potify.data_jpa.entity.payment.ContributionEntity;
+import com.alphateckplus.potify.data_jpa.repository.payment.ContributionEntityRepository;
 
 /**
  * Adapter sortant qui implemente le port repository via Spring Data JPA.
@@ -22,17 +24,20 @@ public class UserJpaAdapter implements UserRepositoryPort {
     private final RoleEntityRepository roleEntityRepository;
     private final UserPersistenceMapper userPersistenceMapper;
     private final RolePersistenceMapper rolePersistenceMapper;
+    private final ContributionEntityRepository contributionEntityRepository;
 
     public UserJpaAdapter(
         UserEntityRepository userEntityRepository,
         RoleEntityRepository roleEntityRepository,
         UserPersistenceMapper userPersistenceMapper,
-        RolePersistenceMapper rolePersistenceMapper
+        RolePersistenceMapper rolePersistenceMapper,
+        ContributionEntityRepository contributionEntityRepository
     ) {
         this.userEntityRepository = userEntityRepository;
         this.roleEntityRepository = roleEntityRepository;
         this.userPersistenceMapper = userPersistenceMapper;
         this.rolePersistenceMapper = rolePersistenceMapper;
+        this.contributionEntityRepository = contributionEntityRepository;
     }
 
     @Override
@@ -120,5 +125,18 @@ public class UserJpaAdapter implements UserRepositoryPort {
             .stream()
             .map(rolePersistenceMapper::toDomain)
             .toList();
+    }
+
+    @Override
+    public void associateContributionsToUser(String email, String userId) {
+        UserEntity userEntity = userEntityRepository.findById(userId).orElse(null);
+        if (userEntity == null) {
+            return;
+        }
+        List<ContributionEntity> contributions = contributionEntityRepository.findByContributorEmail(email);
+        for (ContributionEntity contribution : contributions) {
+            contribution.setUser(userEntity);
+            contributionEntityRepository.save(contribution);
+        }
     }
 }

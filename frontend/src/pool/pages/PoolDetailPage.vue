@@ -550,6 +550,11 @@
               autofocus
             />
 
+            <div v-if="!authStore.isAuthenticated.value" class="q-pa-md bg-amber-1 text-amber-9 text-caption rounded-borders q-mb-sm flex items-center no-wrap">
+              <q-icon name="info" class="q-mr-xs" size="sm" />
+              <span>Vous n'êtes pas connecté. Saisissez votre nom et adresse email. Si vous créez un compte plus tard avec cette même adresse email, toutes vos contributions y seront associées après confirmation de votre compte.</span>
+            </div>
+
             <q-input
               v-if="!authStore.isAuthenticated.value"
               outlined
