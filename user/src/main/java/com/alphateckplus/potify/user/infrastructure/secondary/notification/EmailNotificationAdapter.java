@@ -32,7 +32,7 @@ public class EmailNotificationAdapter implements NotificationPort {
         } catch (Exception e) {
             System.err.println(">>> [MAIL] ERREUR lors de l'envoi de l'email : " + e.getMessage());
             e.printStackTrace();
-            throw new RuntimeException("Erreur lors de l'envoi de l'email de confirmation. " + e.getMessage());
+            // Ne pas lever d'exception pour éviter de bloquer la création de compte si l'email ne s'envoie pas
         }
     }
 }
