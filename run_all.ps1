@@ -47,22 +47,27 @@ Write-Host "Nettoyage des ports..." -ForegroundColor $Cyan
 Stop-ProcessOnPort 8081 # User
 Stop-ProcessOnPort 8082 # Pool
 Stop-ProcessOnPort 8083 # Payment
+Stop-ProcessOnPort 8084 # Notification
 Stop-ProcessOnPort 9000 # Frontend (Quasar)
 
 # 1. Microservice User
-Write-Host "[1/4] Lancement du Microservice User (Port 8081)..." -ForegroundColor $Yellow
+Write-Host "[1/5] Lancement du Microservice User (Port 8081)..." -ForegroundColor $Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage du service User...'; Set-Location user; ..\mvnw spring-boot:run" -WindowStyle Normal
 
 # 2. Microservice Pool
-Write-Host "[2/4] Lancement du Microservice Pool (Port 8082)..." -ForegroundColor $Yellow
+Write-Host "[2/5] Lancement du Microservice Pool (Port 8082)..." -ForegroundColor $Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage du service Pool...'; Set-Location pool; ..\mvnw spring-boot:run" -WindowStyle Normal
 
 # 3. Microservice Payment
-Write-Host "[3/4] Lancement du Microservice Payment (Port 8083)..." -ForegroundColor $Yellow
+Write-Host "[3/5] Lancement du Microservice Payment (Port 8083)..." -ForegroundColor $Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage du service Payment...'; Set-Location payment; ..\mvnw spring-boot:run" -WindowStyle Normal
 
-# 4. Frontend (Quasar)
-Write-Host "[4/4] Lancement du Frontend (Quasar Port 9000)..." -ForegroundColor $Yellow
+# 4. Microservice Notification
+Write-Host "[4/5] Lancement du Microservice Notification (Port 8084)..." -ForegroundColor $Yellow
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage du service Notification...'; Set-Location notification; ..\mvnw spring-boot:run" -WindowStyle Normal
+
+# 5. Frontend (Quasar)
+Write-Host "[5/5] Lancement du Frontend (Quasar Port 9000)..." -ForegroundColor $Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage du Frontend...'; Set-Location frontend; npm run dev" -WindowStyle Normal
 
 Write-Host "------------------------------------------" -ForegroundColor $Cyan
