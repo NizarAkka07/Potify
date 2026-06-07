@@ -1,5 +1,6 @@
-package com.alphateckplus.potify.pool.infrastructure.primary.pool.ai_generate;
+package com.alphateckplus.potify.pool.infrastructure.secondary.ai;
 
+import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolGenerationGatewayPort;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,15 +8,15 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
 import java.util.*;
 
-@Service
+/**
+ * Adaptateur secondaire pour la génération de cagnotte via l'API Gemini.
+ */
 @Slf4j
-public class AiPoolService {
+public class GeminiPoolGenerationAdapter implements PoolGenerationGatewayPort {
 
     @Value("${application.ai.gemini.api-key:}")
     private String geminiApiKeyFromConfig;
@@ -23,7 +24,9 @@ public class AiPoolService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public Map<String, Object> generatePoolStructure(String prompt) {
+    @Override
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> generateStructure(String prompt) {
         String apiKey = System.getenv("GEMINI_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
             apiKey = geminiApiKeyFromConfig;

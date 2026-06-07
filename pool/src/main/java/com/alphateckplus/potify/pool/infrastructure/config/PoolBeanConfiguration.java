@@ -42,6 +42,10 @@ import com.alphateckplus.potify.pool.infrastructure.secondary.pool.UserCheckAdap
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
+import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolGenerationGatewayPort;
+import com.alphateckplus.potify.pool.infrastructure.secondary.ai.GeminiPoolGenerationAdapter;
+import com.alphateckplus.potify.pool.application_service.primary.pool.generate_pool_structure.GeneratePoolStructureService;
+import com.alphateckplus.potify.pool.application_service.primary.pool.generate_pool_structure.DefaultGeneratePoolStructureService;
 
 /**
  * Configuration explicite des beans du microservice pool.
@@ -169,5 +173,16 @@ public class PoolBeanConfiguration {
             NotificationPort poolNotificationPort,
             PoolRepositoryPort poolRepositoryPort) {
         return new DefaultInvitationService(invitationRepositoryPort, userCheckPort, poolNotificationPort, poolRepositoryPort);
+    }
+
+    @Bean
+    public PoolGenerationGatewayPort poolGenerationGatewayPort() {
+        return new GeminiPoolGenerationAdapter();
+    }
+
+    @Bean
+    public GeneratePoolStructureService generatePoolStructureService(
+            PoolGenerationGatewayPort poolGenerationGatewayPort) {
+        return new DefaultGeneratePoolStructureService(poolGenerationGatewayPort);
     }
 }

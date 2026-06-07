@@ -1,5 +1,6 @@
 package com.alphateckplus.potify.pool.infrastructure.primary.pool.ai_generate;
 
+import com.alphateckplus.potify.pool.application_service.primary.pool.generate_pool_structure.GeneratePoolStructureService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import java.util.Map;
 @Tag(name = "Pool AI Management")
 public class AiPoolController {
 
-    private final AiPoolService aiPoolService;
+    private final GeneratePoolStructureService generatePoolStructureService;
 
     @PostMapping("/generate")
     @Operation(summary = "Générer la structure d'une cagnotte par IA")
@@ -24,7 +25,7 @@ public class AiPoolController {
             return ResponseEntity.badRequest().body(Map.of("error", "Le paramètre 'prompt' est obligatoire"));
         }
         try {
-            Map<String, Object> suggestion = aiPoolService.generatePoolStructure(prompt);
+            Map<String, Object> suggestion = generatePoolStructureService.execute(prompt);
             return ResponseEntity.ok(suggestion);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
