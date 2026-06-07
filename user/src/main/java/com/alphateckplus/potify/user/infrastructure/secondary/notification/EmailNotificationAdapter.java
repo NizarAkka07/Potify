@@ -25,6 +25,7 @@ public class EmailNotificationAdapter implements NotificationPort {
                 "Si vous n'êtes pas à l'origine de cette inscription, ignorez cet email.\n\n" +
                 "L'équipe Potify");
         
+        System.out.println(">>> [MAIL] [DEV MODE] Le lien de vérification pour " + email + " est : " + verificationUrl);
         try {
             System.out.println(">>> [MAIL] Envoi de l'email à : " + email);
             mailSender.send(message);
