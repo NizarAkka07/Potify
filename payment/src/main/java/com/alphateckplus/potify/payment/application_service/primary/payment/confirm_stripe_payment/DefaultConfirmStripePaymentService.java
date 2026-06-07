@@ -1,5 +1,6 @@
 package com.alphateckplus.potify.payment.application_service.primary.payment.confirm_stripe_payment;
 
+import com.alphateckplus.potify.payment.application_service.secondary.notification.NotificationEventPublisherPort;
 import com.alphateckplus.potify.payment.application_service.secondary.payment.PaymentRepositoryPort;
 import com.alphateckplus.potify.payment.application_service.secondary.payment.StripeGatewayPort;
 import com.alphateckplus.potify.payment.domain.model.Contribution;
@@ -19,6 +20,7 @@ public class DefaultConfirmStripePaymentService implements ConfirmStripePaymentS
 
     private final PaymentRepositoryPort repositoryPort;
     private final StripeGatewayPort stripeGatewayPort;
+    private final NotificationEventPublisherPort notificationEventPublisherPort;
 
     @Override
     @Transactional
@@ -54,6 +56,17 @@ public class DefaultConfirmStripePaymentService implements ConfirmStripePaymentS
                 .status(TransactionStatus.SUCCESS)
                 .build();
         repositoryPort.saveTransaction(transaction);
+
+        try {
+            String ownerId = repositoryPort.getPoolOwnerId(contribution.getPoolId());
+            String poolTitle = repositoryPort.getPoolTitle(contribution.getPoolId());
+            String contributorName = contribution.getContributorName() != null ? contribution.getContributorName() : "Un visiteur";
+            String title = "Nouvelle contribution !";
+            String content = contributorName + " a contribué " + contribution.getAmount() + "€ à votre cagnotte '" + poolTitle + "'.";
+            notificationEventPublisherPort.publish(ownerId, "CONTRIBUTION", title, content);
+        } catch (Exception e) {
+            log.error("Erreur lors de la publication de la notification de contribution", e);
+        }
 
         log.info("Payment successfully processed for contribution ID: {}", contribution.getId());
     }

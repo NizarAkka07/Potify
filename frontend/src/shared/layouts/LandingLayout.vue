@@ -49,6 +49,42 @@
             <q-btn flat no-caps label="Mon Espace" icon="dashboard" style="color: rgba(255,255,255,0.85); font-weight: 500;" to="/dashboard" />
             <q-btn flat no-caps label="Profil" icon="person" style="color: rgba(255,255,255,0.85); font-weight: 500;" to="/profile" class="gt-sm" />
             <q-btn v-if="authStore.isAdmin.value" flat no-caps label="Administration" style="color: rgba(255,255,255,0.85);" to="/admin" />
+            
+            <!-- Cloche de Notifications -->
+            <q-btn flat round dense icon="notifications" style="color: rgba(255,255,255,0.85); margin-right: 8px;" @click="fetchNotifications">
+              <q-badge v-if="unreadCount > 0" color="red" floating>{{ unreadCount }}</q-badge>
+              <q-menu style="min-width: 320px; max-height: 400px; border-radius: 8px;" class="q-pa-none">
+                <div class="row items-center justify-between q-pa-md bg-grey-2" style="border-bottom: 1px solid #e0e0e0;">
+                  <span class="text-weight-bold text-subtitle1">Notifications</span>
+                  <span class="text-caption text-grey-7" v-if="unreadCount > 0">{{ unreadCount }} non lue(s)</span>
+                </div>
+                
+                <q-list style="max-height: 300px; overflow-y: auto;">
+                  <q-item v-if="notifications.length === 0" class="q-py-md text-center text-grey-6">
+                    <q-item-section>Aucune notification</q-item-section>
+                  </q-item>
+                  <q-item v-for="notif in notifications" :key="notif.id" :class="{'bg-yellow-1': notif.status === 'ACTIVE'}" class="q-py-md" style="border-bottom: 1px solid #f0f0f0;">
+                    <q-item-section avatar>
+                      <q-icon 
+                        :name="notif.type === 'CONTRIBUTION' ? 'monetization_on' : (notif.type === 'MESSAGE' ? 'chat' : 'thumb_up')" 
+                        :color="notif.type === 'CONTRIBUTION' ? 'green' : (notif.type === 'MESSAGE' ? 'blue' : 'orange')" 
+                      />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-weight-bold">{{ notif.title }}</q-item-label>
+                      <q-item-label caption class="text-grey-9">{{ notif.content }}</q-item-label>
+                      <q-item-label caption class="text-grey-5">{{ formatDate(notif.createdAt) }}</q-item-label>
+                    </q-item-section>
+                    <q-item-section side v-if="notif.status === 'ACTIVE'">
+                      <q-btn flat round dense size="sm" icon="check" color="green" @click.stop="markAsRead(notif.id)">
+                        <q-tooltip>Marquer comme lu</q-tooltip>
+                      </q-btn>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+
             <q-btn flat round dense icon="logout" style="color: rgba(255,255,255,0.75);" @click="onLogout">
               <q-tooltip>Se déconnecter</q-tooltip>
             </q-btn>
@@ -121,14 +157,88 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import authStore from 'src/shared/stores/auth'
+import notificationService from 'src/shared/services/notificationService'
+import { date } from 'quasar'
 
 const router = useRouter()
+
+const notifications = ref([])
+const unreadCount = computed(() => {
+  return notifications.value.filter(n => n.status === 'ACTIVE').length
+})
+
+let intervalId = null
+
+async function fetchNotifications() {
+  if (!authStore.isAuthenticated.value || !authStore.user.value?.id) return
+  try {
+    const data = await notificationService.getUserNotifications(authStore.user.value.id)
+    notifications.value = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  } catch (error) {
+    console.error('Erreur de chargement des notifications:', error)
+  }
+}
+
+async function markAsRead(id) {
+  try {
+    await notificationService.markNotificationRead(id)
+    const notif = notifications.value.find(n => n.id === id)
+    if (notif) {
+      notif.status = 'COMPLETED'
+    }
+  } catch (error) {
+    console.error('Erreur lors du marquage comme lu:', error)
+  }
+}
+
+function formatDate(isoString) {
+  if (!isoString) return ''
+  return date.formatDate(new Date(isoString), 'DD/MM/YYYY HH:mm')
+}
 
 function onLogout () {
   authStore.logout()
   router.push('/login')
 }
+
+watch(
+  () => authStore.isAuthenticated.value,
+  (isAuth) => {
+    if (isAuth) {
+      fetchNotifications()
+      startPolling()
+    } else {
+      stopPolling()
+      notifications.value = []
+    }
+  },
+  { immediate: true }
+)
+
+function startPolling() {
+  stopPolling()
+  intervalId = setInterval(fetchNotifications, 10000)
+}
+
+function stopPolling() {
+  if (intervalId) {
+    clearInterval(intervalId)
+    intervalId = null
+  }
+}
+
+onMounted(() => {
+  if (authStore.isAuthenticated.value) {
+    fetchNotifications()
+    startPolling()
+  }
+})
+
+onUnmounted(() => {
+  stopPolling()
+})
 </script>
 
 <style scoped>

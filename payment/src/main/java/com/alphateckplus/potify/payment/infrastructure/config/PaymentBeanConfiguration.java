@@ -37,8 +37,9 @@ public class PaymentBeanConfiguration {
     @Bean
     public ConfirmStripePaymentService confirmStripePaymentService(
             PaymentRepositoryPort repositoryPort,
-            StripeGatewayPort stripeGatewayPort) {
-        return new DefaultConfirmStripePaymentService(repositoryPort, stripeGatewayPort);
+            StripeGatewayPort stripeGatewayPort,
+            com.alphateckplus.potify.payment.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
+        return new DefaultConfirmStripePaymentService(repositoryPort, stripeGatewayPort, notificationEventPublisherPort);
     }
 
     @Bean
@@ -51,8 +52,9 @@ public class PaymentBeanConfiguration {
     @Bean
     public ConfirmPayPalPaymentService confirmPayPalPaymentService(
             PaymentRepositoryPort repositoryPort,
-            PayPalGatewayPort payPalGatewayPort) {
-        return new DefaultConfirmPayPalPaymentService(repositoryPort, payPalGatewayPort);
+            PayPalGatewayPort payPalGatewayPort,
+            com.alphateckplus.potify.payment.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
+        return new DefaultConfirmPayPalPaymentService(repositoryPort, payPalGatewayPort, notificationEventPublisherPort);
     }
 
     @Bean
@@ -68,5 +70,11 @@ public class PaymentBeanConfiguration {
     @Bean
     public GetTransactionsService getTransactionsService(PaymentRepositoryPort repositoryPort) {
         return new DefaultGetTransactionsService(repositoryPort);
+    }
+
+    @Bean
+    public com.alphateckplus.potify.payment.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort(
+            org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate) {
+        return new com.alphateckplus.potify.payment.infrastructure.secondary.notification.KafkaNotificationEventPublisherAdapter(kafkaTemplate);
     }
 }

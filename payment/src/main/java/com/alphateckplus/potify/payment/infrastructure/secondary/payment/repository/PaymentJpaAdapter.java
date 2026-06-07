@@ -231,4 +231,18 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
         if (type == null) return null;
         return com.alphateckplus.potify.data_jpa.entity.payment.TransactionType.valueOf(type.name());
     }
+
+    @Override
+    public String getPoolOwnerId(String poolId) {
+        return poolRepository.findById(poolId)
+                .map(pool -> pool.getOwner().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Cagnotte introuvable: " + poolId));
+    }
+
+    @Override
+    public String getPoolTitle(String poolId) {
+        return poolRepository.findById(poolId)
+                .map(com.alphateckplus.potify.data_jpa.entity.pool.PoolEntity::getTitle)
+                .orElseThrow(() -> new IllegalArgumentException("Cagnotte introuvable: " + poolId));
+    }
 }

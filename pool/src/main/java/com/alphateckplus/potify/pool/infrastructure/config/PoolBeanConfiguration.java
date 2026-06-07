@@ -147,8 +147,11 @@ public class PoolBeanConfiguration {
     }
 
     @Bean
-    public MessageService messageService(MessageRepositoryPort messageRepositoryPort, ReactionRepositoryPort reactionRepositoryPort) {
-        return new DefaultMessageService(messageRepositoryPort, reactionRepositoryPort);
+    public MessageService messageService(MessageRepositoryPort messageRepositoryPort, 
+                                         ReactionRepositoryPort reactionRepositoryPort,
+                                         PoolRepositoryPort poolRepositoryPort,
+                                         com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
+        return new DefaultMessageService(messageRepositoryPort, reactionRepositoryPort, poolRepositoryPort, notificationEventPublisherPort);
     }
 
     @Bean
@@ -184,5 +187,11 @@ public class PoolBeanConfiguration {
     public GeneratePoolStructureService generatePoolStructureService(
             PoolGenerationGatewayPort poolGenerationGatewayPort) {
         return new DefaultGeneratePoolStructureService(poolGenerationGatewayPort);
+    }
+
+    @Bean
+    public com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort(
+            org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate) {
+        return new com.alphateckplus.potify.pool.infrastructure.secondary.notification.KafkaNotificationEventPublisherAdapter(kafkaTemplate);
     }
 }

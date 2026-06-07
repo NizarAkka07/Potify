@@ -24,11 +24,12 @@ public class ReactionJpaAdapter implements ReactionRepositoryPort {
     private final UserEntityRepository userRepository;
 
     @Override
-    public void addOrRemoveReaction(String messageId, String userId, String type) {
+    public boolean addOrRemoveReaction(String messageId, String userId, String type) {
         Optional<CommentReactionEntity> existing = reactionRepository.findByMessageIdAndUserIdAndReactionType(messageId, userId, type);
         
         if (existing.isPresent()) {
             reactionRepository.delete(existing.get());
+            return false;
         } else {
             MessageEntity message = messageRepository.findById(messageId)
                     .orElseThrow(() -> new IllegalArgumentException("Message non trouve"));
@@ -41,6 +42,7 @@ public class ReactionJpaAdapter implements ReactionRepositoryPort {
                     .reactionType(type)
                     .build();
             reactionRepository.save(entity);
+            return true;
         }
     }
 
