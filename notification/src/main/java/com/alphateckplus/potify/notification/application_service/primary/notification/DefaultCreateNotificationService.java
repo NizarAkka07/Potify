@@ -13,9 +13,6 @@ public class DefaultCreateNotificationService implements CreateNotificationServi
 
     @Override
     public Notification execute(Notification notification) {
-        if (notification.getId() == null) {
-            notification.setId(UUID.randomUUID().toString());
-        }
         if (notification.getStatus() == null) {
             notification.setStatus("ACTIVE"); // ACTIVE represents unread/new notifications
         }
