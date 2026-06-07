@@ -54,9 +54,9 @@ Stop-ProcessOnPort 2181 # Zookeeper
 
 # 0c. Démarrage de Zookeeper & Kafka
 Write-Host "Lancement de Zookeeper & Kafka..." -ForegroundColor $Yellow
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage de Zookeeper...'; Set-Location kafka; .\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties" -WindowStyle Normal
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage de Zookeeper...'; Set-Location C:\kafka; .\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties" -WindowStyle Normal
 Start-Sleep -Seconds 4
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage de Kafka...'; Set-Location kafka; .\bin\windows\kafka-server-start.bat .\config\server.properties" -WindowStyle Normal
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage de Kafka...'; Set-Location C:\kafka; .\bin\windows\kafka-server-start.bat .\config\server.properties" -WindowStyle Normal
 Start-Sleep -Seconds 4
 
 # 1. Microservice User
