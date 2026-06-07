@@ -49,6 +49,15 @@ Stop-ProcessOnPort 8082 # Pool
 Stop-ProcessOnPort 8083 # Payment
 Stop-ProcessOnPort 8084 # Notification
 Stop-ProcessOnPort 9000 # Frontend (Quasar)
+Stop-ProcessOnPort 9092 # Kafka Broker
+Stop-ProcessOnPort 2181 # Zookeeper
+
+# 0c. Démarrage de Zookeeper & Kafka
+Write-Host "Lancement de Zookeeper & Kafka..." -ForegroundColor $Yellow
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage de Zookeeper...'; Set-Location kafka; .\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties" -WindowStyle Normal
+Start-Sleep -Seconds 4
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage de Kafka...'; Set-Location kafka; .\bin\windows\kafka-server-start.bat .\config\server.properties" -WindowStyle Normal
+Start-Sleep -Seconds 4
 
 # 1. Microservice User
 Write-Host "[1/5] Lancement du Microservice User (Port 8081)..." -ForegroundColor $Yellow
