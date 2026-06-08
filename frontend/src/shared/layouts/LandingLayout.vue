@@ -66,8 +66,8 @@
                   <q-item v-for="notif in notifications" :key="notif.id" :class="{'bg-yellow-1': notif.status === 'ACTIVE'}" class="q-py-md" style="border-bottom: 1px solid #f0f0f0;">
                     <q-item-section avatar>
                       <q-icon 
-                        :name="notif.type === 'CONTRIBUTION' ? 'monetization_on' : (notif.type === 'MESSAGE' ? 'chat' : 'thumb_up')" 
-                        :color="notif.type === 'CONTRIBUTION' ? 'green' : (notif.type === 'MESSAGE' ? 'blue' : 'orange')" 
+                        :name="notif.type === 'CONTRIBUTION' ? 'monetization_on' : (notif.type === 'MESSAGE' ? 'chat' : (notif.type === 'INVITATION' ? 'person_add' : (notif.type === 'REACTION' ? 'favorite' : 'notifications')))" 
+                        :color="notif.type === 'CONTRIBUTION' ? 'green' : (notif.type === 'MESSAGE' ? 'blue' : (notif.type === 'INVITATION' ? 'purple' : (notif.type === 'REACTION' ? 'pink' : 'orange')))" 
                       />
                     </q-item-section>
                     <q-item-section>

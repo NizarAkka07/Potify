@@ -52,6 +52,11 @@ Stop-ProcessOnPort 9000 # Frontend (Quasar)
 Stop-ProcessOnPort 9092 # Kafka Broker
 Stop-ProcessOnPort 2181 # Zookeeper
 
+# Nettoyage des dossiers temporaires Zookeeper et Kafka pour éviter les conflits d'état au démarrage
+Write-Host "Nettoyage des dossiers temporaires Zookeeper et Kafka..." -ForegroundColor $Cyan
+Remove-Item -Path C:\tmp\zookeeper -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path C:\tmp\kafka-logs -Recurse -Force -ErrorAction SilentlyContinue
+
 # 0c. Démarrage de Zookeeper & Kafka
 Write-Host "Lancement de Zookeeper & Kafka..." -ForegroundColor $Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage de Zookeeper...'; Set-Location C:\kafka; .\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties" -WindowStyle Normal

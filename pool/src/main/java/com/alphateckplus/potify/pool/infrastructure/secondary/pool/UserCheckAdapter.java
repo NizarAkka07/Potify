@@ -22,4 +22,12 @@ public class UserCheckAdapter implements UserCheckPort {
                 .map(user -> user.getEmail())
                 .orElse(null);
     }
+
+    @Override
+    public String getIdByEmail(String email) {
+        return userEntityRepository.findByEmail(email)
+                .map(user -> user.getId())
+                .orElse(null);
+    }
 }
+

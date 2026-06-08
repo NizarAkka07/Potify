@@ -174,8 +174,9 @@ public class PoolBeanConfiguration {
             InvitationRepositoryPort invitationRepositoryPort,
             UserCheckPort userCheckPort,
             NotificationPort poolNotificationPort,
-            PoolRepositoryPort poolRepositoryPort) {
-        return new DefaultInvitationService(invitationRepositoryPort, userCheckPort, poolNotificationPort, poolRepositoryPort);
+            PoolRepositoryPort poolRepositoryPort,
+            com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
+        return new DefaultInvitationService(invitationRepositoryPort, userCheckPort, poolNotificationPort, poolRepositoryPort, notificationEventPublisherPort);
     }
 
     @Bean

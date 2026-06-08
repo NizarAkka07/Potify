@@ -45,6 +45,7 @@ public class DefaultMessageService implements MessageService {
 
     @Override
     public void toggleReaction(String messageId, String userId, String type) {
+        log.info("toggleReaction called: messageId={}, userId={}, type={}", messageId, userId, type);
         boolean added = reactionRepositoryPort.addOrRemoveReaction(messageId, userId, type);
         if (added) {
             try {
@@ -59,6 +60,9 @@ public class DefaultMessageService implements MessageService {
                     String title = "Nouvelle réaction !";
                     String content = "Quelqu'un a réagi à votre message sur la cagnotte '" + pool.getTitle() + "'.";
                     notificationEventPublisherPort.publish(msg.getUserId(), "REACTION", title, content);
+                    log.info("Reaction notification event published successfully for user {}", msg.getUserId());
+                } else {
+                    log.info("Reactor is the message author. Skipping notification.");
                 }
             } catch (Exception e) {
                 log.warn("Impossible d'envoyer la notification de réaction", e);

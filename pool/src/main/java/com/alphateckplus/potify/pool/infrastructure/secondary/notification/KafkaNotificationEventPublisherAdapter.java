@@ -16,19 +16,21 @@ public class KafkaNotificationEventPublisherAdapter implements NotificationEvent
 
     @Override
     public void publish(String userId, String type, String title, String content) {
-        log.info("Publishing notification event to Kafka: user={}, type={}", userId, type);
-        try {
-            Map<String, Object> event = new HashMap<>();
-            event.put("userId", userId);
-            event.put("type", type);
-            event.put("title", title);
-            event.put("content", content);
-            event.put("channel", "NOTIF_APP");
+        log.info("Publishing notification event to Kafka asynchronously: user={}, type={}", userId, type);
+        Map<String, Object> event = new HashMap<>();
+        event.put("userId", userId);
+        event.put("type", type);
+        event.put("title", title);
+        event.put("content", content);
+        event.put("channel", "NOTIF_APP");
 
-            kafkaTemplate.send(TOPIC, userId, event);
-            log.info("Notification event published successfully for user {}", userId);
-        } catch (Exception e) {
-            log.error("Failed to publish notification event to Kafka", e);
-        }
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                kafkaTemplate.send(TOPIC, userId, event);
+                log.info("Notification event published successfully to Kafka for user {}", userId);
+            } catch (Exception e) {
+                log.error("Failed to publish notification event to Kafka asynchronously", e);
+            }
+        });
     }
 }

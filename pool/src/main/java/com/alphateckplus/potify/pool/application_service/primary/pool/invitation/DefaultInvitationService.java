@@ -7,17 +7,21 @@ import com.alphateckplus.potify.pool.application_service.secondary.pool.UserChec
 import com.alphateckplus.potify.pool.domain.exception.UserNotFoundException;
 import com.alphateckplus.potify.pool.domain.model.Invitation;
 import com.alphateckplus.potify.pool.domain.model.Pool;
+import com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationEventPublisherPort;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
+@Slf4j
 public class DefaultInvitationService implements InvitationService {
 
     private final InvitationRepositoryPort invitationRepositoryPort;
     private final UserCheckPort userCheckPort;
     private final NotificationPort notificationPort;
     private final PoolRepositoryPort poolRepositoryPort;
+    private final NotificationEventPublisherPort notificationEventPublisherPort;
 
     @Override
     public Invitation inviteUser(String poolId, String email) {
@@ -50,6 +54,18 @@ public class DefaultInvitationService implements InvitationService {
                     // 5. Envoyer l'email d'invitation
                     notificationPort.sendInvitationEmail(email, pool.getTitle(), saved.getToken());
                     
+                    // 5b. Envoyer une notification in-app
+                    try {
+                        String invitedUserId = userCheckPort.getIdByEmail(email);
+                        if (invitedUserId != null) {
+                            String title = "Nouvelle invitation !";
+                            String content = "Vous avez été invité à rejoindre la cagnotte '" + pool.getTitle() + "'.";
+                            notificationEventPublisherPort.publish(invitedUserId, "INVITATION", title, content);
+                        }
+                    } catch (Exception e) {
+                        log.warn("Impossible d'envoyer la notification d'invitation à l'utilisateur", e);
+                    }
+                    
                     return saved;
                 });
     }
@@ -70,7 +86,19 @@ public class DefaultInvitationService implements InvitationService {
                 .orElseThrow(() -> new RuntimeException("Invitation invalide ou expirée"));
         
         invitation.setStatus("ACCEPTED");
-        return invitationRepositoryPort.save(invitation);
+        Invitation saved = invitationRepositoryPort.save(invitation);
+        
+        try {
+            Pool pool = poolRepositoryPort.findById(saved.getPoolId())
+                    .orElseThrow(() -> new RuntimeException("Cagnotte introuvable"));
+            String title = "Invitation acceptée !";
+            String content = saved.getEmail() + " a accepté votre invitation à rejoindre la cagnotte '" + pool.getTitle() + "'.";
+            notificationEventPublisherPort.publish(pool.getOwnerId(), "INVITATION", title, content);
+        } catch (Exception e) {
+            log.warn("Impossible d'envoyer la notification d'acceptation d'invitation", e);
+        }
+        
+        return saved;
     }
 
     @Override

@@ -6,5 +6,6 @@ package com.alphateckplus.potify.data_jpa.entity.notification;
 public enum NotificationType {
     MESSAGE,
     CONTRIBUTION,
-    REACTION
+    REACTION,
+    INVITATION
 }

@@ -4,6 +4,11 @@ Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host "    Démarrage de Zookeeper & Kafka...     " -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
+# Nettoyage des dossiers temporaires Zookeeper et Kafka pour éviter les conflits d'état au démarrage
+Write-Host "Nettoyage des dossiers temporaires Zookeeper et Kafka..." -ForegroundColor Yellow
+Remove-Item -Path C:\tmp\zookeeper -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path C:\tmp\kafka-logs -Recurse -Force -ErrorAction SilentlyContinue
+
 # 1. Démarrer Zookeeper
 Write-Host "[1/2] Lancement de Zookeeper (Port 2181)..." -ForegroundColor Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Démarrage de Zookeeper...'; Set-Location C:\kafka; .\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties" -WindowStyle Normal
