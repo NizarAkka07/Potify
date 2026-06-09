@@ -34,8 +34,10 @@
       <div class="row q-col-gutter-lg">
         <!-- Sidebar Filtres (Desktop) -->
         <div class="col-12 col-md-3 gt-sm">
-          <q-card flat class="bg-white q-pa-lg" style="border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
-            <div class="text-subtitle1 text-weight-bold q-mb-md" style="color: #0D1B2E;">Catégories</div>
+          <q-card flat class="bg-white q-pa-lg" style="border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+            <div class="text-subtitle1 text-weight-bold q-mb-md" style="color: #0D1B2E;">
+              <q-icon name="filter_list" class="q-mr-sm" size="xs" color="primary" />Catégories
+            </div>
             <q-list dense padding>
               <q-item
                 v-for="cat in categories"
@@ -45,12 +47,15 @@
                 :active="selectedCategory === cat"
                 active-class="active-category"
                 @click="selectedCategory = cat"
-                class="q-py-sm"
+                class="q-py-sm q-mb-xs"
                 style="border-radius: 8px;"
               >
-                <q-item-section>{{ cat }}</q-item-section>
+                <q-item-section avatar style="min-width: 32px;">
+                  <q-icon :name="getCategoryIcon(cat)" size="sm" :color="selectedCategory === cat ? 'primary' : 'grey-7'" />
+                </q-item-section>
+                <q-item-section class="text-weight-medium" style="font-size: 0.95rem;">{{ cat }}</q-item-section>
                 <q-item-section side v-if="selectedCategory === cat">
-                  <q-icon name="chevron_right" color="primary" />
+                  <q-icon name="chevron_right" color="primary" size="xs" />
                 </q-item-section>
               </q-item>
             </q-list>
@@ -63,6 +68,7 @@
               label="Réinitialiser"
               no-caps
               class="full-width"
+              style="border-radius: 8px;"
               @click="resetFilters"
             />
           </q-card>
@@ -70,6 +76,28 @@
 
         <!-- Grille de cagnottes -->
         <div class="col-12 col-md-9">
+          <!-- Top sorting and info bar -->
+          <div class="row items-center justify-between q-mb-md q-px-sm">
+            <div class="text-subtitle2 text-grey-8 text-weight-bold">
+              {{ filteredPools.length }} {{ filteredPools.length > 1 ? 'cagnottes trouvées' : 'cagnotte trouvée' }}
+            </div>
+            
+            <div class="row items-center q-gutter-sm">
+              <span class="text-caption text-grey-6 text-weight-medium">Trier par :</span>
+              <q-select
+                v-model="sortBy"
+                :options="sortOptions"
+                dense
+                borderless
+                emit-value
+                map-options
+                options-dense
+                class="text-weight-bold text-primary"
+                style="font-size: 0.9rem;"
+              />
+            </div>
+          </div>
+
           <!-- Filtres Mobile -->
           <div class="lt-md q-mb-lg">
             <q-select
@@ -80,7 +108,11 @@
               bg-color="white"
               color="primary"
               style="border-radius: 12px;"
-            />
+            >
+              <template v-slot:prepend>
+                <q-icon :name="getCategoryIcon(selectedCategory)" color="primary" />
+              </template>
+            </q-select>
           </div>
 
           <div v-if="loading" class="row justify-center q-py-xl">
@@ -149,15 +181,38 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { poolService } from 'src/shared/services/poolService'
 
 const router = useRouter()
+const route = useRoute()
 const loading = ref(false)
 const pools = ref([])
 const searchQuery = ref('')
 const selectedCategory = ref('Toutes')
 const categories = ['Toutes', 'Santé', 'Éducation', 'Urgence', 'Animaux', 'Projets', 'Sport']
+
+const sortBy = ref('recent')
+const sortOptions = [
+  { label: 'Plus récentes', value: 'recent' },
+  { label: 'Proches de l\'objectif', value: 'progress' },
+  { label: 'Montant collecté', value: 'amount' },
+  { label: 'Objectif le plus élevé', value: 'goal' }
+]
+
+const categoryIcons = {
+  'Toutes': 'dashboard',
+  'Santé': 'local_hospital',
+  'Éducation': 'school',
+  'Urgence': 'warning',
+  'Animaux': 'pets',
+  'Projets': 'lightbulb',
+  'Sport': 'sports_soccer'
+}
+
+const getCategoryIcon = (category) => {
+  return categoryIcons[category] || 'folder'
+}
 
 // Timer pour le debounce
 let searchTimer = null
@@ -183,15 +238,39 @@ watch(searchQuery, () => {
 })
 
 const filteredPools = computed(() => {
-  if (selectedCategory.value === 'Toutes') {
-    return pools.value
+  let result = pools.value || []
+  
+  // Category filter
+  if (selectedCategory.value !== 'Toutes') {
+    result = result.filter(p => p.category === selectedCategory.value)
   }
-  return pools.value.filter(p => p.category === selectedCategory.value)
+  
+  // Exclude sub-pools from public view
+  result = result.filter(p => !p.parentId)
+
+  // Sort
+  const sorted = [...result]
+  if (sortBy.value === 'recent') {
+    sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  } else if (sortBy.value === 'progress') {
+    sorted.sort((a, b) => {
+      const progA = a.goalAmount ? (a.currentAmount / a.goalAmount) : 0
+      const progB = b.goalAmount ? (b.currentAmount / b.goalAmount) : 0
+      return progB - progA
+    })
+  } else if (sortBy.value === 'amount') {
+    sorted.sort((a, b) => (b.currentAmount || 0) - (a.currentAmount || 0))
+  } else if (sortBy.value === 'goal') {
+    sorted.sort((a, b) => (b.goalAmount || 0) - (a.goalAmount || 0))
+  }
+  
+  return sorted
 })
 
 const resetFilters = () => {
   searchQuery.value = ''
   selectedCategory.value = 'Toutes'
+  sortBy.value = 'recent'
   fetchPools()
 }
 
@@ -215,7 +294,18 @@ const getPercentage = (pool) => {
 
 
 
+watch(() => route.query.category, (newCat) => {
+  if (newCat) {
+    selectedCategory.value = newCat
+  } else {
+    selectedCategory.value = 'Toutes'
+  }
+})
+
 onMounted(() => {
+  if (route.query.category) {
+    selectedCategory.value = route.query.category
+  }
   fetchPools()
 })
 </script>

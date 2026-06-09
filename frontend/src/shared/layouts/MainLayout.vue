@@ -41,7 +41,17 @@
           Menu
         </q-item-label>
 
-        <q-item clickable v-ripple to="/users" exact>
+        <q-item clickable v-ripple to="/admin" exact>
+          <q-item-section avatar>
+            <q-icon name="dashboard" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Tableau de Bord</q-item-label>
+            <q-item-label caption>Statistiques générales</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple to="/admin/users" exact>
           <q-item-section avatar>
             <q-icon name="people" />
           </q-item-section>
@@ -51,7 +61,17 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple to="/roles" exact>
+        <q-item clickable v-ripple to="/admin/pools" exact>
+          <q-item-section avatar>
+            <q-icon name="account_balance_wallet" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Cagnottes</q-item-label>
+            <q-item-label caption>Gestion totale des cagnottes</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple to="/admin/roles" exact>
           <q-item-section avatar>
             <q-icon name="security" />
           </q-item-section>
@@ -61,7 +81,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple to="/permissions" exact>
+        <q-item clickable v-ripple to="/admin/permissions" exact>
           <q-item-section avatar>
             <q-icon name="vpn_key" />
           </q-item-section>

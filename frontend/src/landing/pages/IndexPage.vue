@@ -96,7 +96,7 @@
       <div style="max-width: 1200px; margin: 0 auto;" class="q-px-xl">
         <div class="row items-center justify-between q-mb-xl">
           <h2 class="text-h4 text-weight-bold q-my-none" style="color: #1A1A2A;">Cagnottes solidaires</h2>
-          <q-btn flat no-caps style="color: #1E6BE6; font-weight: 600;" label="Voir tout →" />
+          <q-btn flat no-caps style="color: #1E6BE6; font-weight: 600;" label="Voir tout →" to="/pools" />
         </div>
         <div class="row q-col-gutter-lg">
           <div class="col-12 col-sm-6 col-md-4" v-for="pool in pools" :key="pool.id">
@@ -148,6 +148,7 @@
             <q-card
               class="q-pa-lg text-center cursor-pointer cat-card"
               style="border: 1px solid #E0E0E0; border-radius: 4px; transition: all 0.2s ease;"
+              @click="$router.push({ path: '/pools', query: { category: cat.name } })"
             >
               <q-icon :name="cat.icon" size="2.5rem" class="q-mb-sm" style="color: #0D1B2E;" />
               <div class="text-weight-bold" style="color: #1A1A2A; font-size: 0.85rem;">{{ cat.name }}</div>
@@ -232,6 +233,7 @@
           icon-right="rocket_launch"
           style="background: #FFB300; color: #1A1A2A; font-weight: 700; padding: 14px 36px; letter-spacing: 0.5px;"
           class="shadow-4"
+          to="/pools/create"
         />
       </div>
     </div>
@@ -241,8 +243,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { poolApi } from 'boot/axios'
 
+const router = useRouter()
 const slide = ref('1')
 const search = ref('')
 const pools = ref([])
@@ -252,24 +256,22 @@ const categories = [
   { name: 'Éducation', icon: 'school' },
   { name: 'Urgence', icon: 'warning' },
   { name: 'Animaux', icon: 'pets' },
-  { name: 'Projets', icon: 'flight_takeoff' },
-  { name: 'Sport', icon: 'directions_run' }
+  { name: 'Projets', icon: 'lightbulb' },
+  { name: 'Sport', icon: 'sports_soccer' }
 ]
 
 const fetchPools = async () => {
   try {
     const response = await poolApi.get('/pools')
-    pools.value = response.data
+    // Exclure les sous-cagnottes et limiter à 3 pour la page d'accueil
+    pools.value = (response.data || []).filter(p => !p.parentId).slice(0, 3)
   } catch (error) {
     console.error('Erreur lors du chargement des cagnottes:', error)
   }
 }
 
-
-
 const contribute = (pool) => {
-  // Logique de redirection vers le détail de la cagnotte
-  console.log('Contribuer à:', pool.title)
+  router.push(`/pools/${pool.id}`)
 }
 
 onMounted(() => {

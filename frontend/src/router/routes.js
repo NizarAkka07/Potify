@@ -21,6 +21,8 @@ const routes = [
       { path: 'pools', component: () => import('src/pool/pages/PublicPoolsPage.vue') },
       // Détail d'une cagnotte
       { path: 'pools/:id', component: () => import('src/pool/pages/PoolDetailPage.vue') },
+      // Édition d'une cagnotte
+      { path: 'pools/:id/edit', component: () => import('src/pool/pages/EditPoolPage.vue'), meta: { requiresAuth: true } },
       // Acceptation d'invitation
       { path: 'pool/invitation', component: () => import('src/pool/pages/AcceptInvitationPage.vue') },
       // Dashboard utilisateur
@@ -36,12 +38,15 @@ const routes = [
     meta: { requiresAuth: true }, // Méta-donnée pour indiquer que l'authentification est requise
     component: () => import('src/shared/layouts/MainLayout.vue'), // Layout principal pour les utilisateurs connectés
     children: [
+      // Dashboard principal
+      { path: '', component: () => import('src/user/pages/AdminDashboardPage.vue') },
       // Gestion des utilisateurs
-      { path: '/users', component: () => import('src/user/pages/UserListPage.vue') },
-      // Gestion des rôles
-      { path: '/roles', component: () => import('src/user/pages/RoleListPage.vue') },
-      // Gestion des permissions
-      { path: '/permissions', component: () => import('src/user/pages/PermissionListPage.vue') }
+      { path: 'users', component: () => import('src/user/pages/UserListPage.vue') },
+      // Gestion des rôles et permissions unifiée
+      { path: 'roles', component: () => import('src/user/pages/RoleListPage.vue') },
+      { path: 'permissions', component: () => import('src/user/pages/RoleListPage.vue') },
+      // Gestion totale des cagnottes
+      { path: 'pools', component: () => import('src/pool/pages/AdminPoolsPage.vue') }
     ]
   },
 

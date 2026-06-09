@@ -36,6 +36,15 @@
           />
         </q-tab>
         <q-tab name="contributions" label="Mes Contributions" />
+        <q-tab name="notifications" label="Mes Notifications">
+          <q-badge
+            v-if="unreadCount > 0"
+            color="red"
+            floating
+            rounded
+            :label="unreadCount"
+          />
+        </q-tab>
       </q-tabs>
 
       <q-separator class="q-mb-xl" style="background: rgba(0,0,0,0.05);" />
@@ -191,6 +200,58 @@
           </div>
         </q-tab-panel>
 
+        <!-- PANNEAU : NOTIFICATIONS -->
+        <q-tab-panel name="notifications" class="q-pa-none">
+          <div v-if="loadingNotifications" class="flex flex-center q-py-xl">
+            <q-spinner-dots color="primary" size="40px" />
+          </div>
+
+          <div v-else-if="userNotifications.length > 0">
+            <div class="row justify-between items-center q-mb-md q-px-sm">
+              <div class="text-subtitle2 text-grey-7">Dernières notifications reçues</div>
+              <q-btn flat dense no-caps color="primary" label="Tout marquer comme lu" v-if="unreadCount > 0" @click="markAllAsRead" />
+            </div>
+
+            <q-list class="bg-white shadow-1" style="border-radius: 12px; overflow: hidden;">
+              <div v-for="(notif, index) in userNotifications" :key="notif.id">
+                <q-item class="q-py-md" :class="{'bg-blue-1': notif.status === 'ACTIVE'}">
+                  <q-item-section avatar>
+                    <q-avatar :color="notif.status === 'ACTIVE' ? 'blue-2' : 'grey-2'" size="40px">
+                      <q-icon 
+                        :name="notif.type === 'CONTRIBUTION' ? 'monetization_on' : (notif.type === 'MESSAGE' ? 'chat' : (notif.type === 'INVITATION' ? 'person_add' : (notif.type === 'REACTION' ? 'favorite' : 'notifications')))" 
+                        :color="notif.type === 'CONTRIBUTION' ? 'green' : (notif.type === 'MESSAGE' ? 'blue' : (notif.type === 'INVITATION' ? 'purple' : (notif.type === 'REACTION' ? 'pink' : 'orange')))" 
+                      />
+                    </q-avatar>
+                  </q-item-section>
+
+                  <q-item-section>
+                    <q-item-label class="text-weight-bold" style="color: #0D1B2E;">
+                      {{ notif.title }}
+                    </q-item-label>
+                    <q-item-label class="text-grey-8 q-mt-xs">{{ notif.content }}</q-item-label>
+                    <q-item-label caption class="text-grey-5 q-mt-xs">
+                      {{ formatNotificationDate(notif.createdAt) }}
+                    </q-item-label>
+                  </q-item-section>
+
+                  <q-item-section side v-if="notif.status === 'ACTIVE'">
+                    <q-btn flat round dense size="sm" icon="check" color="green" @click.stop="markNotificationAsRead(notif.id)">
+                      <q-tooltip>Marquer comme lu</q-tooltip>
+                    </q-btn>
+                  </q-item-section>
+                </q-item>
+                <q-separator v-if="index < userNotifications.length - 1" inset="item" />
+              </div>
+            </q-list>
+          </div>
+
+          <div v-else class="column items-center justify-center q-py-xl text-center text-grey-6 bg-white shadow-1" style="border-radius: 12px; border: 1px dashed #CCC;">
+            <q-icon name="notifications_none" size="64px" color="grey-3" />
+            <div class="text-h6 q-mt-md">Aucune notification pour le moment</div>
+            <div class="text-body2 q-mt-sm text-grey-5">Vous recevrez des alertes ici lors de nouvelles activités.</div>
+          </div>
+        </q-tab-panel>
+
       </q-tab-panels>
 
     </div>
@@ -215,6 +276,14 @@ const loadingPools = ref(false)
 const loadingInvited = ref(false)
 const loadingContributions = ref(false)
 
+// Notifications state
+import notificationService from 'src/shared/services/notificationService'
+const userNotifications = ref([])
+const loadingNotifications = ref(false)
+const unreadCount = computed(() => {
+  return userNotifications.value.filter(n => n.status === 'ACTIVE').length
+})
+
 // Récupère les cagnottes créées par l'utilisateur (dont il est propriétaire)
 const fetchUserPools = async () => {
   if (!userId.value) return
@@ -223,8 +292,8 @@ const fetchUserPools = async () => {
     const response = await poolApi.get(`/pools/user/${userId.value}`, {
       params: { email: userEmail.value }
     })
-    // On garde uniquement les cagnottes dont il est propriétaire
-    userPools.value = response.data.filter(p => p.ownerId === userId.value)
+    // On garde uniquement les cagnottes principales dont il est propriétaire
+    userPools.value = response.data.filter(p => p.ownerId === userId.value && !p.parentId)
   } catch (error) {
     console.error('Erreur chargement mes cagnottes:', error)
   } finally {
@@ -240,7 +309,7 @@ const fetchInvitedPools = async () => {
     const response = await poolApi.get(`/pools/user/${userId.value}/invited`, {
       params: { email: userEmail.value }
     })
-    invitedPools.value = response.data
+    invitedPools.value = response.data.filter(p => !p.parentId)
   } catch (error) {
     console.error('Erreur chargement cagnottes partagées:', error)
   } finally {
@@ -259,6 +328,48 @@ const fetchUserContributions = async () => {
   } finally {
     loadingContributions.value = false
   }
+}
+
+const fetchUserNotifications = async () => {
+  if (!userId.value) return
+  loadingNotifications.value = true
+  try {
+    const data = await notificationService.getUserNotifications(userId.value)
+    userNotifications.value = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  } catch (error) {
+    console.error('Erreur chargement notifications:', error)
+  } finally {
+    loadingNotifications.value = false
+  }
+}
+
+const markNotificationAsRead = async (id) => {
+  try {
+    await notificationService.markNotificationRead(id)
+    const notif = userNotifications.value.find(n => n.id === id)
+    if (notif) {
+      notif.status = 'COMPLETED'
+    }
+  } catch (error) {
+    console.error('Erreur marquage notification:', error)
+  }
+}
+
+const markAllAsRead = async () => {
+  const activeNotifs = userNotifications.value.filter(n => n.status === 'ACTIVE')
+  for (const notif of activeNotifs) {
+    await markNotificationAsRead(notif.id)
+  }
+}
+
+const formatNotificationDate = (isoString) => {
+  if (!isoString) return ''
+  return new Date(isoString).toLocaleString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
 const getStatusColor = (status) => {
@@ -288,8 +399,6 @@ const getTypeText = (type) => {
   }
 }
 
-
-
 const formatDate = (dateStr) => {
   return new Date(dateStr).toLocaleDateString('fr-FR', {
     day: 'numeric',
@@ -303,6 +412,7 @@ onMounted(() => {
     fetchUserPools()
     fetchInvitedPools()
     fetchUserContributions()
+    fetchUserNotifications()
   }
 })
 
@@ -311,6 +421,7 @@ watch(userId, (newId) => {
     fetchUserPools()
     fetchInvitedPools()
     fetchUserContributions()
+    fetchUserNotifications()
   }
 }, { immediate: true })
 </script>

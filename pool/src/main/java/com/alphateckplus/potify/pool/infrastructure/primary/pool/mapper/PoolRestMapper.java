@@ -2,6 +2,7 @@ package com.alphateckplus.potify.pool.infrastructure.primary.pool.mapper;
 
 import com.alphateckplus.potify.pool.domain.model.Pool;
 import com.alphateckplus.potify.pool.infrastructure.primary.pool.dto.CreatePoolRequest;
+import com.alphateckplus.potify.pool.infrastructure.primary.pool.dto.UpdatePoolRequest;
 import com.alphateckplus.potify.pool.infrastructure.primary.pool.dto.PoolResponse;
 import com.alphateckplus.potify.pool.infrastructure.primary.pool.dto.PhaseResponse;
 import org.springframework.stereotype.Component;
@@ -77,6 +78,43 @@ public class PoolRestMapper {
                 .build();
     }
 
+    public Pool toDomain(String id, UpdatePoolRequest request) {
+        if (request == null) return null;
+
+        byte[] imageBytes = null;
+        if (request.imageData() != null && !request.imageData().isBlank()) {
+            try {
+                String base64Data = request.imageData();
+                if (base64Data.contains(",")) {
+                    base64Data = base64Data.split(",")[1];
+                }
+                imageBytes = java.util.Base64.getDecoder().decode(base64Data);
+            } catch (IllegalArgumentException e) {
+                // ignore
+            }
+        }
+
+        com.alphateckplus.potify.pool.domain.model.PoolStatus poolStatus = null;
+        if (request.status() != null) {
+            try {
+                poolStatus = com.alphateckplus.potify.pool.domain.model.PoolStatus.valueOf(request.status());
+            } catch (IllegalArgumentException e) {
+                // ignore
+            }
+        }
+
+        return Pool.builder()
+                .id(id)
+                .title(request.title())
+                .description(request.description())
+                .goalAmount(request.goalAmount())
+                .status(poolStatus)
+                .videoUrl(request.videoUrl())
+                .imageContent(imageBytes)
+                .imageContentType(request.imageContentType())
+                .build();
+    }
+
     /**
      * Mappe une entite domaine vers une reponse REST.
      */
@@ -125,6 +163,7 @@ public class PoolRestMapper {
                 pool.getId(),
                 pool.getOwnerId(),
                 pool.getOwnerName(),
+                pool.getParentId(),
                 pool.getTitle(),
                 pool.getDescription(),
                 pool.getCategory(),

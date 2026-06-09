@@ -18,6 +18,13 @@ export const poolService = {
   },
 
   /**
+   * Récupère la liste complète de toutes les cagnottes (pour l'admin).
+   */
+  getAllPools() {
+    return poolApi.get('/pools')
+  },
+
+  /**
    * Récupère les détails d'une cagnotte par son ID.
    * @param {string} id - ID de la cagnotte.
    * @returns {Promise}
@@ -33,6 +40,16 @@ export const poolService = {
    */
   createPool(data) {
     return poolApi.post('/pools', data)
+  },
+
+  /**
+   * Met à jour une cagnotte existante.
+   * @param {string} id - ID de la cagnotte.
+   * @param {Object} data - Données de la cagnotte à modifier.
+   * @returns {Promise}
+   */
+  updatePool(id, data) {
+    return poolApi.put(`/pools/${id}`, data)
   },
 
   /**

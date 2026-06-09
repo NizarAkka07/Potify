@@ -13,6 +13,7 @@ public record PoolResponse(
     String id,
     String ownerId,
     String ownerName,
+    String parentId,
     String title,
     String description,
     String category,

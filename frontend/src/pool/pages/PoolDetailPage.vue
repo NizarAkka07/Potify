@@ -179,15 +179,26 @@
               <div class="text-h5 text-weight-bold" style="color: #0D1B2E;">
                 À propos de cette cagnotte
               </div>
-              <q-btn 
-                v-if="isOwner" 
-                label="Ajouter une phase" 
-                icon="add_circle" 
-                color="primary" 
-                flat 
-                no-caps 
-                @click="router.push({ path: '/create-pool', query: { parentId: pool.id } })"
-              />
+              <div class="row q-gutter-sm">
+                <q-btn 
+                  v-if="isOwner || isAdmin" 
+                  label="Modifier" 
+                  icon="edit" 
+                  color="warning" 
+                  flat 
+                  no-caps 
+                  @click="router.push(`/pools/${pool.id}/edit`)"
+                />
+                <q-btn 
+                  v-if="isOwner" 
+                  label="Ajouter une phase" 
+                  icon="add_circle" 
+                  color="primary" 
+                  flat 
+                  no-caps 
+                  @click="router.push({ path: '/pools/create', query: { parentId: pool.id } })"
+                />
+              </div>
             </div>
             <div class="text-body1 text-grey-8 q-mb-xl" style="white-space: pre-line; line-height: 1.6;">
               {{ pool.description }}
@@ -660,6 +671,10 @@ let messageEventSource = null
 
 const isOwner = computed(() => {
   return authStore.isAuthenticated.value && pool.value.ownerId === authStore.user.value?.id
+})
+
+const isAdmin = computed(() => {
+  return authStore.isAuthenticated.value && (authStore.user.value?.roles?.includes('ADMIN') || authStore.user.value?.role === 'ADMIN')
 })
 
 const youtubeId = computed(() => {
