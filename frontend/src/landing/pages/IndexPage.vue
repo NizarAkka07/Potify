@@ -1,238 +1,306 @@
 <template>
-  <!-- Fond blanc comme Akkodis -->
-  <q-page style="background: #FFFFFF;">
+  <q-page class="index-page bg-light-gray" style="background: #FAFAFB; color: #1A1A2A;">
+    
+    <!-- 1. HERO SECTION – Simple, clean and elegant -->
+    <div class="hero-section" style="min-height: 70vh; display: flex; align-items: center; padding: 80px 0;">
+      <div class="max-container q-px-xl">
+        <div class="row items-center q-col-gutter-xl">
+          
+          <!-- Text & Search Column -->
+          <div class="col-12 col-md-7">
+            <!-- Simple Badge -->
+            <div class="simple-badge q-mb-md">
+              <span class="badge-dot"></span>
+              <span class="badge-text">Financement Participatif Solidaire</span>
+            </div>
 
-    <!-- 1. HERO SECTION – fond blanc, texte sombre, CTA jaune (style Akkodis) -->
-    <div class="q-py-xl" style="background: #FFFFFF; min-height: 85vh; display: flex; align-items: center;">
-      <div class="row items-center q-px-xl" style="max-width: 1200px; width: 100%; margin: 0 auto;">
+            <!-- Title -->
+            <h1 class="text-weight-bold q-mb-md hero-title" style="color: #0D1B2E; font-size: 2.8rem; line-height: 1.2; font-family: 'Inter', sans-serif;">
+              Ensemble, donnons vie <br>
+              <span style="color: #FFA726;">à ce qui compte.</span>
+            </h1>
 
-        <!-- Texte gauche -->
-        <div class="col-12 col-md-6 q-pr-md-xl">
-          <h1 class="text-weight-bold q-mb-md" style="font-size: 2.8rem; line-height: 1.25; color: #1A1A2A;">
-            Ensemble, donnons vie<br>à ce qui compte.
-          </h1>
-          <p class="q-mb-xl" style="font-size: 1.1rem; color: #444; line-height: 1.7;">
-            Potify est la plateforme de financement participatif solidaire.
-            Aidez une cause, lancez votre projet ou soutenez vos proches en quelques clics.
-            Nous croyons que les solutions les plus solidaires naissent quand
-            la communauté unit ses forces.
-          </p>
-          <div class="row q-gutter-md">
-            <!-- Bouton CTA jaune Akkodis – texte sombre -->
-            <q-btn
-              size="md"
-              no-caps
-              label="Créer une cagnotte"
-              to="/pools/create"
-              style="background: #FFB300; color: #1A1A2A; font-weight: 700; padding: 12px 28px; letter-spacing: 0.5px;"
-              class="shadow-2"
-            />
-            <q-btn
-              size="md"
-              outline
-              no-caps
-              label="Découvrir les cagnottes"
-              to="/pools"
-              style="color: #0D1B2E; border-color: #0D1B2E; font-weight: 600; padding: 12px 28px;"
+            <p class="q-mb-lg hero-subtitle" style="font-size: 1.1rem; color: #5A6A85; line-height: 1.6; max-width: 540px;">
+              Créez une cagnotte en quelques clics, organisez-la par étapes transparentes avec PotiBuddy, et mobilisez votre entourage en toute confiance.
+            </p>
+
+            <!-- Simple Search Bar -->
+            <div class="search-bar shadow-1 q-pa-sm q-mb-lg bg-white">
+              <div class="row q-col-gutter-sm items-center">
+                <div class="col-12 col-sm-6">
+                  <q-input
+                    borderless
+                    v-model="searchKeyword"
+                    placeholder="Rechercher une cause..."
+                    dense
+                    class="q-px-md search-input"
+                    @keyup.enter="handleSearch"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="search" color="grey-6" />
+                    </template>
+                  </q-input>
+                </div>
+
+                <div class="col-12 col-sm-3">
+                  <q-select
+                    borderless
+                    v-model="selectedCategory"
+                    :options="categoryOptions"
+                    :display-value="selectedCategory || 'Catégories'"
+                    dense
+                    class="q-px-sm select-input"
+                    clearable
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="sell" color="grey-6" size="18px" />
+                    </template>
+                  </q-select>
+                </div>
+
+                <div class="col-12 col-sm-3">
+                  <q-btn
+                    unelevated
+                    no-caps
+                    label="Rechercher"
+                    class="full-width"
+                    @click="handleSearch"
+                    style="background: #FFA726; color: #1A1A2A; font-weight: 700; border-radius: 8px; height: 40px;"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- CTAs -->
+            <div class="row items-center q-gutter-md">
+              <q-btn
+                unelevated
+                no-caps
+                label="Créer une cagnotte"
+                to="/pools/create"
+                style="background: #0D1B2E; color: #FFFFFF; font-weight: 700; padding: 10px 24px; border-radius: 8px;"
+              />
+              <q-btn
+                flat
+                no-caps
+                label="Comment ça marche ?"
+                to="#how-it-works"
+                style="color: #0D1B2E; font-weight: 600;"
+              />
+            </div>
+          </div>
+
+          <!-- Image Column -->
+          <div class="col-12 col-md-5 gt-sm text-center">
+            <img
+              src="~assets/hero-solidarity.png"
+              alt="Solidarité et Entraide"
+              class="hero-image"
+              style="width: 100%; max-width: 440px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); object-fit: cover;"
             />
           </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. STATS BAR – Flat & Clean -->
+    <div class="q-py-lg" style="background: #0D1B2E;">
+      <div class="row q-col-gutter-md q-px-xl justify-center text-center max-container text-white">
+        <div class="col-12 col-sm-4">
+          <div class="text-h4 text-weight-bold" style="color: #FFA726;">12M €</div>
+          <div class="text-caption text-grey-4">Collectés au total</div>
+        </div>
+        <div class="col-12 col-sm-4">
+          <div class="text-h4 text-weight-bold" style="color: #FFA726;">15 000+</div>
+          <div class="text-caption text-grey-4">Projets financés</div>
+        </div>
+        <div class="col-12 col-sm-4">
+          <div class="text-h4 text-weight-bold" style="color: #FFA726;">2.5M</div>
+          <div class="text-caption text-grey-4">Membres actifs</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. HOW IT WORKS – Clean 3 columns -->
+    <div id="how-it-works" class="q-py-xxl bg-white" style="padding: 80px 0;">
+      <div class="max-container q-px-xl">
+        <div class="text-center q-mb-xl">
+          <h2 class="text-h4 text-weight-bold text-dark q-mb-sm" style="font-family: 'Inter', sans-serif;">Comment ça marche ?</h2>
+          <p class="text-grey-6" style="font-size: 1rem;">La simplicité au cœur de chaque collecte.</p>
         </div>
 
-        <!-- Image droite -->
-        <div class="col-12 col-md-6 gt-sm text-center q-pl-xl">
-          <img
-            src="~assets/hero-solidarity.png"
-            alt="Solidarité"
-            style="width: 100%; max-width: 520px; border-radius: 4px; box-shadow: 0 8px 32px rgba(0,0,0,0.12);"
+        <div class="row q-col-gutter-lg">
+          <div class="col-12 col-md-4 text-center q-pa-md">
+            <div class="step-icon-circle q-mx-auto q-mb-md">1</div>
+            <h3 class="text-subtitle1 text-weight-bold text-dark q-mb-xs">Créez votre cagnotte</h3>
+            <p class="text-grey-7" style="font-size: 0.9rem; line-height: 1.5;">
+              Décrivez votre projet en quelques lignes et divisez-le en étapes claires grâce à l'aide de notre IA.
+            </p>
+          </div>
+          <div class="col-12 col-md-4 text-center q-pa-md">
+            <div class="step-icon-circle q-mx-auto q-mb-md">2</div>
+            <h3 class="text-subtitle1 text-weight-bold text-dark q-mb-xs">Partagez le lien</h3>
+            <p class="text-grey-7" style="font-size: 0.9rem; line-height: 1.5;">
+              Invitez vos proches, collègues ou le public à contribuer en toute transparence et sécurité.
+            </p>
+          </div>
+          <div class="col-12 col-md-4 text-center q-pa-md">
+            <div class="step-icon-circle q-mx-auto q-mb-md">3</div>
+            <h3 class="text-subtitle1 text-weight-bold text-dark q-mb-xs">Récupérez les fonds</h3>
+            <p class="text-grey-7" style="font-size: 0.9rem; line-height: 1.5;">
+              Suivez les virements sécurisés directement vers votre compte bancaire à chaque jalon validé.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. FEATURED CAMPAIGNS – Flat Grid -->
+    <div class="q-py-xxl" style="padding: 80px 0;">
+      <div class="max-container q-px-xl">
+        <div class="row items-center justify-between q-mb-xl">
+          <div>
+            <h2 class="text-h4 text-weight-bold text-dark q-mb-xs" style="margin-top:0; font-family: 'Inter', sans-serif;">Cagnottes à la une</h2>
+            <p class="text-grey-6 q-my-none">Soutenez les projets en cours recommandés par notre communauté.</p>
+          </div>
+          <q-btn 
+            flat 
+            no-caps 
+            color="orange-9"
+            label="Voir tout" 
+            to="/pools" 
+            icon-right="chevron_right" 
           />
         </div>
-      </div>
-    </div>
 
-    <!-- 2. STATS SECTION – fond gris clair comme Akkodis -->
-    <div class="q-py-xl" style="background: #F5F5F5;">
-      <div class="row q-col-gutter-lg q-px-xl justify-center text-center" style="max-width: 1200px; margin: 0 auto;">
-        <div class="col-12 col-sm-4">
-          <div class="text-h3 text-weight-bold q-mb-xs" style="color: #FFB300;">12M €</div>
-          <div class="text-body1" style="color: #555;">Fonds collectés</div>
-        </div>
-        <div class="col-12 col-sm-4">
-          <div class="text-h3 text-weight-bold q-mb-xs" style="color: #FFB300;">15 420</div>
-          <div class="text-body1" style="color: #555;">Cagnottes réussies</div>
-        </div>
-        <div class="col-12 col-sm-4">
-          <div class="text-h3 text-weight-bold q-mb-xs" style="color: #FFB300;">2.5M</div>
-          <div class="text-body1" style="color: #555;">Contributeurs généreux</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. HOW IT WORKS – fond blanc -->
-    <div class="q-py-xl" style="background: #FFFFFF;">
-      <div style="max-width: 1200px; margin: 0 auto;" class="q-px-xl">
-        <h2 class="text-h4 text-weight-bold q-mb-xl" style="color: #1A1A2A;">Comment ça marche ?</h2>
-        <div class="row q-col-gutter-xl">
-          <div class="col-12 col-md-4">
-            <div class="q-mb-md" style="width: 48px; height: 4px; background: #FFB300;"></div>
-            <div class="text-h6 text-weight-bold q-mb-sm" style="color: #1A1A2A;">1. Créer une cagnotte</div>
-            <p style="color: #555; line-height: 1.7;">Décrivez votre besoin, fixez un objectif et personnalisez votre page en 2 minutes.</p>
-          </div>
-          <div class="col-12 col-md-4">
-            <div class="q-mb-md" style="width: 48px; height: 4px; background: #FFB300;"></div>
-            <div class="text-h6 text-weight-bold q-mb-sm" style="color: #1A1A2A;">2. Partager autour de vous</div>
-            <p style="color: #555; line-height: 1.7;">Partagez le lien avec votre famille, vos amis et sur les réseaux sociaux.</p>
-          </div>
-          <div class="col-12 col-md-4">
-            <div class="q-mb-md" style="width: 48px; height: 4px; background: #FFB300;"></div>
-            <div class="text-h6 text-weight-bold q-mb-sm" style="color: #1A1A2A;">3. Recevoir les fonds</div>
-            <p style="color: #555; line-height: 1.7;">Récupérez l'argent collecté de manière sécurisée et transparente.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. CAGNOTTES POPULAIRES – fond gris clair -->
-    <div class="q-py-xl" style="background: #F5F5F5;">
-      <div style="max-width: 1200px; margin: 0 auto;" class="q-px-xl">
-        <div class="row items-center justify-between q-mb-xl">
-          <h2 class="text-h4 text-weight-bold q-my-none" style="color: #1A1A2A;">Cagnottes solidaires</h2>
-          <q-btn flat no-caps style="color: #1E6BE6; font-weight: 600;" label="Voir tout →" to="/pools" />
-        </div>
         <div class="row q-col-gutter-lg">
+          <!-- Real dynamic campaign cards -->
           <div class="col-12 col-sm-6 col-md-4" v-for="pool in pools" :key="pool.id">
-            <q-card class="shadow-2 hover-card" style="border-radius: 4px; border: 1px solid #E0E0E0;">
-              <div style="height: 200px; width: 100%; background: #E0E0E0;" class="relative-position">
+            <q-card class="simple-pool-card flat shadow-0" style="height: 100%; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: white; overflow: hidden;">
+              <!-- Image or generic background -->
+              <div style="height: 180px; width: 100%; background: #ECEFF1;" class="relative-position">
                 <img
                   v-if="pool.imageUrl"
                   :src="pool.imageUrl"
-                  style="height: 200px; object-fit: cover; width: 100%;"
+                  style="height: 180px; object-fit: cover; width: 100%;"
                 />
+                <div v-else class="fit flex flex-center text-grey-4" style="background: #0D1B2E;">
+                  <q-icon name="payments" size="3.5rem" color="orange-3" />
+                </div>
+                <div class="absolute-top-left q-ma-sm">
+                  <span class="simple-tag">{{ pool.category || 'Général' }}</span>
+                </div>
               </div>
-              <q-card-section>
-                <div class="text-caption text-weight-bold q-mb-xs" style="color: #FFB300; text-transform: uppercase; letter-spacing: 1px;">{{ pool.category || 'Général' }}</div>
-                <div class="text-subtitle1 text-weight-bold q-mb-xs line-clamp-2" style="color: #1A1A2A;">{{ pool.title }}</div>
-                <div class="text-caption" style="color: #888;">{{ pool.description }}</div>
+
+              <q-card-section class="q-pa-md">
+                <h3 class="text-subtitle1 text-weight-bold text-dark q-mb-xs line-clamp-2" style="font-family: 'Inter', sans-serif; line-height: 1.3; height: 42px;">
+                  {{ pool.title }}
+                </h3>
+                <p class="text-caption text-grey-7 line-clamp-3 q-mb-none" style="height: 50px; line-height: 1.4;">
+                  {{ pool.description }}
+                </p>
               </q-card-section>
-              <q-card-section class="q-pt-none">
-                <q-linear-progress :value="pool.progressPercentage / 100" style="height: 6px; border-radius: 3px;" color="primary" track-color="grey-3" class="q-mb-sm" />
-                <div class="row justify-between text-caption text-weight-bold">
-                   <span style="color: #1A1A2A;">{{ pool.currentAmount }} € collectés</span>
-                   <span style="color: #888;">sur {{ pool.goalAmount }} €</span>
+
+              <q-card-section class="q-px-md q-pb-none q-pt-none">
+                <q-linear-progress :value="getProgressValue(pool)" style="height: 5px; border-radius: 2px;" color="orange-8" class="q-mb-xs" />
+                <div class="row justify-between items-center text-caption text-weight-bold">
+                   <span style="color: #FFA726;">{{ getPercentageText(pool) }}</span>
+                   <span class="text-dark">{{ pool.currentAmount }} € <span class="text-grey-6 text-weight-regular">/ {{ pool.goalAmount }} €</span></span>
                 </div>
               </q-card-section>
+
               <q-card-actions class="q-pa-md">
                 <q-btn
+                  unelevated
                   no-caps
                   class="full-width"
-                  label="Contribuer"
-                  style="background: #FFB300; color: #1A1A2A; font-weight: 700;"
+                  label="Découvrir"
+                  style="background: #FFA726; color: #1A1A2A; font-weight: 700; border-radius: 6px;"
                   @click="contribute(pool)"
                 />
               </q-card-actions>
             </q-card>
           </div>
-          <div v-if="pools.length === 0" class="col-12 text-center q-py-xl">
-             <q-icon name="explore" size="4rem" color="grey-4" />
-             <p class="text-grey-6 q-mt-md">Aucune cagnotte en cours. Soyez le premier à en créer une !</p>
-          </div>
+
+          <!-- Mock campaigns when API is empty -->
+          <template v-if="pools.length === 0">
+            <div class="col-12 col-sm-6 col-md-4" v-for="mock in mockPools" :key="mock.id">
+              <q-card class="simple-pool-card flat shadow-0" style="height: 100%; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: white; overflow: hidden;">
+                <div style="height: 180px; width: 100%; background: #0D1B2E;" class="relative-position flex flex-center">
+                  <q-icon :name="mock.icon" size="3.5rem" color="orange-3" />
+                  <div class="absolute-top-left q-ma-sm">
+                    <span class="simple-tag">{{ mock.category }}</span>
+                  </div>
+                </div>
+
+                <q-card-section class="q-pa-md">
+                  <h3 class="text-subtitle1 text-weight-bold text-dark q-mb-xs line-clamp-2" style="font-family: 'Inter', sans-serif; line-height: 1.3; height: 42px;">
+                    {{ mock.title }}
+                  </h3>
+                  <p class="text-caption text-grey-7 line-clamp-3 q-mb-none" style="height: 50px; line-height: 1.4;">
+                    {{ mock.description }}
+                  </p>
+                </q-card-section>
+
+                <q-card-section class="q-px-md q-pb-none q-pt-none">
+                  <q-linear-progress :value="mock.currentAmount / mock.goalAmount" style="height: 5px; border-radius: 2px;" color="orange-8" class="q-mb-xs" />
+                  <div class="row justify-between items-center text-caption text-weight-bold">
+                     <span style="color: #FFA726;">{{ Math.round((mock.currentAmount / mock.goalAmount) * 100) }}%</span>
+                     <span class="text-dark">{{ mock.currentAmount }} € <span class="text-grey-6 text-weight-regular">/ {{ mock.goalAmount }} €</span></span>
+                  </div>
+                </q-card-section>
+
+                <q-card-actions class="q-pa-md">
+                  <q-btn
+                    unelevated
+                    no-caps
+                    class="full-width"
+                    label="Découvrir"
+                    style="background: #FFA726; color: #1A1A2A; font-weight: 700; border-radius: 6px;"
+                    to="/pools"
+                  />
+                </q-card-actions>
+              </q-card>
+            </div>
+          </template>
         </div>
       </div>
     </div>
 
-    <!-- 5. CATEGORIES – fond blanc -->
-    <div class="q-py-xl" style="background: #FFFFFF;">
-      <div style="max-width: 1200px; margin: 0 auto;" class="q-px-xl">
-        <h2 class="text-h4 text-weight-bold q-mb-xl" style="color: #1A1A2A;">Trouvez une cause qui vous parle</h2>
-        <div class="row q-col-gutter-md">
+    <!-- 5. CATEGORIES – Flat Chips -->
+    <div class="q-py-xxl bg-white" style="padding: 80px 0;">
+      <div class="max-container q-px-xl">
+        <div class="text-center q-mb-xl">
+          <h2 class="text-h4 text-weight-bold text-dark q-mb-xs" style="font-family: 'Inter', sans-serif;">Causes populaires</h2>
+          <p class="text-grey-6">Filtrez les projets selon vos thématiques favorites.</p>
+        </div>
+
+        <div class="row q-col-gutter-md justify-center">
           <div class="col-6 col-sm-4 col-md-2" v-for="cat in categories" :key="cat.name">
-            <q-card
-              class="q-pa-lg text-center cursor-pointer cat-card"
-              style="border: 1px solid #E0E0E0; border-radius: 4px; transition: all 0.2s ease;"
+            <div 
+              class="category-flat-card q-pa-md text-center cursor-pointer"
               @click="$router.push({ path: '/pools', query: { category: cat.name } })"
             >
-              <q-icon :name="cat.icon" size="2.5rem" class="q-mb-sm" style="color: #0D1B2E;" />
-              <div class="text-weight-bold" style="color: #1A1A2A; font-size: 0.85rem;">{{ cat.name }}</div>
-            </q-card>
+              <q-icon :name="cat.icon" size="24px" color="orange-8" class="q-mb-sm" />
+              <div class="text-weight-bold text-dark text-caption">{{ cat.name }}</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 6. TÉMOIGNAGES – fond gris clair -->
-    <div class="q-py-xl" style="background: #F5F5F5;">
-      <div style="max-width: 900px; margin: 0 auto;" class="q-px-xl">
-        <h2 class="text-h4 text-weight-bold q-mb-xl" style="color: #1A1A2A;">Ils font confiance à Potify</h2>
-        <q-carousel
-          v-model="slide"
-          transition-prev="slide-right"
-          transition-next="slide-left"
-          swipeable animated navigation padding arrows
-          height="280px"
-          style="background: #FFFFFF; border-radius: 4px; border: 1px solid #E0E0E0;"
-          control-color="primary"
-        >
-          <q-carousel-slide name="1" class="column no-wrap flex-center q-pa-xl">
-            <div class="text-h6 text-italic q-mb-lg" style="color: #333; line-height: 1.6;">
-              "Grâce à Potify, nous avons pu récolter les fonds nécessaires pour reconstruire notre refuge animalier en un temps record."
-            </div>
-            <div class="row items-center q-gutter-md">
-              <q-avatar size="48px"><img src="https://cdn.quasar.dev/img/avatar2.jpg"></q-avatar>
-              <div>
-                <div class="text-weight-bold" style="color: #1A1A2A;">Marie L.</div>
-                <div class="text-caption" style="color: #888;">Directrice de Refuge</div>
-              </div>
-            </div>
-          </q-carousel-slide>
-          <q-carousel-slide name="2" class="column no-wrap flex-center q-pa-xl">
-            <div class="text-h6 text-italic q-mb-lg" style="color: #333; line-height: 1.6;">
-              "Simple, rapide et transparent. Créer ma cagnotte pour financer mon projet de fin d'études a été une expérience parfaite."
-            </div>
-            <div class="row items-center q-gutter-md">
-              <q-avatar size="48px"><img src="https://cdn.quasar.dev/img/avatar3.jpg"></q-avatar>
-              <div>
-                <div class="text-weight-bold" style="color: #1A1A2A;">Thomas D.</div>
-                <div class="text-caption" style="color: #888;">Étudiant</div>
-              </div>
-            </div>
-          </q-carousel-slide>
-        </q-carousel>
-      </div>
-    </div>
-
-    <!-- 7. RECHERCHE – fond blanc -->
-    <div class="q-py-xl" style="background: #FFFFFF;">
-      <div style="max-width: 800px; margin: 0 auto;" class="q-px-xl">
-        <h3 class="text-h5 text-weight-bold q-mb-sm" style="color: #1A1A2A;">Chercher une cagnotte spécifique</h3>
-        <p class="q-mb-md" style="color: #555;">Trouvez une cause qui vous correspond parmi des milliers de cagnottes.</p>
-        <q-input
-          outlined
-          v-model="search"
-          label="Rechercher (ex: Animaux, École, Prénom...)"
-          style="background: #FFFFFF;"
-          color="secondary"
-        >
-          <template v-slot:append>
-            <q-icon v-if="search !== ''" name="close" @click="search = ''" class="cursor-pointer" style="color: #888;" />
-            <q-icon name="search" style="color: #0D1B2E;" />
-          </template>
-        </q-input>
-      </div>
-    </div>
-
-    <!-- 8. CTA FINAL – fond dark navy Akkodis -->
-    <div class="q-py-xl text-white text-center" style="background: #0D1B2E;">
-      <div style="max-width: 800px; margin: 0 auto;" class="q-px-xl">
-        <h2 class="text-h4 text-weight-bold q-mb-md" style="color: #FFFFFF;">Prêt à faire la différence ?</h2>
-        <p class="text-body1 q-mb-xl" style="color: rgba(255,255,255,0.75); line-height: 1.7;">
-          Lancez votre cagnotte aujourd'hui et mobilisez votre communauté autour de ce qui vous tient à cœur.
+    <!-- 6. FINAL CALL TO ACTION – Clean Minimal Banner -->
+    <div class="q-py-xxl text-white text-center" style="background: #0D1B2E; padding: 80px 0;">
+      <div class="max-container q-px-xl" style="max-width: 600px;">
+        <h2 class="text-h4 text-weight-bold q-mb-sm" style="font-family: 'Inter', sans-serif;">Prêt à changer les choses ?</h2>
+        <p class="text-body2 q-mb-lg text-grey-4" style="line-height: 1.5;">
+          Créez votre première cagnotte dès maintenant et concrétisez vos projets.
         </p>
         <q-btn
-          size="lg"
           no-caps
-          label="Lancer ma cagnotte maintenant"
-          icon-right="rocket_launch"
-          style="background: #FFB300; color: #1A1A2A; font-weight: 700; padding: 14px 36px; letter-spacing: 0.5px;"
-          class="shadow-4"
+          label="Lancer ma cagnotte"
+          style="background: #FFA726; color: #1A1A2A; font-weight: 700; padding: 12px 36px; border-radius: 8px; font-size: 1rem;"
           to="/pools/create"
         />
       </div>
@@ -247,9 +315,44 @@ import { useRouter } from 'vue-router'
 import { poolApi } from 'boot/axios'
 
 const router = useRouter()
-const slide = ref('1')
-const search = ref('')
+
+// Search state
+const searchKeyword = ref('')
+const selectedCategory = ref(null)
+
+const categoryOptions = ['Santé', 'Éducation', 'Urgence', 'Animaux', 'Projets', 'Sport']
+
 const pools = ref([])
+
+const mockPools = ref([
+  {
+    id: 'mock-1',
+    title: 'Achat de fournitures scolaires pour la rentrée',
+    description: 'Une cagnotte solidaire pour offrir des cahiers et cartables aux élèves défavorisés.',
+    category: 'Éducation',
+    currentAmount: 850,
+    goalAmount: 1200,
+    icon: 'school'
+  },
+  {
+    id: 'mock-2',
+    title: 'Soins vétérinaires d\'urgence',
+    description: 'Aidez notre refuge à financer les traitements indispensables pour les animaux blessés.',
+    category: 'Animaux',
+    currentAmount: 420,
+    goalAmount: 1000,
+    icon: 'pets'
+  },
+  {
+    id: 'mock-3',
+    title: 'Jardin partagé communautaire',
+    description: 'Création d\'un espace vert participatif ouvert à tous les habitants de la commune.',
+    category: 'Projets',
+    currentAmount: 2300,
+    goalAmount: 3000,
+    icon: 'lightbulb'
+  }
+])
 
 const categories = [
   { name: 'Santé', icon: 'local_hospital' },
@@ -263,15 +366,36 @@ const categories = [
 const fetchPools = async () => {
   try {
     const response = await poolApi.get('/pools')
-    // Exclure les sous-cagnottes et limiter à 3 pour la page d'accueil
     pools.value = (response.data || []).filter(p => !p.parentId).slice(0, 3)
   } catch (error) {
     console.error('Erreur lors du chargement des cagnottes:', error)
   }
 }
 
+const handleSearch = () => {
+  const query = {}
+  if (searchKeyword.value.trim()) {
+    query.search = searchKeyword.value.trim()
+  }
+  if (selectedCategory.value) {
+    query.category = selectedCategory.value
+  }
+  router.push({ path: '/pools', query })
+}
+
 const contribute = (pool) => {
   router.push(`/pools/${pool.id}`)
+}
+
+const getProgressValue = (pool) => {
+  if (!pool.goalAmount) return 0
+  return Math.min(pool.currentAmount / pool.goalAmount, 1)
+}
+
+const getPercentageText = (pool) => {
+  if (!pool.goalAmount) return '0%'
+  const percentage = Math.round((pool.currentAmount / pool.goalAmount) * 100)
+  return `${percentage}%`
 }
 
 onMounted(() => {
@@ -280,25 +404,101 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Hover card cagnotte */
-.hover-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.hover-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-  border-color: #FFB300 !important;
+.max-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
 }
 
-/* Hover catégorie */
-.cat-card:hover {
-  border-color: #FFB300 !important;
-  box-shadow: 0 4px 12px rgba(255, 179, 0, 0.2);
+/* Simple Badge */
+.simple-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(13, 27, 46, 0.04);
+  border: 1px solid rgba(13, 27, 46, 0.08);
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+.badge-dot {
+  width: 7px;
+  height: 7px;
+  background: #FFA726;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+.badge-text {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #0D1B2E;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Simple Search Bar */
+.search-bar {
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.search-input, .select-input {
+  font-size: 0.9rem;
+}
+
+
+
+/* How It Works Steps */
+.step-icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 167, 38, 0.1);
+  color: #FFA726;
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Simple Pool Card */
+.simple-pool-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.simple-pool-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.06) !important;
+}
+
+.simple-tag {
+  background: rgba(13, 27, 46, 0.9);
+  color: #FFFFFF;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* Category Flat Cards */
+.category-flat-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+.category-flat-card:hover {
+  border-color: #FFA726;
+  box-shadow: 0 4px 10px rgba(255, 167, 38, 0.08);
 }
 
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

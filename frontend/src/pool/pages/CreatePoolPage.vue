@@ -584,7 +584,8 @@ const generateWithAi = async () => {
   
   try {
     const response = await poolApi.post('/pools/ai/generate', {
-      prompt: aiPrompt.value
+      prompt: aiPrompt.value,
+      mode: mode.value
     })
     aiSuggestion.value = response.data
     $q.notify({
@@ -596,7 +597,7 @@ const generateWithAi = async () => {
     console.error(error)
     $q.notify({
       type: 'negative',
-      message: 'Erreur lors de la génération avec l\'IA : ' + (error.response?.data?.message || 'Serveur injoignable'),
+      message: 'Erreur lors de la génération avec l\'IA : ' + (error.response?.data?.message || error.response?.data?.error || 'Serveur injoignable'),
       position: 'top-right'
     })
   } finally {
