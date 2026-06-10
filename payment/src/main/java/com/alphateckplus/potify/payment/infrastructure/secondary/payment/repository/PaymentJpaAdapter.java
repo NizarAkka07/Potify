@@ -186,6 +186,7 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
                 .anonymous(entity.isAnonymous())
                 .paymentMethod(entity.getPaymentMethod())
                 .status(mapStatusToDomain(entity.getStatus()))
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 

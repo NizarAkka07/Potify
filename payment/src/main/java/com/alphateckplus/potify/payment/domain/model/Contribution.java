@@ -1,6 +1,7 @@
 package com.alphateckplus.potify.payment.domain.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,4 +24,5 @@ public class Contribution {
     private boolean anonymous;
     private String paymentMethod;
     private ContributionStatus status;
+    private Instant createdAt;
 }

@@ -152,16 +152,19 @@ const imagePreview = ref(null)
 const currentImageUrl = ref(null)
 
 const statusOptions = [
-  { label: 'Active (En cours)', value: 'ACTIVE' },
+  { label: 'Active (En cours)', value: 'PUBLIEE' },
   { label: 'Terminée (Succès)', value: 'COMPLETED' },
-  { label: 'Suspendue', value: 'SUSPENDED' }
+  { label: 'Clôturée', value: 'CLOTUREE' },
+  { label: 'Suspendue', value: 'SUSPENDUE' },
+  { label: 'Brouillon', value: 'BROUILLON' },
+  { label: 'En revue', value: 'EN_REVUE' }
 ]
 
 const form = reactive({
   title: '',
   description: '',
   goalAmount: 0,
-  status: 'ACTIVE',
+  status: 'PUBLIEE',
   videoUrl: ''
 })
 
@@ -175,7 +178,7 @@ const fetchPoolDetails = async () => {
     const currentUserId = authStore.user.value?.id
     const isAdmin = authStore.isAdmin.value
     
-    if (pool.ownerId !== currentUserId && !isAdmin) {
+    if (pool.ownerId && currentUserId && String(pool.ownerId) !== String(currentUserId) && !isAdmin) {
       $q.notify({
         type: 'negative',
         message: 'Vous n\'êtes pas autorisé à modifier cette cagnotte'

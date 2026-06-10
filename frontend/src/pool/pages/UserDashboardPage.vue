@@ -36,6 +36,7 @@
           />
         </q-tab>
         <q-tab name="contributions" label="Mes Contributions" />
+        <q-tab name="stats" label="Mes Statistiques" />
         <q-tab name="notifications" label="Mes Notifications">
           <q-badge
             v-if="unreadCount > 0"
@@ -94,6 +95,13 @@
                   </div>
                   <q-linear-progress :value="pool.currentAmount / pool.goalAmount" color="secondary" class="q-mt-xs" style="height: 6px; border-radius: 3px;" />
                 </q-card-section>
+
+                <q-separator />
+
+                <q-card-actions align="right" class="q-py-xs">
+                  <q-btn flat dense color="warning" icon="edit" label="Modifier" @click.stop="$router.push(`/pools/${pool.id}/edit`)" no-caps />
+                  <q-btn flat dense color="primary" icon="visibility" label="Voir" @click.stop="$router.push(`/pools/${pool.id}`)" no-caps />
+                </q-card-actions>
               </q-card>
             </div>
           </div>
@@ -177,15 +185,18 @@
 
                   <q-item-section>
                     <q-item-label class="text-weight-bold" style="color: #0D1B2E;">
-                      Don de {{ contrib.amount }} €
+                      Don de {{ contrib.amount }} € pour <span class="text-primary">{{ getPoolTitle(contrib.poolId) }}</span>
                     </q-item-label>
                     <q-item-label caption>
-                      {{ formatDate(contrib.createdAt) }} • Statut : <span :class="contrib.status === 'REUSSIE' ? 'text-green' : 'text-orange'">{{ contrib.status }}</span>
+                      Catégorie : <strong>{{ getPoolCategory(contrib.poolId) }}</strong> • {{ formatDate(contrib.createdAt) }} • Statut : <span :class="(contrib.status === 'REUSSIE' || contrib.status === 'CONFIRMED') ? 'text-green text-weight-bold' : 'text-orange'">{{ contrib.status === 'CONFIRMED' ? 'CONFIRMÉ' : contrib.status }}</span>
                     </q-item-label>
                   </q-item-section>
 
                   <q-item-section side>
-                    <q-btn flat color="primary" label="Détails" size="sm" :to="`/pools/${contrib.poolId}`" no-caps />
+                    <div class="row q-gutter-xs">
+                      <q-btn flat color="secondary" icon="picture_as_pdf" label="Reçu PDF" size="sm" @click="downloadReceipt(contrib)" no-caps />
+                      <q-btn flat color="primary" label="Détails" size="sm" :to="`/pools/${contrib.poolId}`" no-caps />
+                    </div>
                   </q-item-section>
                 </q-item>
                 <q-separator v-if="index < userContributions.length - 1" inset="item" />
@@ -200,20 +211,109 @@
           </div>
         </q-tab-panel>
 
+        <!-- PANNEAU : STATISTIQUES & GRAPHIPHES -->
+        <q-tab-panel name="stats" class="q-pa-none">
+          <div v-if="loadingStats || loadingPools || loadingContributions" class="flex flex-center q-py-xl">
+            <q-spinner-dots color="primary" size="40px" />
+          </div>
+
+          <div v-else>
+            <!-- KPI CARDS -->
+            <div class="row q-col-gutter-md q-mb-xl">
+              <!-- Organisateur KPIs -->
+              <div class="col-12 col-sm-4">
+                <q-card class="bg-white shadow-1 q-pa-md text-center" style="border-radius: 12px; border-left: 4px solid #0D1B2E;">
+                  <div class="text-subtitle2 text-grey-6 uppercase">Total Récolté (Organisateur)</div>
+                  <div class="text-h4 text-weight-bolder text-primary q-mt-sm">{{ organizerTotalAmount }} €</div>
+                  <div class="text-caption text-grey-5 q-mt-xs">{{ userPools.length }} cagnottes créées</div>
+                </q-card>
+              </div>
+              <div class="col-12 col-sm-4">
+                <q-card class="bg-white shadow-1 q-pa-md text-center" style="border-radius: 12px; border-left: 4px solid #FFA726;">
+                  <div class="text-subtitle2 text-grey-6 uppercase">Contributeurs Uniques</div>
+                  <div class="text-h4 text-weight-bolder text-secondary q-mt-sm">{{ organizerUniqueContributors }}</div>
+                  <div class="text-caption text-grey-5 q-mt-xs">Sur vos cagnottes actives</div>
+                </q-card>
+              </div>
+              <!-- Donateur KPI -->
+              <div class="col-12 col-sm-4">
+                <q-card class="bg-white shadow-1 q-pa-md text-center" style="border-radius: 12px; border-left: 4px solid #E12D3D;">
+                  <div class="text-subtitle2 text-grey-6 uppercase">Mes Dons Totaux (Donateur)</div>
+                  <div class="text-h4 text-weight-bolder text-red q-mt-sm">{{ donorTotalAmount }} €</div>
+                  <div class="text-caption text-grey-5 q-mt-xs">{{ userContributions.length }} dons effectués</div>
+                </q-card>
+              </div>
+            </div>
+
+            <!-- CHARTS SECTION -->
+            <div class="row q-col-gutter-lg">
+              
+              <!-- Courbe de progression (Organisateur) -->
+              <div class="col-12 col-md-8">
+                <q-card class="bg-white shadow-1 q-pa-lg" style="border-radius: 12px;">
+                  <div class="text-subtitle1 text-weight-bold q-mb-md" style="color: #0D1B2E;">
+                    <q-icon name="trending_up" color="primary" size="24px" class="q-mr-sm" />
+                    Progression cumulative des fonds récoltés
+                  </div>
+                  <div v-if="organizerContributions.length === 0" class="flex flex-center q-py-xl text-grey-5">
+                    Aucun don reçu pour le moment pour tracer la courbe de progression.
+                  </div>
+                  <div v-else>
+                    <VueApexCharts type="area" height="300" :options="progressionChartOptions" :series="progressionChartSeries" />
+                  </div>
+                </q-card>
+              </div>
+
+              <!-- Répartition par catégorie (Donateur) -->
+              <div class="col-12 col-md-4">
+                <q-card class="bg-white shadow-1 q-pa-lg" style="border-radius: 12px; height: 100%;">
+                  <div class="text-subtitle1 text-weight-bold q-mb-md" style="color: #0D1B2E;">
+                    <q-icon name="pie_chart" color="red" size="24px" class="q-mr-sm" />
+                    Mes dons par catégorie
+                  </div>
+                  <div v-if="userContributions.length === 0" class="flex flex-center q-py-xl text-grey-5">
+                    Faites des dons pour voir la répartition par catégorie.
+                  </div>
+                  <div v-else class="flex flex-center">
+                    <VueApexCharts type="donut" width="100%" max-width="320px" :options="categoryChartOptions" :series="categoryChartSeries" />
+                  </div>
+                </q-card>
+              </div>
+
+              <!-- Répartition des montants (Organisateur) -->
+              <div class="col-12 col-md-12 q-mt-md">
+                <q-card class="bg-white shadow-1 q-pa-lg" style="border-radius: 12px;">
+                  <div class="text-subtitle1 text-weight-bold q-mb-md" style="color: #0D1B2E;">
+                    <q-icon name="bar_chart" color="secondary" size="24px" class="q-mr-sm" />
+                    Répartition des dons par tranches de montants
+                  </div>
+                  <div v-if="organizerContributions.length === 0" class="flex flex-center q-py-xl text-grey-5">
+                    Aucun don reçu pour le moment.
+                  </div>
+                  <div v-else>
+                    <VueApexCharts type="bar" height="300" :options="bracketChartOptions" :series="bracketChartSeries" />
+                  </div>
+                </q-card>
+              </div>
+
+            </div>
+          </div>
+        </q-tab-panel>
+
         <!-- PANNEAU : NOTIFICATIONS -->
         <q-tab-panel name="notifications" class="q-pa-none">
           <div v-if="loadingNotifications" class="flex flex-center q-py-xl">
             <q-spinner-dots color="primary" size="40px" />
           </div>
 
-          <div v-else-if="userNotifications.length > 0">
+          <div v-else-if="activeNotifications.length > 0">
             <div class="row justify-between items-center q-mb-md q-px-sm">
               <div class="text-subtitle2 text-grey-7">Dernières notifications reçues</div>
               <q-btn flat dense no-caps color="primary" label="Tout marquer comme lu" v-if="unreadCount > 0" @click="markAllAsRead" />
             </div>
 
             <q-list class="bg-white shadow-1" style="border-radius: 12px; overflow: hidden;">
-              <div v-for="(notif, index) in userNotifications" :key="notif.id">
+              <div v-for="(notif, index) in activeNotifications" :key="notif.id">
                 <q-item class="q-py-md" :class="{'bg-blue-1': notif.status === 'ACTIVE'}">
                   <q-item-section avatar>
                     <q-avatar :color="notif.status === 'ACTIVE' ? 'blue-2' : 'grey-2'" size="40px">
@@ -240,7 +340,7 @@
                     </q-btn>
                   </q-item-section>
                 </q-item>
-                <q-separator v-if="index < userNotifications.length - 1" inset="item" />
+                <q-separator v-if="index < activeNotifications.length - 1" inset="item" />
               </div>
             </q-list>
           </div>
@@ -263,6 +363,8 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { poolApi } from 'boot/axios'
 import { poolService } from 'src/shared/services/poolService'
 import authStore from 'src/shared/stores/auth'
+import VueApexCharts from 'vue3-apexcharts'
+import { jsPDF } from 'jspdf'
 
 const tab = ref('pools')
 const userName = computed(() => authStore.user.value?.firstName || 'Utilisateur')
@@ -283,6 +385,315 @@ const loadingNotifications = ref(false)
 const unreadCount = computed(() => {
   return userNotifications.value.filter(n => n.status === 'ACTIVE').length
 })
+const activeNotifications = computed(() => {
+  return userNotifications.value.filter(n => n.status === 'ACTIVE')
+})
+
+// Statistiques
+const allPools = ref([])
+const organizerContributions = ref([])
+const loadingStats = ref(false)
+
+const getPoolTitle = (poolId) => {
+  const pool = allPools.value.find(p => p.id === poolId)
+  return pool ? pool.title : 'Cagnotte #' + poolId.substring(0, 8)
+}
+
+const getPoolCategory = (poolId) => {
+  const pool = allPools.value.find(p => p.id === poolId)
+  return pool ? pool.category : 'Autre'
+}
+
+const fetchAllPools = async () => {
+  try {
+    const res = await poolService.getAllPools()
+    allPools.value = res.data || []
+  } catch (error) {
+    console.error('Erreur chargement de la liste des cagnottes:', error)
+  }
+}
+
+const fetchStatsData = async () => {
+  if (!userId.value) return
+  loadingStats.value = true
+  try {
+    if (allPools.value.length === 0) {
+      await fetchAllPools()
+    }
+    
+    const poolContributionsPromises = userPools.value.map(async (pool) => {
+      try {
+        const res = await poolService.getPoolContributions(pool.id)
+        return (res.data || []).map(c => ({
+          ...c,
+          poolTitle: pool.title,
+          poolCategory: pool.category
+        }))
+      } catch (err) {
+        console.error(`Error fetching contributions for pool ${pool.id}:`, err)
+        return []
+      }
+    })
+    
+    const resolvedContributions = await Promise.all(poolContributionsPromises)
+    organizerContributions.value = resolvedContributions.flat().filter(c => c.status === 'CONFIRMED' || c.status === 'REUSSIE')
+  } catch (error) {
+    console.error('Error fetching statistics data:', error)
+  } finally {
+    loadingStats.value = false
+  }
+}
+
+// Computations for KPIs
+const organizerTotalAmount = computed(() => {
+  return organizerContributions.value.reduce((sum, c) => sum + Number(c.amount), 0)
+})
+
+const organizerUniqueContributors = computed(() => {
+  const emails = new Set(organizerContributions.value.map(c => c.contributorEmail || c.contributorName).filter(Boolean))
+  return emails.size
+})
+
+const donorTotalAmount = computed(() => {
+  return userContributions.value.reduce((sum, c) => sum + Number(c.amount), 0)
+})
+
+// Chart 1: Progression Cumulative (Organisateur)
+const progressionChartData = computed(() => {
+  if (organizerContributions.value.length === 0) return { categories: [], data: [] }
+  const sorted = [...organizerContributions.value].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+  const groupedByDate = {}
+  sorted.forEach(c => {
+    const dateStr = new Date(c.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+    groupedByDate[dateStr] = (groupedByDate[dateStr] || 0) + Number(c.amount)
+  })
+  const categories = Object.keys(groupedByDate)
+  const data = []
+  let cumSum = 0
+  categories.forEach(date => {
+    cumSum += groupedByDate[date]
+    data.push(cumSum)
+  })
+  return { categories, data }
+})
+
+const progressionChartSeries = computed(() => {
+  return [{
+    name: 'Fonds Cumulés',
+    data: progressionChartData.value.data
+  }]
+})
+
+const progressionChartOptions = computed(() => {
+  return {
+    chart: {
+      id: 'progression-chart',
+      toolbar: { show: false },
+      fontFamily: 'Inter, sans-serif'
+    },
+    colors: ['#0D1B2E'],
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.45,
+        opacityTo: 0.05,
+        stops: [0, 100]
+      }
+    },
+    stroke: { curve: 'smooth', width: 3 },
+    xaxis: {
+      categories: progressionChartData.value.categories,
+      labels: { style: { colors: '#5A6A85', fontSize: '11px' } }
+    },
+    yaxis: {
+      labels: {
+        formatter: (val) => `${val} €`,
+        style: { colors: '#5A6A85', fontSize: '11px' }
+      }
+    },
+    dataLabels: { enabled: false },
+    tooltip: { theme: 'light' }
+  }
+})
+
+// Chart 2: Répartition par Tranches de Montants (Organisateur)
+const bracketChartData = computed(() => {
+  const counts = { '0-20€': 0, '21-50€': 0, '51-100€': 0, '101-250€': 0, '250€+': 0 }
+  organizerContributions.value.forEach(c => {
+    const amt = Number(c.amount)
+    if (amt <= 20) counts['0-20€']++
+    else if (amt <= 50) counts['21-50€']++
+    else if (amt <= 100) counts['51-100€']++
+    else if (amt <= 250) counts['101-250€']++
+    else counts['250€+']++
+  })
+  return counts
+})
+
+const bracketChartSeries = computed(() => {
+  return [{
+    name: 'Nombre de dons',
+    data: Object.values(bracketChartData.value)
+  }]
+})
+
+const bracketChartOptions = computed(() => {
+  return {
+    chart: {
+      id: 'bracket-chart',
+      toolbar: { show: false },
+      fontFamily: 'Inter, sans-serif'
+    },
+    colors: ['#FFA726'],
+    plotOptions: {
+      bar: {
+        borderRadius: 4,
+        columnWidth: '50%'
+      }
+    },
+    xaxis: {
+      categories: Object.keys(bracketChartData.value),
+      labels: { style: { colors: '#5A6A85', fontSize: '11px' } }
+    },
+    yaxis: {
+      labels: {
+        formatter: (val) => Math.round(val),
+        style: { colors: '#5A6A85', fontSize: '11px' }
+      }
+    },
+    dataLabels: { enabled: false }
+  }
+})
+
+// Chart 3: Répartition par Catégorie (Donateur)
+const categoryChartData = computed(() => {
+  const catTotals = {}
+  userContributions.value.forEach(c => {
+    const cat = getPoolCategory(c.poolId)
+    catTotals[cat] = (catTotals[cat] || 0) + Number(c.amount)
+  })
+  return catTotals
+})
+
+const categoryChartSeries = computed(() => {
+  return Object.values(categoryChartData.value)
+})
+
+const categoryChartOptions = computed(() => {
+  return {
+    chart: {
+      id: 'category-chart',
+      fontFamily: 'Inter, sans-serif'
+    },
+    labels: Object.keys(categoryChartData.value),
+    colors: ['#0D1B2E', '#FFA726', '#E12D3D', '#2EC4B6', '#7209B7'],
+    legend: {
+      position: 'bottom',
+      labels: { colors: '#5A6A85' }
+    },
+    dataLabels: {
+      formatter: (val) => `${Math.round(val)}%`
+    },
+    tooltip: {
+      y: { formatter: (val) => `${val} €` }
+    }
+  }
+})
+
+// Download Receipt PDF Function
+const downloadReceipt = (contrib) => {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  })
+
+  const primaryColor = [13, 27, 46]
+  const secondaryColor = [255, 167, 38]
+
+  // Header Band
+  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2])
+  doc.rect(0, 0, 210, 40, 'F')
+
+  doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2])
+  doc.rect(0, 40, 210, 3, 'F')
+
+  doc.setTextColor(255, 255, 255)
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(28)
+  doc.text('POTIFY', 20, 22)
+  
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(10)
+  doc.text('Financement Participatif Solidaire', 20, 30)
+
+  // Document Title
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(20)
+  doc.text('RECU DE CONTRIBUTION FINANCIERE', 20, 65)
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(10)
+  doc.setTextColor(100, 100, 100)
+  doc.text(`Reference du don : ${contrib.id}`, 20, 72)
+  doc.text(`Date de transaction : ${formatDate(contrib.createdAt)}`, 20, 77)
+
+  doc.setDrawColor(220, 220, 220)
+  doc.line(20, 85, 190, 85)
+
+  // Donor Info
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(12)
+  doc.text('INFORMATIONS DU DONATEUR', 20, 95)
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(11)
+  doc.text(`Nom : ${contrib.contributorName || userName.value}`, 20, 103)
+  doc.text(`Email : ${contrib.contributorEmail || userEmail.value}`, 20, 110)
+
+  // Project Info
+  doc.setFont('helvetica', 'bold')
+  doc.text('DETAILS DU PROJET SOUTENU', 20, 125)
+
+  doc.setFont('helvetica', 'normal')
+  doc.text(`Nom du projet : ${getPoolTitle(contrib.poolId)}`, 20, 133)
+  doc.text(`Categorie : ${getPoolCategory(contrib.poolId)}`, 20, 140)
+
+  // Amount Block
+  doc.setFillColor(245, 247, 250)
+  doc.rect(20, 150, 170, 25, 'F')
+
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(14)
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+  doc.text('MONTANT TOTAL DU DON', 30, 166)
+
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2])
+  doc.setFontSize(18)
+  doc.text(`${contrib.amount} EUR`, 130, 166)
+
+  // Legal Notice
+  doc.setTextColor(120, 120, 120)
+  doc.setFont('helvetica', 'italic')
+  doc.setFontSize(9)
+  doc.text("Ce document atteste que le donateur mentionne ci-dessus a effectue une contribution financiere", 20, 195)
+  doc.text("au projet designe via la plateforme securisee Potify. Ce recu est emis a titre d'information.", 20, 200)
+
+  // Footer Banner
+  doc.setFillColor(240, 240, 240)
+  doc.rect(0, 270, 210, 27, 'F')
+
+  doc.setTextColor(100, 100, 100)
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(8)
+  doc.text('Potify SAS - Plateforme solidaire enregistree', 20, 280)
+  doc.text('Pour toute question : support@potify.com', 20, 285)
+
+  doc.save(`recu-potify-${contrib.id.substring(0, 8)}.pdf`)
+}
 
 // Récupère les cagnottes créées par l'utilisateur (dont il est propriétaire)
 const fetchUserPools = async () => {
@@ -409,6 +820,7 @@ const formatDate = (dateStr) => {
 
 onMounted(() => {
   if (userId.value) {
+    fetchAllPools()
     fetchUserPools()
     fetchInvitedPools()
     fetchUserContributions()
@@ -418,12 +830,19 @@ onMounted(() => {
 
 watch(userId, (newId) => {
   if (newId) {
+    fetchAllPools()
     fetchUserPools()
     fetchInvitedPools()
     fetchUserContributions()
     fetchUserNotifications()
   }
 }, { immediate: true })
+
+watch(tab, (newTab) => {
+  if (newTab === 'stats') {
+    fetchStatsData()
+  }
+})
 </script>
 
 <style scoped>

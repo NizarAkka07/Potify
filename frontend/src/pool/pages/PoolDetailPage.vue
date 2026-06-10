@@ -670,7 +670,7 @@ const mediaSlide = ref('image')
 let messageEventSource = null
 
 const isOwner = computed(() => {
-  return authStore.isAuthenticated.value && pool.value.ownerId === authStore.user.value?.id
+  return authStore.isAuthenticated.value && pool.value.ownerId && authStore.user.value?.id && String(pool.value.ownerId) === String(authStore.user.value?.id)
 })
 
 const isAdmin = computed(() => {
