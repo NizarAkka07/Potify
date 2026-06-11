@@ -1,55 +1,61 @@
 <template>
-  <!-- Page de connexion centrée avec un arrière-plan gris clair -->
-  <q-page class="flex flex-center bg-grey-2">
-    <!-- Carte d'authentification avec une ombre prononcée -->
-    <q-card class="auth-card shadow-24">
-      <!-- Section d'en-tête de la carte avec couleur primaire -->
-      <q-card-section class="bg-primary text-white q-pa-lg">
-        <div class="text-h5 text-weight-bold">Connexion</div>
-        <div class="text-subtitle2">Accédez à votre plateforme solidaire</div>
+  <!-- Page de connexion centrée avec un arrière-plan à gradient doux -->
+  <q-page class="flex flex-center auth-page">
+    <!-- Carte d'authentification avec bords arrondis et ombre subtile -->
+    <q-card class="auth-card">
+      <!-- Section d'en-tête de la carte en bleu marine Akkodis -->
+      <q-card-section class="auth-header text-center q-py-xl">
+        <div class="logo-container q-mb-md">
+          <q-icon name="payments" size="3rem" color="primary" />
+        </div>
+        <div class="text-h5 text-weight-bold text-white font-inter">Connexion</div>
+        <div class="text-caption text-grey-4 q-mt-xs">Accédez à votre plateforme solidaire</div>
       </q-card-section>
 
       <!-- Section du formulaire de connexion -->
       <q-card-section class="q-pa-xl">
-        <q-form @submit="onSubmit" class="q-gutter-md">
-          <!-- Champ de saisie pour l'email -->
+        <q-form @submit="onSubmit" class="q-gutter-y-md">
+          <!-- Champ de saisie pour l'email (Outlined) -->
           <q-input
             v-model="loginForm.email"
             label="Email"
             type="email"
-            filled
+            outlined
+            color="secondary"
             lazy-rules
             :rules="[val => !!val || 'L\'email est requis']"
           >
-            <!-- Icône d'enveloppe au début du champ -->
+            <!-- Icône d'enveloppe -->
             <template v-slot:prepend>
-              <q-icon name="email" />
+              <q-icon name="email" color="grey-6" />
             </template>
           </q-input>
 
-          <!-- Champ de saisie pour le mot de passe -->
+          <!-- Champ de saisie pour le mot de passe (Outlined) -->
           <q-input
             v-model="loginForm.password"
             label="Mot de passe"
             type="password"
-            filled
+            outlined
+            color="secondary"
             lazy-rules
             :rules="[val => !!val || 'Le mot de passe est requis']"
           >
-            <!-- Icône de cadenas au début du champ -->
+            <!-- Icône de cadenas -->
             <template v-slot:prepend>
-              <q-icon name="lock" />
+              <q-icon name="lock" color="grey-6" />
             </template>
           </q-input>
 
-          <!-- Actions du formulaire : lien mot de passe oublié et bouton de soumission -->
-          <div class="row justify-between items-center q-mt-md">
-            <q-btn flat color="primary" label="Mot de passe oublié ?" size="sm" />
+          <!-- Actions : Mot de passe oublié et Bouton de connexion -->
+          <div class="row justify-between items-center q-mt-lg">
+            <q-btn flat no-caps color="grey-7" label="Mot de passe oublié ?" size="sm" class="forgot-btn" />
             <q-btn
+              unelevated
+              no-caps
               label="Se connecter"
               type="submit"
-              color="primary"
-              padding="sm xl"
+              class="submit-btn text-weight-bold"
               :loading="loading"
             />
           </div>
@@ -57,48 +63,36 @@
       </q-card-section>
 
       <!-- Section de redirection pour les nouveaux utilisateurs -->
-      <q-card-section class="text-center q-pa-md bg-grey-1">
-        <span>Pas encore de compte ? </span>
-        <q-btn flat color="primary" label="Inscrivez-vous" to="/register" />
+      <q-card-section class="text-center q-py-lg register-section">
+        <span class="text-grey-7">Pas encore de compte ? </span>
+        <q-btn flat no-caps dense color="orange-9" label="Inscrivez-vous" to="/register" class="text-weight-bold" />
       </q-card-section>
     </q-card>
   </q-page>
 </template>
 
 <script setup>
-// Importations des utilitaires Vue et Quasar
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
-// Importation de l'instance API (Axios)
 import { api } from 'src/boot/axios'
-// Importation du store d'authentification
 import authStore from 'src/shared/stores/auth'
 
-// Initialisation des utilitaires Quasar et du Router
 const $q = useQuasar()
 const router = useRouter()
-// État de chargement pour le bouton de soumission
 const loading = ref(false)
 
-// Modèle réactif pour les données du formulaire
 const loginForm = ref({
   email: '',
   password: ''
 })
 
-/**
- * Fonction de soumission du formulaire.
- * Envoie les identifiants au backend et gère la réponse.
- */
 const onSubmit = async () => {
-  loading.value = true // Active l'état de chargement
+  loading.value = true
   try {
-    // Appel POST vers le endpoint d'authentification
     const response = await api.post('/auth/signin', loginForm.value)
     const { accessToken } = response.data
 
-    // Stockage du token et de l'utilisateur dans le store global
     authStore.setToken(accessToken)
     authStore.setUser({ 
       id: response.data.id,
@@ -106,33 +100,84 @@ const onSubmit = async () => {
       roles: response.data.roles 
     })
 
-    // Notification de succès
     $q.notify({
       color: 'positive',
       message: 'Connexion réussie !',
-      icon: 'check_circle'
+      icon: 'check_circle',
+      position: 'top'
     })
 
-    // Redirection vers la page d'accueil
     router.push('/')
   } catch (error) {
-    // Gestion et notification d'erreur
     $q.notify({
       color: 'negative',
       message: error.response?.data?.message || 'Erreur lors de la connexion',
-      icon: 'report_problem'
+      icon: 'report_problem',
+      position: 'top'
     })
   } finally {
-    loading.value = false // Désactive l'état de chargement
+    loading.value = false
   }
 }
 </script>
 
 <style lang="scss" scoped>
-/* Styles CSS spécifiques à la carte d'authentification */
+.auth-page {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 167, 38, 0.02) 0%, transparent 60%),
+              radial-gradient(circle at 10% 20%, rgba(13, 27, 46, 0.03) 0%, transparent 50%),
+              #FAFAFB;
+}
+
 .auth-card {
   width: 100%;
-  max-width: 450px;
-  border-radius: 12px;
+  max-width: 440px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(13, 27, 46, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: #FFFFFF;
+  overflow: hidden;
+}
+
+.auth-header {
+  background: #0D1B2E;
+  color: #FFFFFF;
+  border-bottom: 3px solid #FFA726;
+}
+
+.logo-container {
+  display: inline-flex;
+  padding: 12px;
+  background: rgba(255, 167, 38, 0.1);
+  border-radius: 50%;
+}
+
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+.submit-btn {
+  background: #FFA726;
+  color: #0D1B2E;
+  border-radius: 8px;
+  padding: 8px 24px;
+  transition: transform 0.2s ease, filter 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
+}
+
+.forgot-btn {
+  border-radius: 6px;
+  &:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+}
+
+.register-section {
+  background: #FAFAFB;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
 }
 </style>
+
