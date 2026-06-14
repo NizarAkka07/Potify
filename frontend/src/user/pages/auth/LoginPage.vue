@@ -8,8 +8,8 @@
         <div class="logo-container q-mb-md">
           <q-icon name="payments" size="3rem" color="primary" />
         </div>
-        <div class="text-h5 text-weight-bold text-white font-inter">Connexion</div>
-        <div class="text-caption text-grey-4 q-mt-xs">Accédez à votre plateforme solidaire</div>
+        <div class="text-h5 text-weight-bold text-white font-inter">{{ $t('auth.loginTitle') }}</div>
+        <div class="text-caption text-grey-4 q-mt-xs">{{ $t('auth.loginSubtitle') }}</div>
       </q-card-section>
 
       <!-- Section du formulaire de connexion -->
@@ -18,12 +18,12 @@
           <!-- Champ de saisie pour l'email (Outlined) -->
           <q-input
             v-model="loginForm.email"
-            label="Email"
+            :label="$t('auth.email')"
             type="email"
             outlined
             color="secondary"
             lazy-rules
-            :rules="[val => !!val || 'L\'email est requis']"
+            :rules="[val => !!val || $t('auth.emailRequired')]"
           >
             <!-- Icône d'enveloppe -->
             <template v-slot:prepend>
@@ -34,12 +34,12 @@
           <!-- Champ de saisie pour le mot de passe (Outlined) -->
           <q-input
             v-model="loginForm.password"
-            label="Mot de passe"
+            :label="$t('auth.password')"
             type="password"
             outlined
             color="secondary"
             lazy-rules
-            :rules="[val => !!val || 'Le mot de passe est requis']"
+            :rules="[val => !!val || $t('auth.passwordRequired')]"
           >
             <!-- Icône de cadenas -->
             <template v-slot:prepend>
@@ -49,11 +49,11 @@
 
           <!-- Actions : Mot de passe oublié et Bouton de connexion -->
           <div class="row justify-between items-center q-mt-lg">
-            <q-btn flat no-caps color="grey-7" label="Mot de passe oublié ?" size="sm" class="forgot-btn" />
+            <q-btn flat no-caps color="grey-7" :label="$t('auth.forgotPassword')" size="sm" class="forgot-btn" />
             <q-btn
               unelevated
               no-caps
-              label="Se connecter"
+              :label="$t('auth.loginButton')"
               type="submit"
               class="submit-btn text-weight-bold"
               :loading="loading"
@@ -64,14 +64,16 @@
 
       <!-- Section de redirection pour les nouveaux utilisateurs -->
       <q-card-section class="text-center q-py-lg register-section">
-        <span class="text-grey-7">Pas encore de compte ? </span>
-        <q-btn flat no-caps dense color="orange-9" label="Inscrivez-vous" to="/register" class="text-weight-bold" />
+        <span class="text-grey-7">{{ $t('auth.noAccount') }} </span>
+        <q-btn flat no-caps dense color="orange-9" :label="$t('auth.signUp')" to="/register" class="text-weight-bold" />
       </q-card-section>
     </q-card>
   </q-page>
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
@@ -102,7 +104,7 @@ const onSubmit = async () => {
 
     $q.notify({
       color: 'positive',
-      message: 'Connexion réussie !',
+      message: t('auth.success'),
       icon: 'check_circle',
       position: 'top'
     })
@@ -111,7 +113,7 @@ const onSubmit = async () => {
   } catch (error) {
     $q.notify({
       color: 'negative',
-      message: error.response?.data?.message || 'Erreur lors de la connexion',
+      message: error.response?.data?.message || t('auth.error'),
       icon: 'report_problem',
       position: 'top'
     })

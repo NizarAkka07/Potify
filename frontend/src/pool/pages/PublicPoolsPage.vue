@@ -12,28 +12,28 @@
           <div class="col-12 col-md-7">
             <div class="simple-badge q-mb-md">
               <span class="badge-dot"></span>
-              <span class="badge-text text-uppercase">Solidarité & Impact</span>
+              <span class="badge-text text-uppercase">{{ $t('publicPools.badge') }}</span>
             </div>
             
             <h1 class="text-h3 text-weight-bold q-mb-md hero-title text-white" style="line-height: 1.2;">
-              Explorez les projets <br />
-              <span style="color: #FFA726;">qui font la différence</span>
+              {{ $t('publicPools.titleStart') }} <br />
+              <span style="color: #FFA726;">{{ $t('publicPools.titleEnd') }}</span>
             </h1>
             <p class="text-subtitle1 q-mb-xl text-grey-4" style="max-width: 580px; line-height: 1.6;">
-              Découvrez des initiatives solidaires, soutenez des causes inspirantes ou contribuez à des tontines collaboratives de confiance.
+              {{ $t('publicPools.subtitle') }}
             </p>
           </div>
           
           <!-- Modern Search Box (Centered/Highlighted) -->
           <div class="col-12 col-md-5">
             <q-card class="search-box-card q-pa-lg no-shadow" style="background: rgba(255, 255, 255, 0.07); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px;">
-              <div class="text-subtitle1 text-weight-bold q-mb-sm text-white">Rechercher une cause</div>
-              <div class="text-caption text-grey-4 q-mb-md">Trouvez rapidement une cagnotte par mots-clés.</div>
+              <div class="text-subtitle1 text-weight-bold q-mb-sm text-white">{{ $t('publicPools.searchBoxHeader') }}</div>
+              <div class="text-caption text-grey-4 q-mb-md">{{ $t('publicPools.searchBoxDesc') }}</div>
               
               <q-input
                 filled
                 v-model="searchQuery"
-                placeholder="Ex : Urgence médicale, sport..."
+                :placeholder="$t('publicPools.searchPlaceholder')"
                 bg-color="white"
                 color="primary"
                 dense
@@ -71,7 +71,7 @@
           <q-card flat class="bg-white q-pa-lg filter-sidebar" style="border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 20px rgba(0,0,0,0.02); position: sticky; top: 100px;">
             <div class="text-subtitle1 text-weight-bold q-mb-md flex items-center" style="color: #0D1B2E;">
               <q-icon name="category" class="q-mr-sm" size="20px" color="primary" />
-              Catégories
+              {{ $t('publicPools.categories') }}
             </div>
             
             <q-list dense class="category-list">
@@ -92,7 +92,7 @@
                   </q-avatar>
                 </q-item-section>
                 <q-item-section class="text-weight-bold text-grey-8" style="font-size: 0.95rem;">
-                  {{ cat }}
+                  {{ getCategoryLabel(cat) }}
                 </q-item-section>
                 <q-item-section side>
                   <q-badge color="grey-3" text-color="grey-8" class="text-weight-bold" style="border-radius: 8px; font-size: 0.75rem;">
@@ -108,7 +108,7 @@
             <q-btn
               flat
               color="primary"
-              label="Réinitialiser les filtres"
+              :label="$t('publicPools.resetFilters')"
               no-caps
               icon="refresh"
               class="full-width text-weight-bold"
@@ -127,7 +127,7 @@
               <!-- Result count & Status Pills -->
               <div class="col-12 col-sm-auto row items-center q-gutter-md">
                 <div class="text-subtitle2 text-grey-7 text-weight-bold">
-                  {{ filteredPools.length }} {{ filteredPools.length > 1 ? 'cagnottes trouvées' : 'cagnotte trouvée' }}
+                  {{ filteredPools.length }} {{ filteredPools.length > 1 ? $t('publicPools.poolsFoundMultiple') : $t('publicPools.poolsFoundSingle') }}
                 </div>
                 <!-- Status filter buttons -->
                 <div class="row q-gutter-xs">
@@ -148,7 +148,7 @@
               
               <!-- Sorting dropdown -->
               <div class="col-12 col-sm-auto row items-center q-gutter-sm justify-end">
-                <span class="text-caption text-grey-6 text-weight-bold">Trier par :</span>
+                <span class="text-caption text-grey-6 text-weight-bold">{{ $t('publicPools.sortByLabel') }} :</span>
                 <q-select
                   v-model="sortBy"
                   :options="sortOptions"
@@ -172,8 +172,13 @@
             <q-select
               outlined
               v-model="selectedCategory"
-              :options="categories"
-              label="Sélectionner une catégorie"
+              :options="categoryOptionsMobile"
+              option-value="value"
+              option-label="label"
+              emit-value
+              map-options
+              :label="$t('publicPools.selectCategoryMobile')"
+              :display-value="getCategoryLabel(selectedCategory)"
               bg-color="white"
               color="primary"
               style="border-radius: 12px;"
@@ -225,7 +230,7 @@
                     />
 
                     <!-- Category Badge -->
-                    <div class="category-glass-badge">{{ pool.category }}</div>
+                    <div class="category-glass-badge">{{ getCategoryLabel(pool.category) }}</div>
 
                     <!-- Status Badge -->
                     <div 
@@ -242,7 +247,7 @@
                     <!-- Title & Type -->
                     <div class="row items-center justify-between q-mb-sm">
                       <div class="text-caption text-primary text-weight-bold text-uppercase tracking-wider">
-                        {{ pool.type === 'PRIVATE_TONTINE' ? 'Tontine privée' : 'Cagnotte publique' }}
+                        {{ pool.type === 'PRIVATE_TONTINE' ? $t('publicPools.tontineType') : (pool.type === 'PRIVATE' ? $t('publicPools.privateType') : $t('publicPools.publicType')) }}
                       </div>
                       <div class="text-caption text-grey-5 flex items-center">
                         <q-icon name="calendar_today" size="12px" class="q-mr-xs" />
@@ -262,10 +267,10 @@
                       <div class="row justify-between items-center q-mb-xs">
                         <div>
                           <span class="text-h6 text-weight-bolder text-primary">{{ formatCurrency(pool.currentAmount) }}</span>
-                          <span class="text-caption text-grey-6 q-ml-xs">récoltés</span>
+                          <span class="text-caption text-grey-6 q-ml-xs">{{ $t('publicPools.collected') }}</span>
                         </div>
                         <div class="text-caption text-grey-6 text-weight-bold">
-                          Objectif : {{ formatCurrency(pool.goalAmount) }}
+                          {{ $t('publicPools.goal') }} : {{ formatCurrency(pool.goalAmount) }}
                         </div>
                       </div>
                       
@@ -284,11 +289,11 @@
                       <div class="row items-center q-gutter-xs">
                         <q-icon name="group" color="grey-6" size="16px" />
                         <span class="text-weight-bold text-dark">{{ contributorsMap[pool.id] || 0 }}</span> 
-                        <span>{{ (contributorsMap[pool.id] || 0) > 1 ? 'contributeurs' : 'contributeur' }}</span>
+                        <span>{{ (contributorsMap[pool.id] || 0) > 1 ? $t('publicPools.contributorsMultiple') : $t('publicPools.contributorsSingle') }}</span>
                       </div>
                       <div class="row items-center q-gutter-xs text-weight-bold" :class="pool.currentAmount >= pool.goalAmount ? 'text-green' : 'text-primary'">
                         <q-icon :name="pool.currentAmount >= pool.goalAmount ? 'check_circle' : 'trending_up'" size="16px" />
-                        <span>{{ getPercentage(pool) }}% financé</span>
+                        <span>{{ getPercentage(pool) }}% {{ $t('publicPools.funded') }}</span>
                       </div>
                     </div>
 
@@ -300,7 +305,7 @@
                         flat 
                         no-caps 
                         color="grey-7" 
-                        label="Détails" 
+                        :label="$t('publicPools.detailsButton')" 
                         icon="info" 
                         dense 
                         class="q-px-sm border-radius-8"
@@ -318,7 +323,7 @@
                           icon="share" 
                           @click.stop="sharePool(pool.id)"
                         >
-                          <q-tooltip>Partager la cagnotte</q-tooltip>
+                          <q-tooltip>{{ $t('publicPools.shareTooltip') }}</q-tooltip>
                         </q-btn>
                         
                         <!-- Contribute button -->
@@ -326,7 +331,7 @@
                           unelevated 
                           no-caps 
                           color="primary" 
-                          label="Contribuer" 
+                          :label="$t('publicPools.contributeButton')" 
                           icon-right="favorite" 
                           class="q-px-md text-weight-bold contribute-btn" 
                           style="border-radius: 8px; background: #FFA726 !important; color: #1A1A2A !important;"
@@ -345,12 +350,12 @@
               <q-avatar size="80px" color="amber-1" text-color="primary" class="q-mb-md">
                 <q-icon name="search_off" size="40px" />
               </q-avatar>
-              <div class="text-h5 text-weight-bold text-dark q-mt-md">Aucune cagnotte trouvée</div>
+              <div class="text-h5 text-weight-bold text-dark q-mt-md">{{ $t('publicPools.noPoolsFound') }}</div>
               <p class="text-grey-6 q-mt-sm" style="max-width: 400px; margin: 8px auto 20px;">
-                Nous n'avons trouvé aucune cagnotte correspondant à vos critères de recherche ou de filtre.
+                {{ $t('publicPools.emptyDesc') }}
               </p>
               <q-btn
-                label="Tout réinitialiser"
+                :label="$t('publicPools.emptyResetButton')"
                 color="primary"
                 unelevated
                 no-caps
@@ -370,10 +375,12 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { poolService } from 'src/shared/services/poolService'
 import { useQuasar } from 'quasar'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const route = useRoute()
 const $q = useQuasar()
+const { t } = useI18n()
 
 const loading = ref(false)
 const pools = ref([])
@@ -385,18 +392,32 @@ const sortBy = ref('recent')
 const categories = ['Toutes', 'Santé', 'Éducation', 'Urgence', 'Animaux', 'Projets', 'Sport']
 const contributorsMap = ref({})
 
-const sortOptions = [
-  { label: 'Plus récentes', value: 'recent' },
-  { label: 'Plus anciennes', value: 'oldest' },
-  { label: 'Proches de l\'objectif', value: 'progress' },
-  { label: 'Plus populaires', value: 'popular' }
-]
+const getCategoryLabel = (catName) => {
+  if (!catName || catName === 'Toutes') return t('publicPools.allCategories')
+  const keyMap = {
+    'Santé': 'catHealth',
+    'Éducation': 'catEducation',
+    'Urgence': 'catEmergency',
+    'Animaux': 'catAnimals',
+    'Projets': 'catProjects',
+    'Sport': 'catSport'
+  }
+  const key = keyMap[catName]
+  return key ? t(`home.${key}`) : catName
+}
 
-const statusOptions = [
-  { label: 'Tous', value: 'all' },
-  { label: 'Actives', value: 'active' },
-  { label: 'Terminées', value: 'completed' }
-]
+const sortOptions = computed(() => [
+  { label: t('publicPools.sortRecent'), value: 'recent' },
+  { label: t('publicPools.sortOldest'), value: 'oldest' },
+  { label: t('publicPools.sortProgress'), value: 'progress' },
+  { label: t('publicPools.sortPopular'), value: 'popular' }
+])
+
+const statusOptions = computed(() => [
+  { label: t('publicPools.statusAll'), value: 'all' },
+  { label: t('publicPools.statusActiveFilter'), value: 'active' },
+  { label: t('publicPools.statusCompletedFilter'), value: 'completed' }
+])
 
 const categoryIcons = {
   'Toutes': 'grid_view',
@@ -407,6 +428,11 @@ const categoryIcons = {
   'Projets': 'lightbulb',
   'Sport': 'sports_soccer'
 }
+
+const categoryOptionsMobile = computed(() => categories.map(cat => ({
+  value: cat,
+  label: getCategoryLabel(cat)
+})))
 
 const getCategoryIcon = (category) => {
   return categoryIcons[category] || 'folder'
@@ -433,12 +459,12 @@ const getCategoryGradient = (category) => {
 
 const getStatusLabel = (status) => {
   switch (status) {
-    case 'PUBLIEE': return 'Active'
-    case 'COMPLETED': return 'Terminée'
-    case 'CLOTUREE': return 'Clôturée'
-    case 'EN_REVUE': return 'En revue'
-    case 'BROUILLON': return 'Brouillon'
-    default: return status || 'Active'
+    case 'PUBLIEE': return t('publicPools.statusActive')
+    case 'COMPLETED': return t('publicPools.statusCompleted')
+    case 'CLOTUREE': return t('publicPools.statusClosed')
+    case 'EN_REVUE': return t('publicPools.statusReview')
+    case 'BROUILLON': return t('publicPools.statusDraft')
+    default: return status || t('publicPools.statusActive')
   }
 }
 
@@ -571,7 +597,7 @@ const sharePool = (poolId) => {
   navigator.clipboard.writeText(url)
     .then(() => {
       $q.notify({
-        message: 'Lien de la cagnotte copié dans le presse-papiers !',
+        message: t('publicPools.copySuccess'),
         color: 'positive',
         icon: 'share',
         position: 'bottom-right',
@@ -580,7 +606,7 @@ const sharePool = (poolId) => {
     })
     .catch(() => {
       $q.notify({
-        message: 'Erreur lors de la copie du lien.',
+        message: t('publicPools.copyError'),
         color: 'negative',
         icon: 'error',
         position: 'bottom-right',

@@ -20,9 +20,9 @@
 
         <!-- Liens de navigation desktop – style Akkodis (blanc, uppercase) -->
         <div class="gt-sm row items-center q-gutter-lg">
-          <span class="nav-link cursor-pointer" style="color: rgba(255,255,255,0.85); font-size: 0.9rem; font-weight: 500;" @click="$router.push('/')">Accueil</span>
-          <span class="nav-link cursor-pointer" style="color: rgba(255,255,255,0.85); font-size: 0.9rem; font-weight: 500;" @click="$router.push('/pools')">Explorer</span>
-          <span class="nav-link cursor-pointer" style="color: rgba(255,255,255,0.85); font-size: 0.9rem; font-weight: 500;">Comment ça marche</span>
+          <span class="nav-link cursor-pointer" style="color: rgba(255,255,255,0.85); font-size: 0.9rem; font-weight: 500;" @click="$router.push('/')">{{ $t('nav.home') }}</span>
+          <span class="nav-link cursor-pointer" style="color: rgba(255,255,255,0.85); font-size: 0.9rem; font-weight: 500;" @click="$router.push('/pools')">{{ $t('nav.explore') }}</span>
+          <span class="nav-link cursor-pointer" style="color: rgba(255,255,255,0.85); font-size: 0.9rem; font-weight: 500;">{{ $t('nav.howItWorks') }}</span>
         </div>
 
         <q-space class="gt-sm" />
@@ -32,7 +32,7 @@
           <template v-if="!authStore.isAuthenticated.value">
             <q-btn
               flat no-caps
-              label="Se connecter"
+              :label="$t('nav.login')"
               class="gt-xs"
               style="color: rgba(255,255,255,0.85); font-weight: 500;"
               to="/login"
@@ -40,28 +40,28 @@
             <!-- Bouton S'inscrire = CTA jaune Akkodis -->
             <q-btn
               no-caps
-              label="S'inscrire"
+              :label="$t('nav.register')"
               style="background: #FFB300; color: #1A1A2A; font-weight: 700; padding: 8px 20px;"
               to="/register"
             />
           </template>
           <template v-else>
-            <q-btn flat no-caps label="Mon Espace" icon="dashboard" style="color: rgba(255,255,255,0.85); font-weight: 500;" to="/dashboard" />
-            <q-btn flat no-caps label="Profil" icon="person" style="color: rgba(255,255,255,0.85); font-weight: 500;" to="/profile" class="gt-sm" />
-            <q-btn v-if="authStore.isAdmin.value" flat no-caps label="Administration" style="color: rgba(255,255,255,0.85);" to="/admin" />
+            <q-btn flat no-caps :label="$t('nav.mySpace')" icon="dashboard" style="color: rgba(255,255,255,0.85); font-weight: 500;" to="/dashboard" />
+            <q-btn flat no-caps :label="$t('nav.profile')" icon="person" style="color: rgba(255,255,255,0.85); font-weight: 500;" to="/profile" class="gt-sm" />
+            <q-btn v-if="authStore.isAdmin.value" flat no-caps :label="$t('nav.admin')" style="color: rgba(255,255,255,0.85);" to="/admin" />
             
             <!-- Cloche de Notifications -->
             <q-btn flat round dense icon="notifications" style="color: rgba(255,255,255,0.85); margin-right: 8px;" @click="fetchNotifications">
               <q-badge v-if="unreadCount > 0" color="red" floating>{{ unreadCount }}</q-badge>
               <q-menu style="min-width: 320px; max-height: 400px; border-radius: 8px;" class="q-pa-none">
                 <div class="row items-center justify-between q-pa-md bg-grey-2" style="border-bottom: 1px solid #e0e0e0;">
-                  <span class="text-weight-bold text-subtitle1">Notifications</span>
-                  <span class="text-caption text-grey-7" v-if="unreadCount > 0">{{ unreadCount }} non lue(s)</span>
+                  <span class="text-weight-bold text-subtitle1">{{ $t('nav.notifications') }}</span>
+                  <span class="text-caption text-grey-7" v-if="unreadCount > 0">{{ unreadCount }} {{ $t('nav.noNotifications') }}</span>
                 </div>
                 
                 <q-list style="max-height: 300px; overflow-y: auto;">
                   <q-item v-if="notifications.length === 0" class="q-py-md text-center text-grey-6">
-                    <q-item-section>Aucune notification</q-item-section>
+                    <q-item-section>{{ $t('nav.noNotifications') }}</q-item-section>
                   </q-item>
                   <q-item v-for="notif in notifications" :key="notif.id" :class="{'bg-yellow-1': notif.status === 'ACTIVE'}" class="q-py-md" style="border-bottom: 1px solid #f0f0f0;">
                     <q-item-section avatar>
@@ -77,7 +77,7 @@
                     </q-item-section>
                     <q-item-section side v-if="notif.status === 'ACTIVE'">
                       <q-btn flat round dense size="sm" icon="check" color="green" @click.stop="markAsRead(notif.id)">
-                        <q-tooltip>Marquer comme lu</q-tooltip>
+                        <q-tooltip>{{ $t('nav.markRead') }}</q-tooltip>
                       </q-btn>
                     </q-item-section>
                   </q-item>
@@ -86,9 +86,38 @@
             </q-btn>
 
             <q-btn flat round dense icon="logout" style="color: rgba(255,255,255,0.75);" @click="onLogout">
-              <q-tooltip>Se déconnecter</q-tooltip>
+              <q-tooltip>{{ $t('nav.logout') }}</q-tooltip>
             </q-btn>
           </template>
+
+          <!-- Language Selector -->
+          <q-btn-dropdown
+            :key="locale"
+            flat no-caps
+            class="text-white q-ml-sm"
+            :label="currentLangLabel"
+            content-style="background: #0D1B2E; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;"
+          >
+            <q-list style="min-width: 150px; background: #0D1B2E; color: white;">
+              <q-item
+                v-for="lang in langs"
+                :key="lang.value"
+                clickable
+                v-close-popup
+                @click="changeLanguage(lang.value)"
+                :active="locale === lang.value"
+                active-class="bg-yellow-8 text-black"
+                style="border-radius: 4px;"
+              >
+                <q-item-section avatar style="min-width: auto; padding-right: 8px;">
+                  {{ lang.flag }}
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-weight-bold">{{ lang.label }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
         </div>
 
       </q-toolbar>
@@ -110,31 +139,31 @@
                 <span style="color: #FFFFFF; font-weight: 800; font-size: 1.2rem; letter-spacing: 1px;">POTIFY</span>
               </div>
               <p style="color: rgba(255,255,255,0.6); line-height: 1.7; font-size: 0.9rem;">
-                Ensemble, donnons vie à ce qui compte. La plateforme de solidarité transparente et facile à utiliser.
+                {{ $t('home.subtitle') }}
               </p>
             </div>
 
             <!-- À propos -->
             <div class="col-12 col-md-2">
-              <div class="text-weight-bold q-mb-md" style="color: #FFB300; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">À propos</div>
+              <div class="text-weight-bold q-mb-md" style="color: #FFB300; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">{{ $t('footer.about') }}</div>
               <div class="column q-gutter-y-sm">
-                <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.9rem;">Notre mission</a>
-                <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.9rem;">Contact</a>
+                <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.9rem;">{{ $t('footer.ourMission') }}</a>
+                <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.9rem;">{{ $t('footer.contact') }}</a>
               </div>
             </div>
 
             <!-- Légal -->
             <div class="col-12 col-md-2">
-              <div class="text-weight-bold q-mb-md" style="color: #FFB300; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Légal</div>
+              <div class="text-weight-bold q-mb-md" style="color: #FFB300; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">{{ $t('footer.legal') }}</div>
               <div class="column q-gutter-y-sm">
-                <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.9rem;">Conditions</a>
-                <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.9rem;">Confidentialité</a>
+                <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.9rem;">{{ $t('footer.terms') }}</a>
+                <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.9rem;">{{ $t('footer.privacy') }}</a>
               </div>
             </div>
 
             <!-- Réseaux sociaux -->
             <div class="col-12 col-md-4 text-right">
-              <div class="text-weight-bold q-mb-md" style="color: #FFB300; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Suivez-nous</div>
+              <div class="text-weight-bold q-mb-md" style="color: #FFB300; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">{{ $t('footer.followUs') }}</div>
               <div class="row justify-end q-gutter-sm">
                 <q-btn round flat icon="fab fa-linkedin" style="color: rgba(255,255,255,0.7);" />
                 <q-btn round flat icon="fab fa-twitter" style="color: rgba(255,255,255,0.7);" />
@@ -146,7 +175,7 @@
           <!-- Séparateur + copyright -->
           <q-separator style="background: rgba(255,255,255,0.1); margin: 24px 0;" />
           <div class="text-center" style="color: rgba(255,255,255,0.4); font-size: 0.85rem;">
-            © 2026 Potify. Tous droits réservés.
+            © 2026 Potify. {{ $t('footer.rights') }}
           </div>
         </div>
       </div>
@@ -158,11 +187,35 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import authStore from 'src/shared/stores/auth'
 import notificationService from 'src/shared/services/notificationService'
 import { date } from 'quasar'
 
+const { locale } = useI18n()
 const router = useRouter()
+
+const langs = [
+  { value: 'fr', label: 'Français', flag: '🇫🇷' },
+  { value: 'en', label: 'English', flag: '🇬🇧' },
+  { value: 'es', label: 'Español', flag: '🇪🇸' },
+  { value: 'ar', label: 'العربية', flag: '🇸🇦' }
+]
+
+const currentLangLabel = computed(() => {
+  const found = langs.find(l => l.value === locale.value)
+  return found ? `${found.flag} ${found.label}` : locale.value.toUpperCase()
+})
+
+function changeLanguage(langCode) {
+  locale.value = langCode
+  localStorage.setItem('lang', langCode)
+  if (langCode === 'ar') {
+    document.documentElement.setAttribute('dir', 'rtl')
+  } else {
+    document.documentElement.setAttribute('dir', 'ltr')
+  }
+}
 
 const notifications = ref([])
 const unreadCount = computed(() => {
@@ -230,6 +283,12 @@ function stopPolling() {
 }
 
 onMounted(() => {
+  const langCode = locale.value || 'fr'
+  if (langCode === 'ar') {
+    document.documentElement.setAttribute('dir', 'rtl')
+  } else {
+    document.documentElement.setAttribute('dir', 'ltr')
+  }
   if (authStore.isAuthenticated.value) {
     fetchNotifications()
     startPolling()

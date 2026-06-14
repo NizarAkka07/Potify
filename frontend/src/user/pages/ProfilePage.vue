@@ -12,7 +12,7 @@
           <div class="text-subtitle1 text-grey-7">{{ user.email }}</div>
           <div class="q-mt-sm">
             <q-chip outline color="secondary" text-color="secondary" dense class="text-weight-bold">
-              Membre depuis {{ formatDate(user.createdAt) }}
+              {{ $t('profile.memberSince') }} {{ formatDate(user.createdAt) }}
             </q-chip>
           </div>
         </q-card-section>
@@ -25,7 +25,7 @@
             <q-card-section class="q-pa-xl">
               <div class="text-h5 text-weight-bold q-mb-xl" style="color: #0D1B2E;">
                 <q-icon name="settings" color="primary" class="q-mr-sm" />
-                Paramètres du compte
+                {{ $t('profile.accountSettings') }}
               </div>
 
               <q-form @submit="handleUpdateProfile" class="q-gutter-y-lg">
@@ -35,7 +35,7 @@
                   label="Nom complet"
                   color="secondary"
                   bg-color="grey-1"
-                  :rules="[val => !!val || 'Le nom est obligatoire']"
+                  :rules="[val => !!val || $t('profile.nameRequired')]"
                 >
                   <template v-slot:prepend>
                     <q-icon name="badge" color="grey-6" />
@@ -45,7 +45,7 @@
                 <q-input
                   outlined
                   v-model="form.email"
-                  label="Adresse Email"
+                  :label="$t('profile.emailAddress')"
                   type="email"
                   color="grey-4"
                   bg-color="grey-2"
@@ -58,7 +58,7 @@
 
                 <div class="row justify-end q-mt-xl">
                   <q-btn
-                    label="Enregistrer les modifications"
+                    :label="$t('profile.saveChanges')"
                     type="submit"
                     unelevated
                     class="q-px-xl q-py-md text-weight-bold"
@@ -77,19 +77,19 @@
           <q-card class="info-card no-shadow q-mb-md" style="border-radius: 20px; border: 1px solid #EEE; background: white;">
             <q-card-section class="q-pa-lg text-center">
               <q-icon name="account_balance_wallet" size="48px" color="primary" class="q-mb-sm" />
-              <div class="text-subtitle2 text-grey-7">Contributions totales</div>
+              <div class="text-subtitle2 text-grey-7">{{ $t('profile.totalContributions') }}</div>
               <div class="text-h5 text-weight-bold" style="color: #0D1B2E;">0.00 €</div>
             </q-card-section>
           </q-card>
 
           <q-card class="info-card no-shadow" style="border-radius: 20px; border: 1px solid #EEE; background: white;">
             <q-card-section class="q-pa-lg">
-              <div class="text-subtitle2 text-weight-bold q-mb-md">Sécurité</div>
+              <div class="text-subtitle2 text-weight-bold q-mb-md">{{ $t('profile.securityHeader') }}</div>
               <q-btn
                 flat
                 color="primary"
                 icon="lock_reset"
-                label="Changer le mot de passe"
+                :label="$t('profile.changePassword')"
                 class="full-width"
                 no-caps
                 align="left"
@@ -99,7 +99,7 @@
                 flat
                 color="negative"
                 icon="logout"
-                label="Se déconnecter"
+                :label="$t('profile.logout')"
                 class="full-width q-mt-sm"
                 no-caps
                 align="left"
@@ -127,14 +127,14 @@
               v-model="passwordForm.oldPassword"
               label="Ancien mot de passe"
               type="password"
-              :rules="[val => !!val || 'Requis']"
+              :rules="[val => !!val || $t('profile.required')]"
             />
             <q-input
               outlined
               v-model="passwordForm.newPassword"
               label="Nouveau mot de passe"
               type="password"
-              :rules="[val => !!val || 'Requis', val => val.length >= 6 || 'Minimum 6 caractères']"
+              :rules="[val => !!val || $t('profile.required'), val => val.length >= 6 || $t('profile.minPasswordLength')]"
             />
             <q-input
               outlined
@@ -142,15 +142,15 @@
               label="Confirmer le nouveau mot de passe"
               type="password"
               :rules="[
-                val => !!val || 'Requis',
-                val => val === passwordForm.newPassword || 'Les mots de passe ne correspondent pas'
+                val => !!val || $t('profile.required'),
+                val => val === passwordForm.newPassword || $t('profile.passwordsMismatch')
               ]"
             />
 
             <div class="row justify-end q-mt-lg">
-              <q-btn label="Annuler" flat v-close-popup no-caps />
+              <q-btn :label="$t('profile.cancel')" flat v-close-popup no-caps />
               <q-btn
-                label="Mettre à jour"
+                :label="$t('profile.update')"
                 type="submit"
                 unelevated
                 style="background: #FFB300; color: #1A1A2A;"
@@ -166,6 +166,8 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, onMounted, reactive } from 'vue'
 import { useQuasar } from 'quasar'
 import { getUserById, updateProfile, changePassword } from 'src/shared/services/api'
@@ -219,7 +221,7 @@ const handleUpdateProfile = async () => {
 
     $q.notify({
       type: 'positive',
-      message: 'Profil mis à jour avec succès !',
+      message: t('profile.successUpdate'),
       position: 'top',
       timeout: 2000
     })
@@ -245,7 +247,7 @@ const handleChangePassword = async () => {
     
     $q.notify({
       type: 'positive',
-      message: 'Mot de passe modifié avec succès !',
+      message: t('profile.successPassword'),
       position: 'top'
     })
     

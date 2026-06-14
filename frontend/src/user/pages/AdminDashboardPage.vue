@@ -4,7 +4,7 @@
     <div class="row items-center justify-between q-mb-xl q-pa-lg text-white" style="background: linear-gradient(135deg, #0D1B2E 0%, #1A2E40 100%); border-radius: 16px; border-left: 6px solid #FFB300;">
       <div>
         <div class="text-h4 text-weight-bold">Tableau de Bord Admin</div>
-        <div class="text-subtitle1 text-grey-4 q-mt-xs">Gérez vos utilisateurs, cagnottes, rôles et suivez les statistiques de la plateforme en temps réel.</div>
+        <div class="text-subtitle1 text-grey-4 q-mt-xs">{{ $t('adminDashboard.subtitle') }}</div>
       </div>
       <q-icon name="dashboard" size="64px" color="amber-8" class="q-mr-md" />
     </div>
@@ -22,10 +22,10 @@
           <q-card class="kpi-card text-white" style="background: linear-gradient(135deg, #3A7BD5 0%, #3A6073 100%); border-radius: 12px; overflow: hidden; position: relative;">
             <q-card-section class="q-pa-lg">
               <q-icon name="people" class="absolute-top-right q-ma-md text-white-50" size="48px" style="opacity: 0.3;" />
-              <div class="text-subtitle2 text-uppercase text-weight-bold text-grey-3">Utilisateurs inscrits</div>
+              <div class="text-subtitle2 text-uppercase text-weight-bold text-grey-3">{{ $t('adminDashboard.registeredUsers') }}</div>
               <div class="text-h3 text-weight-bold q-my-sm">{{ stats.totalUsers }}</div>
               <div class="text-caption text-grey-3">
-                <q-icon name="trending_up" color="green-4" /> +12% cette semaine
+                <q-icon name="trending_up" color="green-4" /> +12% {{ $t('adminDashboard.thisWeek') }}
               </div>
             </q-card-section>
           </q-card>
@@ -36,10 +36,10 @@
           <q-card class="kpi-card text-white" style="background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%); border-radius: 12px; overflow: hidden; position: relative;">
             <q-card-section class="q-pa-lg">
               <q-icon name="account_balance_wallet" class="absolute-top-right q-ma-md text-white-50" size="48px" style="opacity: 0.3;" />
-              <div class="text-subtitle2 text-uppercase text-weight-bold text-grey-3">Cagnottes Créées</div>
+              <div class="text-subtitle2 text-uppercase text-weight-bold text-grey-3">{{ $t('adminDashboard.poolsCreated') }}</div>
               <div class="text-h3 text-weight-bold q-my-sm">{{ stats.totalPools }}</div>
               <div class="text-caption text-grey-3">
-                <span class="text-weight-bold">{{ stats.activePools }}</span> actives / <span class="text-weight-bold">{{ stats.completedPools }}</span> terminées
+                <span class="text-weight-bold">{{ stats.activePools }}</span> {{ $t('adminDashboard.active') }} / <span class="text-weight-bold">{{ stats.completedPools }}</span> {{ $t('adminDashboard.completed') }}
               </div>
             </q-card-section>
           </q-card>
@@ -50,10 +50,10 @@
           <q-card class="kpi-card text-white" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 12px; overflow: hidden; position: relative;">
             <q-card-section class="q-pa-lg">
               <q-icon name="euro" class="absolute-top-right q-ma-md text-white-50" size="48px" style="opacity: 0.3;" />
-              <div class="text-subtitle2 text-uppercase text-weight-bold text-grey-3">Fonds Collectés</div>
+              <div class="text-subtitle2 text-uppercase text-weight-bold text-grey-3">{{ $t('adminDashboard.fundsCollected') }}</div>
               <div class="text-h3 text-weight-bold q-my-sm">{{ stats.totalFunds }} €</div>
               <div class="text-caption text-grey-3">
-                Moyenne de <span class="text-weight-bold">{{ stats.avgGoal }} €</span> par projet
+                {{ $t('adminDashboard.averageOf') }} <span class="text-weight-bold">{{ stats.avgGoal }} €</span> {{ $t('adminDashboard.perProject') }}
               </div>
             </q-card-section>
           </q-card>
@@ -64,10 +64,10 @@
           <q-card class="kpi-card text-white" style="background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%); border-radius: 12px; overflow: hidden; position: relative;">
             <q-card-section class="q-pa-lg">
               <q-icon name="check_circle" class="absolute-top-right q-ma-md text-white-50" size="48px" style="opacity: 0.3;" />
-              <div class="text-subtitle2 text-uppercase text-weight-bold text-grey-3">Taux de Réussite</div>
+              <div class="text-subtitle2 text-uppercase text-weight-bold text-grey-3">{{ $t('adminDashboard.successRate') }}</div>
               <div class="text-h3 text-weight-bold q-my-sm">{{ stats.successRate }}%</div>
               <div class="text-caption text-grey-3">
-                Objectifs cibles atteints
+                {{ $t('adminDashboard.goalsReached') }}
               </div>
             </q-card-section>
           </q-card>
@@ -80,7 +80,7 @@
         <div class="col-12 col-md-4">
           <q-card class="q-pa-md shadow-2" style="border-radius: 12px; background: white;">
             <div class="text-subtitle1 text-weight-bold q-mb-md" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
-              Raccourcis de Gestion
+              {{ $t('adminDashboard.shortcutsHeader') }}
             </div>
             
             <q-list class="q-gutter-y-sm">
@@ -89,8 +89,8 @@
                   <q-icon name="people" size="md" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label class="text-weight-bold">Gérer les comptes</q-item-label>
-                  <q-item-label caption>Ajouter, éditer, désactiver les utilisateurs</q-item-label>
+                  <q-item-label class="text-weight-bold">{{ $t('adminDashboard.manageAccounts') }}</q-item-label>
+                  <q-item-label caption>{{ $t('adminDashboard.manageAccountsDesc') }}</q-item-label>
                 </q-item-section>
               </q-item>
 
@@ -99,8 +99,8 @@
                   <q-icon name="account_balance_wallet" size="md" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label class="text-weight-bold">Gérer les cagnottes</q-item-label>
-                  <q-item-label caption>Modérer les collectes de la plateforme</q-item-label>
+                  <q-item-label class="text-weight-bold">{{ $t('adminDashboard.managePools') }}</q-item-label>
+                  <q-item-label caption>{{ $t('adminDashboard.managePoolsDesc') }}</q-item-label>
                 </q-item-section>
               </q-item>
 
@@ -109,8 +109,8 @@
                   <q-icon name="security" size="md" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label class="text-weight-bold">Rôles & Permissions</q-item-label>
-                  <q-item-label caption>Gérer les niveaux d'accès de sécurité</q-item-label>
+                  <q-item-label class="text-weight-bold">{{ $t('adminDashboard.manageRoles') }}</q-item-label>
+                  <q-item-label caption>{{ $t('adminDashboard.manageRolesDesc') }}</q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
@@ -122,9 +122,9 @@
           <q-card class="q-pa-md shadow-2" style="border-radius: 12px; background: white;">
             <div class="row items-center justify-between q-mb-md">
               <div class="text-subtitle1 text-weight-bold" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
-                Derniers Projets Créés
+                {{ $t('adminDashboard.lastProjectsHeader') }}
               </div>
-              <q-btn flat color="primary" label="Voir tout" to="/admin/pools" no-caps />
+              <q-btn flat color="primary" label="{{ $t('adminDashboard.viewAll') }}" to="/admin/pools" no-caps />
             </div>
 
             <q-list bordered class="rounded-borders separator">
@@ -138,13 +138,13 @@
 
                 <q-item-section>
                   <q-item-label class="text-weight-bold" style="font-size: 1rem;">{{ pool.title }}</q-item-label>
-                  <q-item-label caption>Créateur: {{ pool.ownerName }} • {{ pool.category }}</q-item-label>
+                  <q-item-label caption>{{ $t('adminDashboard.creatorLabel') }} : {{ pool.ownerName }} • {{ pool.category }}</q-item-label>
                 </q-item-section>
 
                 <q-item-section side>
                   <div class="text-right">
                     <div class="text-weight-bold text-primary">{{ pool.currentAmount || 0 }} €</div>
-                    <div class="text-caption text-grey-6">sur {{ pool.goalAmount }} €</div>
+                    <div class="text-caption text-grey-6">{{ $t('adminDashboard.ofGoal') }} {{ pool.goalAmount }} €</div>
                   </div>
                   <q-chip 
                     :color="pool.status === 'ACTIVE' ? 'orange-2' : 'green-2'" 
@@ -158,7 +158,7 @@
               </q-item>
 
               <div v-if="recentPools.length === 0" class="text-center q-py-xl text-grey-6 text-italic">
-                Aucune cagnotte créée.
+                {{ $t('adminDashboard.noPools') }}
               </div>
             </q-list>
           </q-card>

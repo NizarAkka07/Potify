@@ -3,7 +3,7 @@
     <q-card class="q-dialog-plugin" style="width: 700px; max-width: 90vw;">
       <q-form @submit="onSubmit" class="q-gutter-md">
         <q-card-section>
-          <div class="text-h6">{{ isEdit ? 'Modifier l\'Utilisateur' : 'Ajouter un Utilisateur' }}</div>
+          <div class="text-h6">{{ isEdit ? $t('userList.editUserTitle') : $t('userList.addUserTitle') }}</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -12,29 +12,29 @@
               <q-input
                 filled
                 v-model="formData.fullName"
-                label="Nom complet *"
+                :label="$t('auth.fullName') + ' *'"
                 lazy-rules
-                :rules="[ val => val && val.length > 0 || 'Veuillez saisir le nom complet']"
+                :rules="[ val => val && val.length > 0 || $t('auth.fullNameRequired')]"
               />
             </div>
             <div class="col-12">
               <q-input
                 filled
                 v-model="formData.email"
-                label="Email *"
+                :label="$t('auth.email') + ' *'"
                 type="email"
                 lazy-rules
-                :rules="[ val => val && val.length > 0 || 'Veuillez saisir un email']"
+                :rules="[ val => val && val.length > 0 || $t('auth.emailRequired')]"
               />
             </div>
             <div class="col-12">
               <q-input
                 filled
                 v-model="formData.password"
-                :label="isEdit ? 'Nouveau mot de passe (laisser vide pour ne pas changer)' : 'Mot de passe *'"
+                :label="isEdit ? $t('userList.newPasswordLabel') : $t('auth.password') + ' *'"
                 type="password"
                 lazy-rules
-                :rules="isEdit ? [] : [ val => val && val.length > 0 || 'Veuillez saisir un mot de passe']"
+                :rules="isEdit ? [] : [ val => val && val.length > 0 || $t('auth.passwordRequired')]"
               />
             </div>
             <div class="col-12" v-if="isEdit">
@@ -42,9 +42,9 @@
                 filled
                 v-model="formData.status"
                 :options="['ACTIVE', 'SUSPENDED', 'DELETED']"
-                label="Statut *"
+                :label="$t('dashboard.status') + ' *'"
                 lazy-rules
-                :rules="[ val => val && val.length > 0 || 'Veuillez sélectionner un statut']"
+                :rules="[ val => val && val.length > 0 || $t('userList.selectStatusRequired')]"
               />
             </div>
           </div>
@@ -52,14 +52,14 @@
           <q-separator class="q-my-md" v-if="isEdit" />
 
           <div v-if="isEdit" class="q-mt-md">
-            <div class="text-subtitle1 q-mb-sm">Rôles assignés</div>
+            <div class="text-subtitle1 q-mb-sm">{{ $t('userList.assignedRoles') }}</div>
             <q-select
               filled
               v-model="selectedRole"
               :options="availableRoles"
               option-value="id"
               option-label="name"
-              label="Ajouter un rôle"
+              :label="$t('userList.addRoleLabel')"
               class="q-mb-md"
               @update:model-value="addRole"
             >
@@ -79,13 +79,13 @@
                 </q-item-section>
               </q-item>
             </q-list>
-            <div v-else class="text-caption text-grey">Aucun rôle assigné</div>
+            <div v-else class="text-caption text-grey">{{ $t('userList.noRolesAssigned') }}</div>
           </div>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Annuler" color="primary" @click="onCancelClick" />
-          <q-btn flat label="Enregistrer" type="submit" color="primary" :loading="loading" />
+          <q-btn flat :label="$t('profile.cancel')" color="primary" @click="onCancelClick" />
+          <q-btn flat :label="$t('profile.update')" type="submit" color="primary" :loading="loading" />
         </q-card-actions>
       </q-form>
     </q-card>

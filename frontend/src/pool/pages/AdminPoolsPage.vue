@@ -2,17 +2,17 @@
   <q-page padding style="background: #F8F9FA;">
     <div class="row items-center justify-between q-mb-xl q-pa-md bg-white shadow-2" style="border-radius: 12px; border-left: 6px solid #FF5E62;">
       <div>
-        <div class="text-h4 text-weight-bold text-dark">Gestion des Cagnottes</div>
-        <div class="text-subtitle2 text-grey-7">Visualisez, modérez et modifiez toutes les cagnottes créées sur la plateforme.</div>
+        <div class="text-h4 text-weight-bold text-dark">{{ $t('adminPools.title') }}</div>
+        <div class="text-subtitle2 text-grey-7">{{ $t('adminPools.subtitle') }}</div>
       </div>
-      <q-btn color="orange-9" icon="add" label="Créer une cagnotte" to="/pools/create" no-caps />
+      <q-btn color="orange-9" icon="add" :label="$t('home.createButton')" to="/pools/create" no-caps />
     </div>
 
     <!-- Filters & Search -->
     <q-card class="q-pa-md q-mb-lg shadow-2" style="border-radius: 12px;">
       <div class="row q-col-gutter-md items-center">
         <div class="col-12 col-md-6">
-          <q-input outlined dense v-model="filter.search" label="Rechercher par titre ou créateur..." color="secondary">
+          <q-input outlined dense v-model="filter.search" :label="$t('adminPools.searchPlaceholder')" color="secondary">
             <template v-slot:append>
               <q-icon name="search" />
             </template>
@@ -24,12 +24,12 @@
             dense
             v-model="filter.status"
             :options="statusFilterOptions"
-            label="Filtrer par statut"
+            :label="$t('adminPools.statusFilterPlaceholder')"
             color="secondary"
           />
         </div>
         <div class="col-12 col-md-3 text-right">
-          <q-btn label="Réinitialiser" flat color="grey-7" icon="refresh" @click="resetFilters" no-caps />
+          <q-btn :label="$t('adminPools.resetButton')" flat color="grey-7" icon="refresh" @click="resetFilters" no-caps />
         </div>
       </div>
     </q-card>
@@ -88,10 +88,10 @@
       <template v-slot:body-cell-actions="props">
         <q-td :props="props" class="text-center q-gutter-xs">
           <q-btn flat round color="primary" icon="visibility" size="sm" :to="`/pools/${props.row.id}`">
-            <q-tooltip>Voir la page</q-tooltip>
+            <q-tooltip>{{ $t('adminPools.viewPageTooltip') }}</q-tooltip>
           </q-btn>
           <q-btn flat round color="warning" icon="edit" size="sm" :to="`/pools/${props.row.id}/edit`">
-            <q-tooltip>Modifier</q-tooltip>
+            <q-tooltip>{{ $t('adminPools.editTooltip') }}</q-tooltip>
           </q-btn>
           <q-btn 
             flat 
@@ -102,7 +102,7 @@
             v-if="props.row.status === 'ACTIVE'"
             @click="changeStatus(props.row, 'COMPLETED')"
           >
-            <q-tooltip>Marquer terminée</q-tooltip>
+            <q-tooltip>{{ $t('adminPools.markCompletedTooltip') }}</q-tooltip>
           </q-btn>
           <q-btn 
             flat 
@@ -113,7 +113,7 @@
             v-if="props.row.status === 'ACTIVE'"
             @click="changeStatus(props.row, 'SUSPENDED')"
           >
-            <q-tooltip>Suspendre</q-tooltip>
+            <q-tooltip>{{ $t('adminPools.suspendTooltip') }}</q-tooltip>
           </q-btn>
           <q-btn 
             flat 
@@ -124,7 +124,7 @@
             v-if="props.row.status === 'SUSPENDED'"
             @click="changeStatus(props.row, 'ACTIVE')"
           >
-            <q-tooltip>Réactiver</q-tooltip>
+            <q-tooltip>{{ $t('adminPools.reactivateTooltip') }}</q-tooltip>
           </q-btn>
         </q-td>
       </template>
@@ -133,6 +133,8 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import poolService from 'src/shared/services/poolService'
@@ -212,8 +214,8 @@ const getStatusTextColor = (status) => {
 
 const changeStatus = (pool, newStatus) => {
   $q.dialog({
-    title: 'Confirmer la modification',
-    message: `Voulez-vous modifier le statut de la cagnotte "${pool.title}" vers "${newStatus}" ?`,
+    title: t('adminPools.confirmDialogTitle'),
+    message: `${t('adminPools.confirmDialogMessage')} "${pool.title}" vers "${newStatus}" ?`,
     cancel: true,
     persistent: true
   }).onOk(async () => {

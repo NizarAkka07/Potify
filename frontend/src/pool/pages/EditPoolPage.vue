@@ -6,10 +6,10 @@
         <div class="row items-center justify-between">
           <div>
             <div class="text-h5 text-weight-bold">
-              Modifier ma cagnotte
+              {{ $t('editPool.title') }}
             </div>
             <div class="text-subtitle2 text-grey-4">
-              Mettez à jour les informations et le statut de votre projet.
+              {{ $t('editPool.subtitle') }}
             </div>
           </div>
           <q-btn flat round icon="arrow_back" color="white" @click="$router.back()">
@@ -20,19 +20,19 @@
 
       <div v-if="fetching" class="q-pa-xl text-center">
         <q-spinner-dots size="40px" color="primary" />
-        <div class="text-subtitle2 text-grey-7 q-mt-md">Chargement des détails de la cagnotte...</div>
+        <div class="text-subtitle2 text-grey-7 q-mt-md">{{ $t('editPool.loading') }}</div>
       </div>
 
       <q-form v-else @submit="onSubmit" class="q-pa-xl q-gutter-md">
         <!-- Informations de base -->
         <div class="text-subtitle1 text-weight-bold q-mb-sm" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
-          Détails généraux de la cagnotte
+          {{ $t('editPool.generalDetails') }}
         </div>
 
         <q-input
           outlined
           v-model="form.title"
-          label="Titre de la cagnotte *"
+          :label="$t('editPool.titleLabel')"
           lazy-rules
           :rules="[ val => val && val.length > 0 || 'Le titre est obligatoire']"
           color="secondary"
@@ -54,7 +54,7 @@
               outlined
               v-model.number="form.goalAmount"
               type="number"
-              label="Objectif financier (€) *"
+              :label="$t('editPool.goalLabel')"
               suffix="€"
               lazy-rules
               :rules="[ val => val > 0 || 'Le montant doit être supérieur à 0']"
@@ -70,7 +70,7 @@
               :options="statusOptions"
               emit-value
               map-options
-              label="Statut *"
+              :label="$t('editPool.statusLabel')"
               color="secondary"
             />
           </div>
@@ -78,14 +78,14 @@
 
         <!-- Média de présentation -->
         <div class="text-subtitle1 text-weight-bold q-mt-lg q-mb-sm" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
-          Image & Média
+          {{ $t('editPool.mediaHeader') }}
         </div>
 
         <div class="q-mb-md">
           <q-file
             outlined
             v-model="imageFile"
-            label="Changer l'image illustrative"
+            :label="$t('editPool.changeImageLabel')"
             accept=".jpg, .jpeg, .png, .webp"
             @update:model-value="onFileSelected"
             color="secondary"
@@ -107,7 +107,7 @@
         <q-input
           outlined
           v-model="form.videoUrl"
-          label="Lien Vidéo YouTube ou Vimeo (Optionnel)"
+          :label="$t('editPool.videoUrlLabel')"
           placeholder="https://www.youtube.com/watch?v=..."
           color="secondary"
         >
@@ -118,9 +118,9 @@
 
         <!-- Actions -->
         <div class="row justify-end q-mt-xl q-gutter-sm">
-          <q-btn label="Annuler" flat color="grey-7" @click="$router.back()" no-caps />
+          <q-btn :label="$t('editPool.cancel')" flat color="grey-7" @click="$router.back()" no-caps />
           <q-btn
-            label="Enregistrer les modifications"
+            :label="$t('editPool.saveChanges')"
             type="submit"
             style="background: #FFB300; color: #1A1A2A; font-weight: 700; padding: 10px 24px;"
             no-caps
@@ -133,6 +133,8 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, reactive, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
@@ -181,7 +183,7 @@ const fetchPoolDetails = async () => {
     if (pool.ownerId && currentUserId && String(pool.ownerId) !== String(currentUserId) && !isAdmin) {
       $q.notify({
         type: 'negative',
-        message: 'Vous n\'êtes pas autorisé à modifier cette cagnotte'
+        message: t('editPool.errorUnauthorized')
       })
       router.push(`/pools/${id}`)
       return
@@ -198,7 +200,7 @@ const fetchPoolDetails = async () => {
     console.error(error)
     $q.notify({
       type: 'negative',
-      message: 'Erreur lors de la récupération des détails de la cagnotte'
+      message: t('editPool.errorFetch')
     })
     router.back()
   } finally {
@@ -245,7 +247,7 @@ const onSubmit = async () => {
     
     $q.notify({
       type: 'positive',
-      message: 'Cagnotte mise à jour avec succès !',
+      message: t('editPool.success'),
       position: 'top'
     })
     router.push(`/pools/${id}`)

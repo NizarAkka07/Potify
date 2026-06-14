@@ -11,17 +11,17 @@
             <!-- Simple Badge -->
             <div class="simple-badge q-mb-md">
               <span class="badge-dot"></span>
-              <span class="badge-text">Financement Participatif Solidaire</span>
+              <span class="badge-text">{{ $t('home.badge') }}</span>
             </div>
 
             <!-- Title -->
             <h1 class="text-weight-bold q-mb-md hero-title" style="color: #0D1B2E; font-size: 2.8rem; line-height: 1.2; font-family: 'Inter', sans-serif;">
-              Ensemble, donnons vie <br>
-              <span style="color: #FFA726;">à ce qui compte.</span>
+              {{ getHeroTitleParts($t('home.title')).main }} <br>
+              <span style="color: #FFA726;">{{ getHeroTitleParts($t('home.title')).highlight }}</span>
             </h1>
 
             <p class="q-mb-lg hero-subtitle" style="font-size: 1.1rem; color: #5A6A85; line-height: 1.6; max-width: 540px;">
-              Créez une cagnotte en quelques clics, organisez-la par étapes transparentes avec PotiBuddy, et mobilisez votre entourage en toute confiance.
+              {{ $t('home.subtitle') }}
             </p>
 
             <!-- Simple Search Bar -->
@@ -31,7 +31,7 @@
                   <q-input
                     borderless
                     v-model="searchKeyword"
-                    placeholder="Rechercher une cause..."
+                    :placeholder="$t('home.searchPlaceholder')"
                     dense
                     class="q-px-md search-input"
                     @keyup.enter="handleSearch"
@@ -47,7 +47,7 @@
                     borderless
                     v-model="selectedCategory"
                     :options="categoryOptions"
-                    :display-value="selectedCategory || 'Catégories'"
+                    :display-value="selectedCategory ? getCategoryLabel(selectedCategory) : $t('publicPools.categories')"
                     dense
                     class="q-px-sm select-input"
                     clearable
@@ -62,7 +62,7 @@
                   <q-btn
                     unelevated
                     no-caps
-                    label="Rechercher"
+                    :label="$t('home.searchButton')"
                     class="full-width"
                     @click="handleSearch"
                     style="background: #FFA726; color: #1A1A2A; font-weight: 700; border-radius: 8px; height: 40px;"
@@ -76,14 +76,14 @@
               <q-btn
                 unelevated
                 no-caps
-                label="Créer une cagnotte"
+                :label="$t('home.createButton')"
                 to="/pools/create"
                 style="background: #0D1B2E; color: #FFFFFF; font-weight: 700; padding: 10px 24px; border-radius: 8px;"
               />
               <q-btn
                 flat
                 no-caps
-                label="Comment ça marche ?"
+                :label="$t('home.howItWorksButton')"
                 to="#how-it-works"
                 style="color: #0D1B2E; font-weight: 600;"
               />
@@ -108,16 +108,16 @@
     <div class="q-py-lg" style="background: #0D1B2E;">
       <div class="row q-col-gutter-md q-px-xl justify-center text-center max-container text-white">
         <div class="col-12 col-sm-4">
-          <div class="text-h4 text-weight-bold" style="color: #FFA726;">12M €</div>
-          <div class="text-caption text-grey-4">Collectés au total</div>
+          <div class="text-h4 text-weight-bold" style="color: #FFA726;"><bdi>12M €</bdi></div>
+          <div class="text-caption text-grey-4">{{ $t('home.statsCollected') }}</div>
         </div>
         <div class="col-12 col-sm-4">
-          <div class="text-h4 text-weight-bold" style="color: #FFA726;">15 000+</div>
-          <div class="text-caption text-grey-4">Projets financés</div>
+          <div class="text-h4 text-weight-bold" style="color: #FFA726;"><bdi>15 000+</bdi></div>
+          <div class="text-caption text-grey-4">{{ $t('home.statsProjects') }}</div>
         </div>
         <div class="col-12 col-sm-4">
-          <div class="text-h4 text-weight-bold" style="color: #FFA726;">2.5M</div>
-          <div class="text-caption text-grey-4">Membres actifs</div>
+          <div class="text-h4 text-weight-bold" style="color: #FFA726;"><bdi>2.5M</bdi></div>
+          <div class="text-caption text-grey-4">{{ $t('home.statsMembers') }}</div>
         </div>
       </div>
     </div>
@@ -126,30 +126,30 @@
     <div id="how-it-works" class="q-py-xxl bg-white" style="padding: 80px 0;">
       <div class="max-container q-px-xl">
         <div class="text-center q-mb-xl">
-          <h2 class="text-h4 text-weight-bold text-dark q-mb-sm" style="font-family: 'Inter', sans-serif;">Comment ça marche ?</h2>
-          <p class="text-grey-6" style="font-size: 1rem;">La simplicité au cœur de chaque collecte.</p>
+          <h2 class="text-h4 text-weight-bold text-dark q-mb-sm" style="font-family: 'Inter', sans-serif;">{{ $t('home.howTitle') }}</h2>
+          <p class="text-grey-6" style="font-size: 1rem;">{{ $t('home.howSubtitle') }}</p>
         </div>
 
         <div class="row q-col-gutter-lg">
           <div class="col-12 col-md-4 text-center q-pa-md">
             <div class="step-icon-circle q-mx-auto q-mb-md">1</div>
-            <h3 class="text-subtitle1 text-weight-bold text-dark q-mb-xs">Créez votre cagnotte</h3>
+            <h3 class="text-subtitle1 text-weight-bold text-dark q-mb-xs">{{ $t('home.step1Title') }}</h3>
             <p class="text-grey-7" style="font-size: 0.9rem; line-height: 1.5;">
-              Décrivez votre projet en quelques lignes et divisez-le en étapes claires grâce à l'aide de notre IA.
+              {{ $t('home.step1Desc') }}
             </p>
           </div>
           <div class="col-12 col-md-4 text-center q-pa-md">
             <div class="step-icon-circle q-mx-auto q-mb-md">2</div>
-            <h3 class="text-subtitle1 text-weight-bold text-dark q-mb-xs">Partagez le lien</h3>
+            <h3 class="text-subtitle1 text-weight-bold text-dark q-mb-xs">{{ $t('home.step2Title') }}</h3>
             <p class="text-grey-7" style="font-size: 0.9rem; line-height: 1.5;">
-              Invitez vos proches, collègues ou le public à contribuer en toute transparence et sécurité.
+              {{ $t('home.step2Desc') }}
             </p>
           </div>
           <div class="col-12 col-md-4 text-center q-pa-md">
             <div class="step-icon-circle q-mx-auto q-mb-md">3</div>
-            <h3 class="text-subtitle1 text-weight-bold text-dark q-mb-xs">Récupérez les fonds</h3>
+            <h3 class="text-subtitle1 text-weight-bold text-dark q-mb-xs">{{ $t('home.step3Title') }}</h3>
             <p class="text-grey-7" style="font-size: 0.9rem; line-height: 1.5;">
-              Suivez les virements sécurisés directement vers votre compte bancaire à chaque jalon validé.
+              {{ $t('home.step3Desc') }}
             </p>
           </div>
         </div>
@@ -161,14 +161,14 @@
       <div class="max-container q-px-xl">
         <div class="row items-center justify-between q-mb-xl">
           <div>
-            <h2 class="text-h4 text-weight-bold text-dark q-mb-xs" style="margin-top:0; font-family: 'Inter', sans-serif;">Cagnottes à la une</h2>
-            <p class="text-grey-6 q-my-none">Soutenez les projets en cours recommandés par notre communauté.</p>
+            <h2 class="text-h4 text-weight-bold text-dark q-mb-xs" style="margin-top:0; font-family: 'Inter', sans-serif;">{{ $t('home.poolsTitle') }}</h2>
+            <p class="text-grey-6 q-my-none">{{ $t('home.poolsSubtitle') }}</p>
           </div>
           <q-btn 
             flat 
             no-caps 
             color="orange-9"
-            label="Voir tout" 
+            :label="$t('home.viewAll')" 
             to="/pools" 
             icon-right="chevron_right" 
           />
@@ -189,7 +189,7 @@
                   <q-icon name="payments" size="3.5rem" color="orange-3" />
                 </div>
                 <div class="absolute-top-left q-ma-sm">
-                  <span class="simple-tag">{{ pool.category || 'Général' }}</span>
+                  <span class="simple-tag">{{ getCategoryLabel(pool.category) }}</span>
                 </div>
               </div>
 
@@ -215,7 +215,7 @@
                   unelevated
                   no-caps
                   class="full-width"
-                  label="Découvrir"
+                  :label="$t('home.discover')"
                   style="background: #FFA726; color: #1A1A2A; font-weight: 700; border-radius: 6px;"
                   @click="contribute(pool)"
                 />
@@ -230,7 +230,7 @@
                 <div style="height: 180px; width: 100%; background: #0D1B2E;" class="relative-position flex flex-center">
                   <q-icon :name="mock.icon" size="3.5rem" color="orange-3" />
                   <div class="absolute-top-left q-ma-sm">
-                    <span class="simple-tag">{{ mock.category }}</span>
+                    <span class="simple-tag">{{ getCategoryLabel(mock.category) }}</span>
                   </div>
                 </div>
 
@@ -256,7 +256,7 @@
                     unelevated
                     no-caps
                     class="full-width"
-                    label="Découvrir"
+                    :label="$t('home.discover')"
                     style="background: #FFA726; color: #1A1A2A; font-weight: 700; border-radius: 6px;"
                     to="/pools"
                   />
@@ -272,8 +272,8 @@
     <div class="q-py-xxl bg-white" style="padding: 80px 0;">
       <div class="max-container q-px-xl">
         <div class="text-center q-mb-xl">
-          <h2 class="text-h4 text-weight-bold text-dark q-mb-xs" style="font-family: 'Inter', sans-serif;">Causes populaires</h2>
-          <p class="text-grey-6">Filtrez les projets selon vos thématiques favorites.</p>
+          <h2 class="text-h4 text-weight-bold text-dark q-mb-xs" style="font-family: 'Inter', sans-serif;">{{ $t('home.categoriesTitle') }}</h2>
+          <p class="text-grey-6">{{ $t('home.categoriesSubtitle') }}</p>
         </div>
 
         <div class="row q-col-gutter-md justify-center">
@@ -283,7 +283,7 @@
               @click="$router.push({ path: '/pools', query: { category: cat.name } })"
             >
               <q-icon :name="cat.icon" size="24px" color="orange-8" class="q-mb-sm" />
-              <div class="text-weight-bold text-dark text-caption">{{ cat.name }}</div>
+              <div class="text-weight-bold text-dark text-caption">{{ getCategoryLabel(cat.name) }}</div>
             </div>
           </div>
         </div>
@@ -293,13 +293,13 @@
     <!-- 6. FINAL CALL TO ACTION – Clean Minimal Banner -->
     <div class="q-py-xxl text-white text-center" style="background: #0D1B2E; padding: 80px 0;">
       <div class="max-container q-px-xl" style="max-width: 600px;">
-        <h2 class="text-h4 text-weight-bold q-mb-sm" style="font-family: 'Inter', sans-serif;">Prêt à changer les choses ?</h2>
+        <h2 class="text-h4 text-weight-bold q-mb-sm" style="font-family: 'Inter', sans-serif;">{{ $t('home.ctaTitle') }}</h2>
         <p class="text-body2 q-mb-lg text-grey-4" style="line-height: 1.5;">
-          Créez votre première cagnotte dès maintenant et concrétisez vos projets.
+          {{ $t('home.ctaSubtitle') }}
         </p>
         <q-btn
           no-caps
-          label="Lancer ma cagnotte"
+          :label="$t('home.ctaButton')"
           style="background: #FFA726; color: #1A1A2A; font-weight: 700; padding: 12px 36px; border-radius: 8px; font-size: 1rem;"
           to="/pools/create"
         />
@@ -310,10 +310,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { poolApi } from 'boot/axios'
 
+const { t } = useI18n()
 const router = useRouter()
 
 // Search state
@@ -324,11 +326,11 @@ const categoryOptions = ['Santé', 'Éducation', 'Urgence', 'Animaux', 'Projets'
 
 const pools = ref([])
 
-const mockPools = ref([
+const mockPools = computed(() => [
   {
     id: 'mock-1',
-    title: 'Achat de fournitures scolaires pour la rentrée',
-    description: 'Une cagnotte solidaire pour offrir des cahiers et cartables aux élèves défavorisés.',
+    title: t('home.mock1Title'),
+    description: t('home.mock1Desc'),
     category: 'Éducation',
     currentAmount: 850,
     goalAmount: 1200,
@@ -336,8 +338,8 @@ const mockPools = ref([
   },
   {
     id: 'mock-2',
-    title: 'Soins vétérinaires d\'urgence',
-    description: 'Aidez notre refuge à financer les traitements indispensables pour les animaux blessés.',
+    title: t('home.mock2Title'),
+    description: t('home.mock2Desc'),
     category: 'Animaux',
     currentAmount: 420,
     goalAmount: 1000,
@@ -345,8 +347,8 @@ const mockPools = ref([
   },
   {
     id: 'mock-3',
-    title: 'Jardin partagé communautaire',
-    description: 'Création d\'un espace vert participatif ouvert à tous les habitants de la commune.',
+    title: t('home.mock3Title'),
+    description: t('home.mock3Desc'),
     category: 'Projets',
     currentAmount: 2300,
     goalAmount: 3000,
@@ -362,6 +364,39 @@ const categories = [
   { name: 'Projets', icon: 'lightbulb' },
   { name: 'Sport', icon: 'sports_soccer' }
 ]
+
+const getHeroTitleParts = (titleStr) => {
+  const tStr = titleStr || ''
+  if (tStr.includes('ce qui compte')) {
+    return { main: 'Ensemble, donnons vie', highlight: 'à ce qui compte.' }
+  } else if (tStr.includes('what matters')) {
+    return { main: "Together, let's bring to life", highlight: 'what matters.' }
+  } else if (tStr.includes('lo que importa')) {
+    return { main: 'Juntos, demos vida', highlight: 'a lo que importa.' }
+  } else if (tStr.includes('لما يهم')) {
+    return { main: 'معًا، لنمنح الحياة', highlight: 'لما يهم.' }
+  }
+  const words = tStr.split(' ')
+  if (words.length > 3) {
+    const mid = words.length - 2
+    return { main: words.slice(0, mid).join(' '), highlight: words.slice(mid).join(' ') }
+  }
+  return { main: tStr, highlight: '' }
+}
+
+const getCategoryLabel = (catName) => {
+  if (!catName) return t('publicPools.categories')
+  const keyMap = {
+    'Santé': 'catHealth',
+    'Éducation': 'catEducation',
+    'Urgence': 'catEmergency',
+    'Animaux': 'catAnimals',
+    'Projets': 'catProjects',
+    'Sport': 'catSport'
+  }
+  const key = keyMap[catName]
+  return key ? t(`home.${key}`) : catName
+}
 
 const fetchPools = async () => {
   try {

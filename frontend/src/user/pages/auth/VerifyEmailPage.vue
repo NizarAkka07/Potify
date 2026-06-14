@@ -4,17 +4,17 @@
       <q-card-section class="text-center">
         <div v-if="loading">
           <q-spinner-oval color="primary" size="4em" />
-          <div class="text-h6 q-mt-md">Vérification de votre email...</div>
+          <div class="text-h6 q-mt-md">{{ $t('verifyEmail.loading') }}</div>
         </div>
 
         <div v-else-if="success">
           <q-icon name="check_circle" color="positive" size="5em" />
-          <div class="text-h5 text-weight-bold q-mt-md" style="color: #0D1B2E;">Félicitations !</div>
+          <div class="text-h5 text-weight-bold q-mt-md" style="color: #0D1B2E;">{{ $t('verifyEmail.congrats') }}</div>
           <div class="text-subtitle1 q-mt-sm text-grey-7">
-            Votre email a été vérifié avec succès.
+            {{ $t('verifyEmail.successDesc') }}
           </div>
           <q-btn
-            label="Se connecter"
+            :label="$t('verifyEmail.loginButton')"
             color="primary"
             class="full-width q-mt-xl text-weight-bold"
             size="lg"
@@ -25,12 +25,12 @@
 
         <div v-else>
           <q-icon name="error" color="negative" size="5em" />
-          <div class="text-h5 text-weight-bold q-mt-md" style="color: #0D1B2E;">Oups !</div>
+          <div class="text-h5 text-weight-bold q-mt-md" style="color: #0D1B2E;">{{ $t('verifyEmail.errorTitle') }}</div>
           <div class="text-subtitle1 q-mt-sm text-grey-7">
-            {{ errorMessage || 'Le lien de vérification est invalide ou a expiré.' }}
+            {{ errorMessage || $t('verifyEmail.errorDesc') }}
           </div>
           <q-btn
-            label="Retour à l'accueil"
+            :label="$t('verifyEmail.backHome')"
             flat
             color="primary"
             class="full-width q-mt-xl"
@@ -44,6 +44,8 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+useI18n()
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { api } from 'boot/axios'

@@ -8,8 +8,8 @@
         <div class="logo-container q-mb-md">
           <q-icon name="person_add" size="3rem" color="primary" />
         </div>
-        <div class="text-h5 text-weight-bold text-white font-inter">Inscription</div>
-        <div class="text-subtitle2 text-grey-4 q-mt-xs">Rejoignez notre communauté solidaire</div>
+        <div class="text-h5 text-weight-bold text-white font-inter">{{ $t('auth.registerTitle') }}</div>
+        <div class="text-subtitle2 text-grey-4 q-mt-xs">{{ $t('auth.registerSubtitle') }}</div>
       </q-card-section>
 
       <!-- Section du formulaire d'inscription -->
@@ -18,11 +18,11 @@
           <!-- Nom complet (Outlined) -->
           <q-input
             v-model="registerForm.fullName"
-            label="Nom complet"
+            :label="$t('auth.fullName')"
             outlined
             color="secondary"
             lazy-rules
-            :rules="[val => !!val || 'Le nom est requis']"
+            :rules="[val => !!val || $t('auth.fullNameRequired')]"
           >
             <template v-slot:prepend>
               <q-icon name="person" color="grey-6" />
@@ -32,12 +32,12 @@
           <!-- Email (Outlined) -->
           <q-input
             v-model="registerForm.email"
-            label="Email"
+            :label="$t('auth.email')"
             type="email"
             outlined
             color="secondary"
             lazy-rules
-            :rules="[val => !!val || 'L\'email est requis']"
+            :rules="[val => !!val || $t('auth.emailRequired')]"
           >
             <template v-slot:prepend>
               <q-icon name="email" color="grey-6" />
@@ -47,14 +47,14 @@
           <!-- Mot de passe (Outlined) -->
           <q-input
             v-model="registerForm.password"
-            label="Mot de passe"
+            :label="$t('auth.password')"
             type="password"
             outlined
             color="secondary"
             lazy-rules
             :rules="[
-              val => !!val || 'Le mot de passe est requis',
-              val => val.length >= 8 || 'Minimum 8 caractères'
+              val => !!val || $t('auth.passwordRequired'),
+              val => val.length >= 8 || $t('auth.minPassword')
             ]"
           >
             <template v-slot:prepend>
@@ -67,7 +67,7 @@
             <q-btn
               unelevated
               no-caps
-              label="Créer mon compte"
+              :label="$t('auth.registerButton')"
               type="submit"
               class="submit-btn text-weight-bold"
               :loading="loading"
@@ -78,14 +78,16 @@
 
       <!-- Section de redirection pour les utilisateurs existants -->
       <q-card-section class="text-center q-py-lg register-section">
-        <span class="text-grey-7">Vous avez déjà un compte ? </span>
-        <q-btn flat no-caps dense color="orange-9" label="Se connecter" to="/login" class="text-weight-bold" />
+        <span class="text-grey-7">{{ $t('auth.hasAccount') }} </span>
+        <q-btn flat no-caps dense color="orange-9" :label="$t('auth.signIn')" to="/login" class="text-weight-bold" />
       </q-card-section>
     </q-card>
   </q-page>
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
@@ -108,7 +110,7 @@ const onSubmit = async () => {
 
     $q.notify({
       color: 'positive',
-      message: 'Inscription réussie ! Veuillez vérifier votre email pour activer votre compte.',
+      message: t('auth.regSuccess'),
       icon: 'email',
       position: 'top',
       timeout: 10000
@@ -118,7 +120,7 @@ const onSubmit = async () => {
   } catch (error) {
     $q.notify({
       color: 'negative',
-      message: error.response?.data?.message || 'Erreur lors de l\'inscription',
+      message: error.response?.data?.message || t('auth.regError'),
       icon: 'report_problem',
       position: 'top'
     })

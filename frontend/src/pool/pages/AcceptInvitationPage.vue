@@ -3,18 +3,18 @@
     <q-card style="width: 400px; max-width: 90vw;" class="q-pa-lg text-center">
       <div v-if="loading">
         <q-spinner-dots color="primary" size="40px" />
-        <div class="q-mt-md text-h6">Traitement de votre invitation...</div>
+        <div class="q-mt-md text-h6">{{ $t('acceptInvitation.loading') }}</div>
       </div>
 
       <div v-else-if="success">
         <q-icon name="check_circle" color="positive" size="60px" />
-        <div class="q-mt-md text-h5 text-positive">Invitation Acceptée !</div>
+        <div class="q-mt-md text-h5 text-positive">{{ $t('acceptInvitation.successTitle') }}</div>
         <p class="q-mt-md text-body1">
-          Vous avez rejoint la cagnotte avec succès.
+          {{ $t('acceptInvitation.successDesc') }}
         </p>
         <q-btn
           color="primary"
-          label="Aller à la cagnotte"
+          :label="$t('acceptInvitation.goToPoolButton')"
           class="q-mt-lg full-width"
           @click="goToPool"
         />
@@ -22,14 +22,14 @@
 
       <div v-else>
         <q-icon name="error" color="negative" size="60px" />
-        <div class="q-mt-md text-h5 text-negative">Erreur</div>
+        <div class="q-mt-md text-h5 text-negative">{{ $t('acceptInvitation.errorTitle') }}</div>
         <p class="q-mt-md text-body1">
           {{ errorMessage }}
         </p>
         <q-btn
           outline
           color="primary"
-          label="Retour à l'accueil"
+          :label="$t('acceptInvitation.backHome')"
           class="q-mt-lg full-width"
           to="/"
         />
@@ -39,6 +39,8 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
@@ -69,11 +71,11 @@ onMounted(async () => {
     poolId.value = response.data.poolId
     $q.notify({
       type: 'positive',
-      message: 'Invitation acceptée avec succès !'
+      message: t('acceptInvitation.successToast')
     })
   } catch (err) {
     console.error('Erreur acceptation:', err)
-    errorMessage.value = err.response?.data?.message || 'L\'invitation est invalide ou a expiré.'
+    errorMessage.value = err.response?.data?.message || t('verifyEmail.errorDesc')
   } finally {
     loading.value = false
   }

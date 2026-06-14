@@ -10,7 +10,7 @@
       <div class="text-center">
         <q-icon name="error_outline" color="negative" size="64px" />
         <div class="text-h6 q-mt-md">{{ error }}</div>
-        <q-btn flat color="primary" label="Retour à l'accueil" class="q-mt-md" @click="$router.push('/')" />
+        <q-btn flat color="primary" :label="$t('poolDetail.backHome')" class="q-mt-md" @click="$router.push('/')" />
       </div>
     </div>
 
@@ -95,14 +95,14 @@
               <!-- Deadline Alert / Display -->
               <div v-if="pool.hasDeadline && pool.deadlineDate" class="q-mb-sm q-pa-sm bg-amber-1 text-amber-9 rounded-borders text-subtitle2 text-weight-bold flex items-center">
                 <q-icon name="alarm" class="q-mr-xs" size="sm" />
-                Date limite : {{ formatDateWithTime(pool.deadlineDate) }}
+                {{ $t('poolDetail.deadlineLabel') }} : {{ formatDateWithTime(pool.deadlineDate) }}
               </div>
               <div class="row items-end justify-between q-mb-sm">
                 <div class="text-h4 text-weight-bolder text-primary">
                   {{ pool.currentAmount || 0 }} €
                 </div>
                 <div class="text-grey-7">
-                  sur {{ pool.goalAmount }} €
+                  {{ $t('poolDetail.ofGoal') }} {{ pool.goalAmount }} €
                 </div>
               </div>
               
@@ -115,14 +115,14 @@
               />
               
               <div class="row justify-between text-caption text-grey-6 text-weight-medium">
-                <span>{{ Math.round(((pool.currentAmount || 0) / pool.goalAmount) * 100) }}% complété</span>
-                <span>{{ contributions.length }} participants</span>
+                <span>{{ Math.round(((pool.currentAmount || 0) / pool.goalAmount) * 100) }}% {{ $t('poolDetail.completedPercentSuffix') }}</span>
+                <span>{{ contributions.length }} {{ $t('poolDetail.participants') }}</span>
               </div>
             </div>
 
             <!-- Bouton principal -->
             <q-btn
-              label="Contribuer maintenant"
+              :label="$t('poolDetail.contributeNow')"
               unelevated
               class="full-width q-py-md text-weight-bold"
               style="background: #FFB300; color: #1A1A2A; border-radius: 12px; font-size: 1.1rem;"
@@ -131,14 +131,14 @@
             />
             
             <div class="row q-gutter-sm q-mt-md">
-              <q-btn outline color="primary" icon="share" label="Partager" class="col" no-caps style="border-radius: 10px;" />
+              <q-btn outline color="primary" icon="share" :label="$t('poolDetail.share')" class="col" no-caps style="border-radius: 10px;" />
               <q-btn outline color="grey-7" icon="favorite_border" class="col-auto" style="border-radius: 10px;" />
             </div>
           </q-card>
 
           <!-- Liste des derniers contributeurs (Sidebar) -->
           <q-card class="q-mt-lg q-pa-lg no-shadow" style="border-radius: 16px; background: white; border: 1px solid #EEE;">
-            <div class="text-subtitle1 text-weight-bold q-mb-md">Derniers donateurs ({{ contributions.length }})</div>
+            <div class="text-subtitle1 text-weight-bold q-mb-md">{{ $t('poolDetail.lastDonors') }} ({{ contributions.length }})</div>
             
             <q-list v-if="contributions.length > 0">
               <q-item v-for="contrib in contributions.slice(0, 5)" :key="contrib.id" class="q-px-none q-py-sm">
@@ -155,7 +155,7 @@
                   <q-item-label class="text-weight-bold" style="font-size: 0.9rem;">
                     <template v-if="contrib.anonymous">
                       <span v-if="isOwner">{{ contrib.contributorName }} (Anonyme)</span>
-                      <span v-else>Donateur anonyme</span>
+                      <span v-else>{{ $t('poolDetail.anonymousDonor') }}</span>
                     </template>
                     <span v-else>{{ contrib.contributorName }}</span>
                   </q-item-label>
@@ -165,7 +165,7 @@
             </q-list>
             
             <div v-else class="text-center q-py-md text-grey-6 text-italic">
-              Soyez le premier à contribuer !
+              {{ $t('poolDetail.firstContributorPrompt') }}
             </div>
           </q-card>
         </div>
@@ -177,12 +177,12 @@
           <q-card class="details-card q-pa-xl no-shadow" style="border-radius: 16px; background: white; border: 1px solid #EEE;">
             <div class="row items-center justify-between q-mb-lg">
               <div class="text-h5 text-weight-bold" style="color: #0D1B2E;">
-                À propos de cette cagnotte
+                {{ $t('poolDetail.aboutPool') }}
               </div>
               <div class="row q-gutter-sm">
                 <q-btn 
                   v-if="isOwner || isAdmin" 
-                  label="Modifier" 
+                  :label="$t('poolDetail.edit')" 
                   icon="edit" 
                   color="warning" 
                   flat 
@@ -191,7 +191,7 @@
                 />
                 <q-btn 
                   v-if="isOwner" 
-                  label="Ajouter une phase" 
+                  :label="$t('poolDetail.addPhase')" 
                   icon="add_circle" 
                   color="primary" 
                   flat 
@@ -208,7 +208,7 @@
             <div v-if="(!pool.subPools || pool.subPools.length === 0) && pool.phases && pool.phases.length > 0" class="q-mb-xl">
               <div class="text-h5 text-weight-bold q-mb-lg row items-center" style="color: #0D1B2E;">
                 <q-icon name="flag" class="q-mr-sm" color="primary" />
-                Phases de progression ({{ pool.phases.length }})
+                {{ $t('poolDetail.phasesHeader') }} ({{ pool.phases.length }})
               </div>
               
               <q-card flat bordered style="border-radius: 16px; border: 1px solid #E0E0E0; background: white;" class="q-pa-lg">
@@ -247,7 +247,7 @@
             <div v-if="pool.subPools && pool.subPools.length > 0" class="q-mb-xl">
               <div class="text-h5 text-weight-bold q-mb-lg row items-center" style="color: #0D1B2E;">
                 <q-icon name="account_tree" class="q-mr-sm" color="primary" />
-                Sous-cagnottes du projet ({{ pool.subPools.length }})
+                {{ $t('poolDetail.subPoolsHeader') }} ({{ pool.subPools.length }})
               </div>
               
               <div v-for="subPool in pool.subPools" :key="subPool.id" class="q-mb-lg">
@@ -293,7 +293,7 @@
 
                     <!-- Phases within this sub-pool -->
                     <div v-if="subPool.phases && subPool.phases.length > 0" class="q-mt-md">
-                      <div class="text-subtitle2 text-weight-bold text-grey-8 q-mb-sm">Phases de progression :</div>
+                      <div class="text-subtitle2 text-weight-bold text-grey-8 q-mb-sm">{{ $t('poolDetail.phasesHeader') }} :</div>
                       <div class="phases-timeline q-pl-sm">
                         <div v-for="(phase, phIndex) in subPool.phases" :key="phase.id" class="phase-item q-mb-md">
                           <div class="row items-center q-mb-xs">
@@ -332,24 +332,24 @@
             <div v-if="isOwner" class="q-mb-xl">
               <div class="text-h6 text-weight-bold q-mb-md" style="color: #0D1B2E;">
                 <q-icon name="account_balance_wallet" color="primary" class="q-mr-sm" />
-                Tableau de bord financier (Propriétaire)
+                {{ $t('poolDetail.financialDashboard') }}
               </div>
               <div class="row q-col-gutter-md">
                 <div class="col-12 col-sm-6">
                   <q-card flat bordered class="bg-green-1 text-green-9" style="border-radius: 12px;">
                     <q-card-section>
-                      <div class="text-overline">Solde Disponible</div>
+                      <div class="text-overline">{{ $t('poolDetail.availableBalance') }}</div>
                       <div class="text-h4 text-weight-bolder">{{ pool.availableBalance || 0 }} €</div>
-                      <div class="text-caption">Prêt à être retiré</div>
+                      <div class="text-caption">{{ $t('poolDetail.readyToWithdraw') }}</div>
                     </q-card-section>
                   </q-card>
                 </div>
                 <div class="col-12 col-sm-6">
                   <q-card flat bordered class="bg-blue-1 text-blue-9" style="border-radius: 12px;">
                     <q-card-section>
-                      <div class="text-overline">En attente</div>
+                      <div class="text-overline">{{ $t('poolDetail.pending') }}</div>
                       <div class="text-h4 text-weight-bolder">{{ pool.pendingBalance || 0 }} €</div>
-                      <div class="text-caption">Contributions en cours de traitement</div>
+                      <div class="text-caption">{{ $t('poolDetail.pendingDesc') }}</div>
                     </q-card-section>
                   </q-card>
                 </div>
@@ -360,7 +360,7 @@
             <div v-if="isOwner && pool.type !== 'PUBLIC'" class="q-mb-xl">
               <div class="text-h6 text-weight-bold q-mb-md" style="color: #0D1B2E;">
                 <q-icon name="person_add" color="primary" class="q-mr-sm" />
-                Inviter des participants
+                {{ $t('poolDetail.inviteParticipants') }}
               </div>
               <q-card flat bordered style="border-radius: 12px;">
                 <q-card-section>
@@ -369,12 +369,12 @@
                       <q-input v-model="inviteEmail" label="Email de l'invité" dense filled color="primary" @keyup.enter="sendInvitation" />
                     </div>
                     <div class="col-auto">
-                      <q-btn label="Inviter" color="primary" unelevated @click="sendInvitation" :loading="sendingInvite" />
+                      <q-btn :label="$t('poolDetail.inviteButton')" color="primary" unelevated @click="sendInvitation" :loading="sendingInvite" />
                     </div>
                   </div>
                   
                   <div v-if="invitations.length > 0" class="q-mt-md">
-                    <div class="text-caption text-grey-7 q-mb-sm">Membres invités ({{ invitations.length }}) :</div>
+                    <div class="text-caption text-grey-7 q-mb-sm">{{ $t('poolDetail.invitedMembers') }} ({{ invitations.length }}) :</div>
                     <div class="row q-gutter-xs">
                       <q-chip v-for="inv in invitations" :key="inv.id" outline dense color="primary" size="sm" removable @remove="removeInvitation(inv.id)">
                         {{ inv.email }}
@@ -389,7 +389,7 @@
             <!-- SECTION : COMMENTAIRES (Messages du Pool) -->
             <div class="text-h5 text-weight-bold q-mb-lg row items-center" style="color: #0D1B2E;">
               <q-icon name="forum" class="q-mr-sm" color="primary" />
-              Commentaires et Questions ({{ messages.length }})
+              {{ $t('poolDetail.commentsHeader') }} ({{ messages.length }})
             </div>
 
             <!-- Champ de saisie pour nouveau commentaire -->
@@ -398,7 +398,7 @@
                 filled
                 v-model="newComment"
                 type="textarea"
-                placeholder="Posez une question ou laissez un message de soutien..."
+                :placeholder="$t('poolDetail.commentPlaceholder')"
                 rows="3"
                 color="secondary"
                 bg-color="white"
@@ -414,7 +414,7 @@
             </div>
             <div v-else class="q-pa-md bg-blue-1 text-blue-9 text-weight-bold q-mb-xl" style="border-radius: 8px; border: 1px dashed #2196F3;">
               <q-icon name="info" class="q-mr-sm" />
-              Veuillez vous connecter pour laisser un commentaire.
+              {{ $t('poolDetail.loginToComment') }}
             </div>
 
             <!-- Liste des commentaires -->
@@ -465,27 +465,27 @@
             </div>
             <div v-else class="text-center q-py-xl text-grey-5">
               <q-icon name="chat_bubble_outline" size="48px" class="q-mb-sm" />
-              <div>Aucun commentaire pour le moment. Soyez le premier !</div>
+              <div>{{ $t('poolDetail.noComments') }}</div>
             </div>
 
             <q-separator class="q-my-xl" />
 
-            <div class="text-h6 text-weight-bold q-mb-md">Comment ça marche ?</div>
+            <div class="text-h6 text-weight-bold q-mb-md">{{ $t('poolDetail.howItWorksTitle') }}</div>
             <div class="row q-col-gutter-md">
               <div class="col-12 col-sm-4 text-center">
                 <q-icon name="security" color="secondary" size="40px" />
-                <div class="text-weight-bold q-mt-sm">Sécurisé</div>
-                <div class="text-caption text-grey-7">Paiements protégés</div>
+                <div class="text-weight-bold q-mt-sm">{{ $t('poolDetail.howSecure') }}</div>
+                <div class="text-caption text-grey-7">{{ $t('poolDetail.howSecureDesc') }}</div>
               </div>
               <div class="col-12 col-sm-4 text-center">
                 <q-icon name="history" color="secondary" size="40px" />
-                <div class="text-weight-bold q-mt-sm">Transparent</div>
-                <div class="text-caption text-grey-7">Suivi des fonds</div>
+                <div class="text-weight-bold q-mt-sm">{{ $t('poolDetail.howTransparent') }}</div>
+                <div class="text-caption text-grey-7">{{ $t('poolDetail.howTransparentDesc') }}</div>
               </div>
               <div class="col-12 col-sm-4 text-center">
                 <q-icon name="group" color="secondary" size="40px" />
-                <div class="text-weight-bold q-mt-sm">Collectif</div>
-                <div class="text-caption text-grey-7">Ensemble on va plus loin</div>
+                <div class="text-weight-bold q-mt-sm">{{ $t('poolDetail.howCollective') }}</div>
+                <div class="text-caption text-grey-7">{{ $t('poolDetail.howCollectiveDesc') }}</div>
               </div>
             </div>
           </q-card>
@@ -494,14 +494,14 @@
         <!-- Sidebar Secondaire -->
         <div class="col-12 col-md-5">
           <q-card class="info-card q-pa-lg no-shadow" style="border-radius: 16px; background: white; border: 1px solid #EEE;">
-            <div class="text-subtitle1 text-weight-bold q-mb-md">Informations</div>
+            <div class="text-subtitle1 text-weight-bold q-mb-md">{{ $t('poolDetail.infoTitle') }}</div>
             <q-list dense>
               <q-item>
                 <q-item-section avatar>
                   <q-icon name="calendar_today" color="grey-6" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label class="text-grey-7">Date de creation</q-item-label>
+                  <q-item-label class="text-grey-7">{{ $t('poolDetail.createdAtLabel') }}</q-item-label>
                   <q-item-label class="text-weight-bold">{{ formatDate(pool.createdAt) }}</q-item-label>
                 </q-item-section>
               </q-item>
@@ -510,8 +510,8 @@
                   <q-icon name="public" color="grey-6" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label class="text-grey-7">Visibilite</q-item-label>
-                  <q-item-label class="text-weight-bold">Publique</q-item-label>
+                  <q-item-label class="text-grey-7">{{ $t('poolDetail.visibilityLabel') }}</q-item-label>
+                  <q-item-label class="text-weight-bold">{{ $t('poolDetail.visibilityPublic') }}</q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
@@ -524,14 +524,14 @@
     <q-dialog v-model="contributionDialog" persistent>
       <q-card style="min-width: 400px; border-radius: 16px;">
         <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6 text-weight-bold">Faire un don</div>
+          <div class="text-h6 text-weight-bold">{{ $t('poolDetail.donateDialogTitle') }}</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
 
         <q-card-section class="q-pt-md">
           <div class="text-subtitle2 q-mb-md text-grey-7">
-            Soutenez "{{ pool?.title }}" en choisissant un montant.
+            {{ $t('poolDetail.donateDialogSubtitlePrefix') }} "{{ pool?.title }}" {{ $t('poolDetail.donateDialogSubtitleSuffix') }}
           </div>
           
           <div v-if="pool.subPools && pool.subPools.length > 0" class="q-mb-md">
@@ -543,9 +543,9 @@
               option-label="label"
               emit-value
               map-options
-              label="Sélectionner la sous-cagnotte *"
+              :label="$t('poolDetail.selectSubPoolLabel')"
               color="secondary"
-              :rules="[val => !!val || 'Veuillez choisir une sous-cagnotte']"
+              :rules="[val => !!val || $t('poolDetail.selectSubPoolRequired')]"
             />
           </div>
 
@@ -554,7 +554,7 @@
               outlined
               v-model.number="contributionForm.amount"
               type="number"
-              label="Montant du don (€) *"
+              :label="$t('poolDetail.donationAmountLabel')"
               suffix="€"
               :rules="[val => val > 0 || 'Le montant doit être supérieur à 0']"
               color="secondary"
@@ -570,7 +570,7 @@
               v-if="!authStore.isAuthenticated.value"
               outlined
               v-model="contributionForm.contributorName"
-              label="Votre nom (facultatif)"
+              :label="$t('poolDetail.contributorNameLabel')"
               placeholder="Ex: Jean Dupont"
               color="secondary"
             />
@@ -579,32 +579,32 @@
               v-if="!authStore.isAuthenticated.value"
               outlined
               v-model="contributionForm.contributorEmail"
-              label="Votre adresse email *"
+              :label="$t('poolDetail.contributorEmailLabel')"
               type="email"
               placeholder="Ex: jean.dupont@example.com"
               color="secondary"
-              :rules="[val => !!val || 'L\'email est requis pour recevoir votre reçu de paiement', val => val.includes('@') || 'Veuillez saisir un email valide']"
+              :rules="[val => !!val || $t('poolDetail.emailRequiredForReceipt'), val => val.includes('@') || $t('poolDetail.emailInvalid')]"
             />
 
             <q-input
               outlined
               v-model="contributionForm.message"
               type="textarea"
-              label="Petit message de soutien (facultatif)"
-              placeholder="Votre message sera affiché sur la page..."
+              :label="$t('poolDetail.messageLabel')"
+              :placeholder="$t('poolDetail.messagePlaceholder')"
               color="secondary"
               rows="3"
             />
 
             <q-checkbox
               v-model="contributionForm.anonymous"
-              label="Faire ce don de manière anonyme"
+              :label="$t('poolDetail.anonymousToggle')"
               color="secondary"
             />
 
             <div class="q-mt-lg">
               <div class="text-subtitle2 q-mb-sm text-grey-8 font-weight-bold">
-                Sélectionnez votre moyen de paiement :
+                {{ $t('poolDetail.selectPaymentMethod') }} :
               </div>
               <div class="row q-col-gutter-sm">
                 <div class="col-6">
@@ -647,6 +647,8 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { poolService } from 'src/shared/services/poolService'
@@ -993,7 +995,7 @@ const submitPayment = async (method) => {
     const isAuth = authStore.isAuthenticated.value
     const user = authStore.user.value
 
-    let name = contributionForm.contributorName || 'Donateur anonyme'
+    let name = contributionForm.contributorName || t('poolDetail.anonymousDonor')
     if (contributionForm.anonymous) {
       name = 'Anonyme'
     } else if (isAuth && user) {

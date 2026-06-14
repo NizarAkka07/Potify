@@ -10,8 +10,8 @@
       <div v-if="state === 'loading'" class="column items-center justify-center q-gutter-y-lg q-py-lg">
         <q-spinner-oval color="primary" size="80px" thickness="3" />
         <div>
-          <h2 class="text-h5 text-weight-bold q-mt-none q-mb-xs">Validation en cours...</h2>
-          <p class="text-subtitle2 text-grey-4">Nous sécurisons et enregistrons votre contribution.</p>
+          <h2 class="text-h5 text-weight-bold q-mt-none q-mb-xs">{{ $t('paymentSuccess.loadingTitle') }}</h2>
+          <p class="text-subtitle2 text-grey-4">{{ $t('paymentSuccess.loadingDesc') }}</p>
         </div>
       </div>
 
@@ -23,9 +23,9 @@
         </div>
         
         <div>
-          <h2 class="text-h4 text-weight-bolder text-emerald-4 q-mt-none q-mb-sm">Paiement Réussi !</h2>
+          <h2 class="text-h4 text-weight-bolder text-emerald-4 q-mt-none q-mb-sm">{{ $t('paymentSuccess.successTitle') }}</h2>
           <p class="text-subtitle1 text-grey-3 q-px-md">
-            Votre générosité fait la différence. Merci infiniment pour votre don !
+            {{ $t('paymentSuccess.successDesc') }}
           </p>
         </div>
 
@@ -34,11 +34,11 @@
         <!-- Info Grid -->
         <div class="full-width q-gutter-y-sm text-left q-px-md">
           <div class="row justify-between text-body2">
-            <span class="text-grey-4">Méthode de paiement :</span>
+            <span class="text-grey-4">{{ $t('paymentSuccess.paymentMethod') }} :</span>
             <span class="text-weight-bold text-white text-uppercase">{{ method }}</span>
           </div>
           <div class="row justify-between text-body2">
-            <span class="text-grey-4">Identifiant de transaction :</span>
+            <span class="text-grey-4">{{ $t('paymentSuccess.transactionId') }} :</span>
             <span class="text-weight-bold text-indigo-3 text-caption font-mono line-clamp-1" style="max-width: 220px;">
               {{ transactionId }}
             </span>
@@ -49,7 +49,7 @@
 
         <div class="full-width q-mt-lg">
           <q-btn
-            label="Retourner à la cagnotte"
+            :label="$t('paymentSuccess.backToPoolButton')"
             color="emerald"
             class="full-width q-py-md text-weight-bold return-btn"
             unelevated
@@ -58,7 +58,7 @@
             @click="goBack"
           />
           <p class="text-caption text-grey-5 q-mt-md">
-            Redirection automatique dans {{ countdown }} secondes...
+            {{ $t('paymentSuccess.redirectTimer') }} {{ countdown }} {{ $t('paymentSuccess.seconds') }}...
           </p>
         </div>
       </div>
@@ -70,7 +70,7 @@
         </div>
 
         <div>
-          <h2 class="text-h4 text-weight-bolder text-rose-4 q-mt-none q-mb-sm">Erreur de Paiement</h2>
+          <h2 class="text-h4 text-weight-bolder text-rose-4 q-mt-none q-mb-sm">{{ $t('paymentSuccess.errorTitle') }}</h2>
           <p class="text-subtitle1 text-grey-3 q-px-md">
             Nous n'avons pas pu valider votre paiement. Veuillez vérifier vos informations ou réessayer ultérieurement.
           </p>
@@ -80,7 +80,7 @@
 
         <div class="full-width q-mt-lg">
           <q-btn
-            label="Réessayer la contribution"
+            :label="$t('paymentSuccess.retryButton')"
             color="rose"
             class="full-width q-py-md text-weight-bold"
             unelevated
@@ -96,6 +96,8 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { poolService } from 'src/shared/services/poolService'
@@ -153,7 +155,7 @@ onMounted(async () => {
     state.value = 'error'
     $q.notify({
       type: 'negative',
-      message: err.response?.data?.message || 'Erreur lors de la validation du paiement.'
+      message: err.response?.data?.message || t('paymentSuccess.errorDesc')
     })
   }
 })

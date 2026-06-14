@@ -3,12 +3,12 @@
     <!-- Welcome Header -->
     <div class="row items-center justify-between q-mb-xl q-pa-lg text-white" style="background: linear-gradient(135deg, #0D1B2E 0%, #1A2E40 100%); border-radius: 16px; border-left: 6px solid #FFB300;">
       <div>
-        <div class="text-h4 text-weight-bold">Rôles & Permissions</div>
+        <div class="text-h4 text-weight-bold">{{ $t('roleList.title') }}</div>
         <div class="text-subtitle1 text-grey-4 q-mt-xs">Gérez la sécurité et les accès en glissant-déposant les permissions disponibles sur les rôles.</div>
       </div>
       <div class="row q-gutter-sm">
-        <q-btn color="amber-8" text-color="dark" icon="add" label="Nouveau Rôle" @click="openRoleDialog()" no-caps class="text-weight-bold" />
-        <q-btn outline color="white" icon="vpn_key" label="Nouvelle Permission" @click="openPermissionDialog()" no-caps />
+        <q-btn color="amber-8" text-color="dark" icon="add" :label="$t('roleList.newRoleButton')" @click="openRoleDialog()" no-caps class="text-weight-bold" />
+        <q-btn outline color="white" icon="vpn_key" :label="$t('roleList.newPermissionButton')" @click="openPermissionDialog()" no-caps />
       </div>
     </div>
 
@@ -19,9 +19,9 @@
           <q-card-section class="q-pb-none">
             <div class="text-subtitle1 text-weight-bold text-dark q-mb-md">
               <q-icon name="vpn_key" color="primary" class="q-mr-sm" size="sm" />
-              Permissions Disponibles
+              {{ $t('roleList.availablePermissions') }}
             </div>
-            <q-input outlined dense v-model="searchQuery" placeholder="Rechercher une permission..." color="secondary" class="q-mb-md">
+            <q-input outlined dense v-model="searchQuery" :placeholder="$t('roleList.searchPlaceholder')" color="secondary" class="q-mb-md">
               <template v-slot:append>
                 <q-icon name="search" />
               </template>
@@ -48,18 +48,18 @@
 
                 <q-item-section>
                   <q-item-label class="text-weight-bold text-primary">{{ perm.code }}</q-item-label>
-                  <q-item-label caption class="line-clamp-2">{{ perm.description || 'Aucune description' }}</q-item-label>
+                  <q-item-label caption class="line-clamp-2">{{ perm.description || $t('roleList.noDescription') }}</q-item-label>
                 </q-item-section>
 
                 <q-item-section side>
                   <q-btn flat round dense color="grey-6" icon="delete" size="sm" @click="confirmDeletePermission(perm)">
-                    <q-tooltip>Supprimer la permission</q-tooltip>
+                    <q-tooltip>{{ $t('roleList.deletePermissionTooltip') }}</q-tooltip>
                   </q-btn>
                 </q-item-section>
               </q-item>
 
               <div v-if="filteredPermissions.length === 0" class="text-center q-py-xl text-grey-6 text-italic">
-                Aucune permission trouvée.
+                {{ $t('roleList.noPermissionsFound') }}
               </div>
             </q-list>
           </q-card-section>
@@ -70,7 +70,7 @@
       <div class="col-12 col-md-8">
         <div class="text-subtitle1 text-weight-bold text-dark q-mb-md">
           <q-icon name="security" color="primary" class="q-mr-sm" size="sm" />
-          Rôles Actifs
+          {{ $t('roleList.activeRoles') }}
         </div>
 
         <div v-if="loadingRoles" class="flex flex-center q-py-xl">
@@ -95,17 +95,17 @@
                 </div>
                 <div class="row q-gutter-xs">
                   <q-btn flat round dense icon="edit" color="white" size="sm" @click="openRoleDialog(role)">
-                    <q-tooltip>Modifier le rôle</q-tooltip>
+                    <q-tooltip>{{ $t('roleList.editRoleTooltip') }}</q-tooltip>
                   </q-btn>
                   <q-btn flat round dense icon="delete" color="white" size="sm" @click="confirmDeleteRole(role)">
-                    <q-tooltip>Supprimer le rôle</q-tooltip>
+                    <q-tooltip>{{ $t('roleList.deleteRoleTooltip') }}</q-tooltip>
                   </q-btn>
                 </div>
               </div>
 
               <!-- Draggable drop instruction / current permission list -->
               <q-card-section class="col q-pa-md flex-grow-1" style="background: white;">
-                <div class="text-subtitle2 text-grey-7 q-mb-sm text-weight-medium">Permissions associées :</div>
+                <div class="text-subtitle2 text-grey-7 q-mb-sm text-weight-medium">{{ $t('roleList.associatedPermissions') }} :</div>
                 
                 <div class="row q-col-gutter-xs q-mt-xs">
                   <div v-for="perm in role.permissions" :key="perm.id" class="col-auto">
@@ -128,7 +128,7 @@
                   class="flex flex-center q-pa-lg text-grey-5 text-center text-italic"
                   style="border: 2px dashed rgba(0,0,0,0.06); border-radius: 8px; min-height: 100px;"
                 >
-                  Glissez des permissions ici
+                  {{ $t('roleList.dragPermissionsHint') }}
                 </div>
 
                 <!-- Hint when dragging over -->
@@ -139,7 +139,7 @@
                 >
                   <div class="column items-center">
                     <q-icon name="add_circle" size="md" />
-                    <span class="q-mt-xs">Déposer pour ajouter</span>
+                    <span class="q-mt-xs">{{ $t('roleList.dropToAdd') }}</span>
                   </div>
                 </div>
               </q-card-section>
@@ -152,6 +152,8 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { 
@@ -316,8 +318,8 @@ function openPermissionDialog(permission = null) {
 // Deletions
 function confirmDeleteRole(role) {
   $q.dialog({
-    title: 'Supprimer le rôle',
-    message: `Voulez-vous vraiment supprimer définitivement le rôle "${role.name}" ?`,
+    title: t('roleList.deleteRoleTitle'),
+    message: `${t('roleList.deleteRoleConfirm')} "${role.name}" ?`,
     cancel: true,
     persistent: true
   }).onOk(async () => {
@@ -334,8 +336,8 @@ function confirmDeleteRole(role) {
 
 function confirmDeletePermission(permission) {
   $q.dialog({
-    title: 'Supprimer la permission',
-    message: `Voulez-vous vraiment supprimer définitivement la permission "${permission.code}" ?`,
+    title: t('roleList.deletePermissionTitle'),
+    message: `${t('roleList.deletePermissionConfirm')} "${permission.code}" ?`,
     cancel: true,
     persistent: true
   }).onOk(async () => {

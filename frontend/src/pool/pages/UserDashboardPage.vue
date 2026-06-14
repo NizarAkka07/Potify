@@ -8,8 +8,8 @@
           <img src="https://cdn.quasar.dev/img/avatar.png">
         </q-avatar>
         <div>
-          <h1 class="text-h4 text-weight-bold q-my-none" style="color: #0D1B2E;">Mon Espace</h1>
-          <p class="text-subtitle1 text-grey-7">Bienvenue, {{ userName }}. Gérez vos cagnottes et suivez vos contributions.</p>
+          <h1 class="text-h4 text-weight-bold q-my-none" style="color: #0D1B2E;">{{ $t('dashboard.mySpace') }}</h1>
+          <p class="text-subtitle1 text-grey-7">{{ $t('dashboard.welcome', { name: userName }) }}</p>
         </div>
       </div>
 
@@ -25,8 +25,8 @@
         no-caps
         style="font-weight: 600;"
       >
-        <q-tab name="pools" label="Mes Cagnottes" />
-        <q-tab name="invited" label="Partagées avec moi">
+        <q-tab name="pools" :label="$t('dashboard.myPools')" />
+        <q-tab name="invited" :label="$t('dashboard.sharedWithMe')">
           <q-badge
             v-if="invitedPools.length > 0"
             color="orange"
@@ -35,9 +35,9 @@
             :label="invitedPools.length"
           />
         </q-tab>
-        <q-tab name="contributions" label="Mes Contributions" />
-        <q-tab name="stats" label="Mes Statistiques" />
-        <q-tab name="notifications" label="Mes Notifications">
+        <q-tab name="contributions" :label="$t('dashboard.myContributions')" />
+        <q-tab name="stats" :label="$t('dashboard.myStats')" />
+        <q-tab name="notifications" :label="$t('dashboard.myNotifications')">
           <q-badge
             v-if="unreadCount > 0"
             color="red"
@@ -99,8 +99,8 @@
                 <q-separator />
 
                 <q-card-actions align="right" class="q-py-xs">
-                  <q-btn flat dense color="warning" icon="edit" label="Modifier" @click.stop="$router.push(`/pools/${pool.id}/edit`)" no-caps />
-                  <q-btn flat dense color="primary" icon="visibility" label="Voir" @click.stop="$router.push(`/pools/${pool.id}`)" no-caps />
+                  <q-btn flat dense color="warning" icon="edit" :label="$t('dashboard.edit')" @click.stop="$router.push(`/pools/${pool.id}/edit`)" no-caps />
+                  <q-btn flat dense color="primary" icon="visibility" :label="$t('dashboard.view')" @click.stop="$router.push(`/pools/${pool.id}`)" no-caps />
                 </q-card-actions>
               </q-card>
             </div>
@@ -108,8 +108,8 @@
 
           <div v-else class="column items-center justify-center q-py-xl text-center text-grey-6 bg-white shadow-1" style="border-radius: 12px; border: 1px dashed #CCC;">
             <q-icon name="add_circle_outline" size="64px" color="grey-3" />
-            <div class="text-h6 q-mt-md">Vous n'avez pas encore créé de cagnotte</div>
-            <q-btn label="Lancer ma première cagnotte" color="primary" class="q-mt-lg" to="/pools/create" unelevated no-caps />
+            <div class="text-h6 q-mt-md">{{ $t('dashboard.noPoolsCreated') }}</div>
+            <q-btn :label="$t('dashboard.launchFirstPool')" color="primary" class="q-mt-lg" to="/pools/create" unelevated no-caps />
           </div>
         </q-tab-panel>
 
@@ -130,7 +130,7 @@
                   </div>
                   <div class="absolute-bottom-right q-ma-sm">
                     <q-chip color="orange-7" text-white size="sm" icon="group_add" class="text-weight-bold">
-                      Invité
+                      {{ $t('dashboard.invited') }}
                     </q-chip>
                   </div>
                 </q-img>
@@ -142,7 +142,7 @@
                   </div>
                   <div class="absolute-bottom-right q-ma-sm">
                     <q-chip color="orange-7" text-white size="sm" icon="group_add" class="text-weight-bold">
-                      Invité
+                      {{ $t('dashboard.invited') }}
                     </q-chip>
                   </div>
                 </div>
@@ -150,7 +150,7 @@
                 <q-card-section class="q-pa-md">
                   <div class="text-subtitle1 text-weight-bold q-mb-xs line-clamp-1" style="color: #0D1B2E;">{{ pool.title }}</div>
                   <div class="text-caption text-grey-6 q-mb-sm">
-                    <q-icon name="person" size="14px" /> Organisé par <strong>{{ pool.ownerName || 'un ami' }}</strong>
+                    <q-icon name="person" size="14px" /> {{ $t('dashboard.organizedBy') }} <strong>{{ pool.ownerName || 'un ami' }}</strong>
                   </div>
                   <div class="row justify-between items-center q-mt-sm">
                     <div class="text-primary text-weight-bolder">{{ pool.currentAmount }} €</div>
@@ -164,8 +164,8 @@
 
           <div v-else class="column items-center justify-center q-py-xl text-center text-grey-6 bg-white shadow-1" style="border-radius: 12px; border: 1px dashed #CCC;">
             <q-icon name="group_add" size="64px" color="grey-3" />
-            <div class="text-h6 q-mt-md">Aucune cagnotte partagée avec vous</div>
-            <div class="text-body2 q-mt-sm text-grey-5">Lorsqu'un ami vous invite à sa cagnotte, elle apparaîtra ici.</div>
+            <div class="text-h6 q-mt-md">{{ $t('dashboard.noPoolsShared') }}</div>
+            <div class="text-body2 q-mt-sm text-grey-5">{{ $t('dashboard.sharedInvitationDesc') }}</div>
           </div>
         </q-tab-panel>
 
@@ -185,17 +185,17 @@
 
                   <q-item-section>
                     <q-item-label class="text-weight-bold" style="color: #0D1B2E;">
-                      Don de {{ contrib.amount }} € pour <span class="text-primary">{{ getPoolTitle(contrib.poolId) }}</span>
+                      {{ $t('dashboard.donationOf', { amount: contrib.amount }) }} {{ $t('dashboard.for') }} <span class="text-primary">{{ getPoolTitle(contrib.poolId) }}</span>
                     </q-item-label>
                     <q-item-label caption>
-                      Catégorie : <strong>{{ getPoolCategory(contrib.poolId) }}</strong> • {{ formatDate(contrib.createdAt) }} • Statut : <span :class="(contrib.status === 'REUSSIE' || contrib.status === 'CONFIRMED') ? 'text-green text-weight-bold' : 'text-orange'">{{ contrib.status === 'CONFIRMED' ? 'CONFIRMÉ' : contrib.status }}</span>
+                      {{ $t('dashboard.category') }} : <strong>{{ getPoolCategory(contrib.poolId) }}</strong> • {{ formatDate(contrib.createdAt) }} • {{ $t('dashboard.status') }} : <span :class="(contrib.status === 'REUSSIE' || contrib.status === 'CONFIRMED') ? 'text-green text-weight-bold' : 'text-orange'">{{ contrib.status === 'CONFIRMED' ? $t('dashboard.confirmed') : contrib.status }}</span>
                     </q-item-label>
                   </q-item-section>
 
                   <q-item-section side>
                     <div class="row q-gutter-xs">
-                      <q-btn flat color="secondary" icon="picture_as_pdf" label="Reçu PDF" size="sm" @click="downloadReceipt(contrib)" no-caps />
-                      <q-btn flat color="primary" label="Détails" size="sm" :to="`/pools/${contrib.poolId}`" no-caps />
+                      <q-btn flat color="secondary" icon="picture_as_pdf" :label="$t('dashboard.pdfReceipt')" size="sm" @click="downloadReceipt(contrib)" no-caps />
+                      <q-btn flat color="primary" :label="$t('dashboard.details')" size="sm" :to="`/pools/${contrib.poolId}`" no-caps />
                     </div>
                   </q-item-section>
                 </q-item>
@@ -206,8 +206,8 @@
 
           <div v-else class="column items-center justify-center q-py-xl text-center text-grey-6 bg-white shadow-1" style="border-radius: 12px; border: 1px dashed #CCC;">
             <q-icon name="volunteer_activism" size="64px" color="grey-3" />
-            <div class="text-h6 q-mt-md">Vous n'avez pas encore fait de don</div>
-            <q-btn label="Découvrir les cagnottes" color="primary" class="q-mt-lg" to="/pools" unelevated no-caps />
+            <div class="text-h6 q-mt-md">{{ $t('dashboard.noDonationsMade') }}</div>
+            <q-btn :label="$t('dashboard.discoverPools')" color="primary" class="q-mt-lg" to="/pools" unelevated no-caps />
           </div>
         </q-tab-panel>
 
@@ -223,24 +223,24 @@
               <!-- Organisateur KPIs -->
               <div class="col-12 col-sm-4">
                 <q-card class="bg-white shadow-1 q-pa-md text-center" style="border-radius: 12px; border-left: 4px solid #0D1B2E;">
-                  <div class="text-subtitle2 text-grey-6 uppercase">Total Récolté (Organisateur)</div>
+                  <div class="text-subtitle2 text-grey-6 uppercase">{{ $t('dashboard.totalCollected') }}</div>
                   <div class="text-h4 text-weight-bolder text-primary q-mt-sm">{{ organizerTotalAmount }} €</div>
-                  <div class="text-caption text-grey-5 q-mt-xs">{{ userPools.length }} cagnottes créées</div>
+                  <div class="text-caption text-grey-5 q-mt-xs">{{ userPools.length }} {{ $t('dashboard.poolsCreated') }}</div>
                 </q-card>
               </div>
               <div class="col-12 col-sm-4">
                 <q-card class="bg-white shadow-1 q-pa-md text-center" style="border-radius: 12px; border-left: 4px solid #FFA726;">
-                  <div class="text-subtitle2 text-grey-6 uppercase">Contributeurs Uniques</div>
+                  <div class="text-subtitle2 text-grey-6 uppercase">{{ $t('dashboard.uniqueContributors') }}</div>
                   <div class="text-h4 text-weight-bolder text-secondary q-mt-sm">{{ organizerUniqueContributors }}</div>
-                  <div class="text-caption text-grey-5 q-mt-xs">Sur vos cagnottes actives</div>
+                  <div class="text-caption text-grey-5 q-mt-xs">{{ $t('dashboard.onActivePools') }}</div>
                 </q-card>
               </div>
               <!-- Donateur KPI -->
               <div class="col-12 col-sm-4">
                 <q-card class="bg-white shadow-1 q-pa-md text-center" style="border-radius: 12px; border-left: 4px solid #E12D3D;">
-                  <div class="text-subtitle2 text-grey-6 uppercase">Mes Dons Totaux (Donateur)</div>
+                  <div class="text-subtitle2 text-grey-6 uppercase">{{ $t('dashboard.myTotalDonations') }}</div>
                   <div class="text-h4 text-weight-bolder text-red q-mt-sm">{{ donorTotalAmount }} €</div>
-                  <div class="text-caption text-grey-5 q-mt-xs">{{ userContributions.length }} dons effectués</div>
+                  <div class="text-caption text-grey-5 q-mt-xs">{{ userContributions.length }} {{ $t('dashboard.donationsMade') }}</div>
                 </q-card>
               </div>
             </div>
@@ -253,10 +253,10 @@
                 <q-card class="bg-white shadow-1 q-pa-lg" style="border-radius: 12px;">
                   <div class="text-subtitle1 text-weight-bold q-mb-md" style="color: #0D1B2E;">
                     <q-icon name="trending_up" color="primary" size="24px" class="q-mr-sm" />
-                    Progression cumulative des fonds récoltés
+                    {{ $t('dashboard.cumulativeProgression') }}
                   </div>
                   <div v-if="organizerContributions.length === 0" class="flex flex-center q-py-xl text-grey-5">
-                    Aucun don reçu pour le moment pour tracer la courbe de progression.
+                    {{ $t('dashboard.noDonationsToChart') }}
                   </div>
                   <div v-else>
                     <VueApexCharts type="area" height="300" :options="progressionChartOptions" :series="progressionChartSeries" />
@@ -269,10 +269,10 @@
                 <q-card class="bg-white shadow-1 q-pa-lg" style="border-radius: 12px; height: 100%;">
                   <div class="text-subtitle1 text-weight-bold q-mb-md" style="color: #0D1B2E;">
                     <q-icon name="pie_chart" color="red" size="24px" class="q-mr-sm" />
-                    Mes dons par catégorie
+                    {{ $t('dashboard.myDonationsByCategory') }}
                   </div>
                   <div v-if="userContributions.length === 0" class="flex flex-center q-py-xl text-grey-5">
-                    Faites des dons pour voir la répartition par catégorie.
+                    {{ $t('dashboard.makeDonationsToChart') }}
                   </div>
                   <div v-else class="flex flex-center">
                     <VueApexCharts type="donut" width="100%" max-width="320px" :options="categoryChartOptions" :series="categoryChartSeries" />
@@ -285,10 +285,10 @@
                 <q-card class="bg-white shadow-1 q-pa-lg" style="border-radius: 12px;">
                   <div class="text-subtitle1 text-weight-bold q-mb-md" style="color: #0D1B2E;">
                     <q-icon name="bar_chart" color="secondary" size="24px" class="q-mr-sm" />
-                    Répartition des dons par tranches de montants
+                    {{ $t('dashboard.donationsByBracket') }}
                   </div>
                   <div v-if="organizerContributions.length === 0" class="flex flex-center q-py-xl text-grey-5">
-                    Aucun don reçu pour le moment.
+                    {{ $t('dashboard.noDonationReceivedYet') }}
                   </div>
                   <div v-else>
                     <VueApexCharts type="bar" height="300" :options="bracketChartOptions" :series="bracketChartSeries" />
@@ -308,8 +308,8 @@
 
           <div v-else-if="activeNotifications.length > 0">
             <div class="row justify-between items-center q-mb-md q-px-sm">
-              <div class="text-subtitle2 text-grey-7">Dernières notifications reçues</div>
-              <q-btn flat dense no-caps color="primary" label="Tout marquer comme lu" v-if="unreadCount > 0" @click="markAllAsRead" />
+              <div class="text-subtitle2 text-grey-7">{{ $t('dashboard.latestNotifications') }}</div>
+              <q-btn flat dense no-caps color="primary" :label="$t('dashboard.markAllAsRead')" v-if="unreadCount > 0" @click="markAllAsRead" />
             </div>
 
             <q-list class="bg-white shadow-1" style="border-radius: 12px; overflow: hidden;">
@@ -347,8 +347,8 @@
 
           <div v-else class="column items-center justify-center q-py-xl text-center text-grey-6 bg-white shadow-1" style="border-radius: 12px; border: 1px dashed #CCC;">
             <q-icon name="notifications_none" size="64px" color="grey-3" />
-            <div class="text-h6 q-mt-md">Aucune notification pour le moment</div>
-            <div class="text-body2 q-mt-sm text-grey-5">Vous recevrez des alertes ici lors de nouvelles activités.</div>
+            <div class="text-h6 q-mt-md">{{ $t('dashboard.noNotificationsYet') }}</div>
+            <div class="text-body2 q-mt-sm text-grey-5">{{ $t('dashboard.noNotificationsDesc') }}</div>
           </div>
         </q-tab-panel>
 
@@ -695,7 +695,7 @@ const downloadReceipt = (contrib) => {
   doc.save(`recu-potify-${contrib.id.substring(0, 8)}.pdf`)
 }
 
-// Récupère les cagnottes créées par l'utilisateur (dont il est propriétaire)
+// Récupère les {{ $t('dashboard.poolsCreated') }} par l'utilisateur (dont il est propriétaire)
 const fetchUserPools = async () => {
   if (!userId.value) return
   loadingPools.value = true

@@ -2,7 +2,7 @@
   <q-page padding>
     <div class="row items-center justify-between q-mb-md">
       <div class="text-h4">Gestion des Utilisateurs</div>
-      <q-btn color="primary" icon="person_add" label="Ajouter" @click="openDialog()" />
+      <q-btn color="primary" icon="person_add" :label="$t('userList.addButton')" @click="openDialog()" />
     </div>
 
     <q-table
