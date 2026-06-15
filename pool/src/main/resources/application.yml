@@ -50,5 +50,5 @@ application:
     api-secret: wL8TV51jdidtGpCP7ibcn4pFgNA
   ai:
     gemini:
-      api-key: AIzaSyA4GiqGfc56ZqG2ObiQ5htbsDmscCRJr7E
+      api-key: "AQ.Ab8RN6J9G1xnw7NB3AcONErZZH3TZVWdZtdLXq3YfQW471tSPA"
 
