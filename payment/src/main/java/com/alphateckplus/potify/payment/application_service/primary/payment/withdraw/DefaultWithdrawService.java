@@ -1,5 +1,6 @@
 package com.alphateckplus.potify.payment.application_service.primary.payment.withdraw;
 
+import com.alphateckplus.potify.payment.application_service.secondary.notification.NotificationEventPublisherPort;
 import com.alphateckplus.potify.payment.application_service.secondary.payment.PaymentRepositoryPort;
 import com.alphateckplus.potify.payment.domain.model.Transaction;
 import com.alphateckplus.potify.payment.domain.model.TransactionStatus;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 public class DefaultWithdrawService implements WithdrawService {
 
     private final PaymentRepositoryPort repositoryPort;
+    private final NotificationEventPublisherPort notificationEventPublisherPort;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -35,20 +37,32 @@ public class DefaultWithdrawService implements WithdrawService {
         BigDecimal feePercent = new BigDecimal("0.02");
         BigDecimal fees = request.getAmount().multiply(feePercent);
 
-        // Debit wallet available balance
+        // Debit wallet available balance (reserve funds)
         repositoryPort.debitWallet(request.getPoolId(), request.getAmount());
 
-        // Create transaction trace
+        // Create transaction trace with PENDING status
         Transaction transaction = Transaction.builder()
                 .walletId(request.getPoolId())
                 .type(TransactionType.WITHDRAWAL)
                 .amount(request.getAmount())
                 .fees(fees)
-                .status(TransactionStatus.SUCCESS)
+                .status(TransactionStatus.PENDING)
+                .iban(request.getIban())
+                .accountHolderName(request.getAccountHolderName())
+                .bankName(request.getBankName())
                 .build();
         
         repositoryPort.saveTransaction(transaction);
 
-        log.info("Withdrawal successfully processed. Amount: {}, Fees applied: {}", request.getAmount(), fees);
+        try {
+            String poolTitle = repositoryPort.getPoolTitle(request.getPoolId());
+            String title = "Demande de retrait enregistrée";
+            String content = "Votre demande de retrait de " + request.getAmount() + "€ (frais appliqués : " + fees + "€) pour la cagnotte '" + poolTitle + "' est en cours de traitement.";
+            notificationEventPublisherPort.publish(request.getUserId(), "WITHDRAWAL_REQUESTED", title, content);
+        } catch (Exception e) {
+            log.error("Erreur lors de la publication de la notification de retrait", e);
+        }
+
+        log.info("Withdrawal request created with PENDING status. Amount: {}, Fees applied: {}", request.getAmount(), fees);
     }
 }

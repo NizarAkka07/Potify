@@ -20,4 +20,7 @@ public class Transaction {
     private BigDecimal amount;
     private BigDecimal fees;
     private TransactionStatus status;
+    private String iban;
+    private String accountHolderName;
+    private String bankName;
 }

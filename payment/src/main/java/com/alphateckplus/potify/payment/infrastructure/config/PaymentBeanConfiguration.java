@@ -81,7 +81,16 @@ public class PaymentBeanConfiguration {
     }
 
     @Bean
-    public WithdrawService withdrawService(PaymentRepositoryPort repositoryPort) {
-        return new DefaultWithdrawService(repositoryPort);
+    public WithdrawService withdrawService(
+            PaymentRepositoryPort repositoryPort,
+            com.alphateckplus.potify.payment.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
+        return new DefaultWithdrawService(repositoryPort, notificationEventPublisherPort);
+    }
+
+    @Bean
+    public com.alphateckplus.potify.payment.application_service.primary.payment.withdraw.ConfirmWithdrawalService confirmWithdrawalService(
+            PaymentRepositoryPort repositoryPort,
+            com.alphateckplus.potify.payment.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
+        return new com.alphateckplus.potify.payment.application_service.primary.payment.withdraw.DefaultConfirmWithdrawalService(repositoryPort, notificationEventPublisherPort);
     }
 }

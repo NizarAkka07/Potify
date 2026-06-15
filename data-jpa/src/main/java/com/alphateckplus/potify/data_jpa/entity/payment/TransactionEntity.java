@@ -54,4 +54,13 @@ public class TransactionEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
     private TransactionStatus status;
+
+    @Column(name = "iban", length = 50)
+    private String iban;
+
+    @Column(name = "account_holder_name", length = 100)
+    private String accountHolderName;
+
+    @Column(name = "bank_name", length = 100)
+    private String bankName;
 }

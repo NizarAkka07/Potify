@@ -2,9 +2,11 @@ package com.alphateckplus.potify.payment.infrastructure.primary.payment.withdraw
 
 import com.alphateckplus.potify.payment.application_service.primary.payment.withdraw.WithdrawRequest;
 import com.alphateckplus.potify.payment.application_service.primary.payment.withdraw.WithdrawService;
+import com.alphateckplus.potify.payment.application_service.primary.payment.withdraw.ConfirmWithdrawalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class WithdrawController {
 
     private final WithdrawService useCase;
+    private final ConfirmWithdrawalService confirmUseCase;
 
     @lombok.Value
     public static class ErrorResponse {
@@ -32,6 +35,20 @@ public class WithdrawController {
         } catch (Exception e) {
             log.error("Withdrawal error", e);
             return ResponseEntity.status(500).body(new ErrorResponse("Une erreur interne est survenue lors du retrait."));
+        }
+    }
+
+    @PostMapping("/api/payments/withdraw/{transactionId}/confirm")
+    public ResponseEntity<?> confirm(@PathVariable String transactionId) {
+        try {
+            confirmUseCase.execute(transactionId);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            log.warn("Withdrawal confirmation warning: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Withdrawal confirmation error", e);
+            return ResponseEntity.status(500).body(new ErrorResponse("Une erreur interne est survenue lors de la confirmation du retrait."));
         }
     }
 }

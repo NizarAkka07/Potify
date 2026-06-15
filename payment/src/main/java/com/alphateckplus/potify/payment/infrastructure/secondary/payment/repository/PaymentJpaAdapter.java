@@ -119,6 +119,9 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
         entity.setFees(domain.getFees());
         entity.setType(mapTypeToEntity(domain.getType()));
         entity.setStatus(mapStatusToEntity(domain.getStatus()));
+        entity.setIban(domain.getIban());
+        entity.setAccountHolderName(domain.getAccountHolderName());
+        entity.setBankName(domain.getBankName());
 
         if (domain.getWalletId() != null) {
             CagnotteWalletEntity wallet = walletRepository.findById(domain.getWalletId())
@@ -136,6 +139,11 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
 
         TransactionEntity saved = transactionRepository.save(entity);
         return mapToDomain(saved);
+    }
+
+    @Override
+    public Optional<Transaction> findTransactionById(String id) {
+        return transactionRepository.findById(id).map(this::mapToDomain);
     }
 
     @Override
@@ -211,6 +219,9 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
                 .amount(entity.getAmount())
                 .fees(entity.getFees())
                 .status(mapStatusToDomain(entity.getStatus()))
+                .iban(entity.getIban())
+                .accountHolderName(entity.getAccountHolderName())
+                .bankName(entity.getBankName())
                 .build();
     }
 
@@ -226,6 +237,9 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
 
     private TransactionStatus mapStatusToDomain(com.alphateckplus.potify.data_jpa.entity.payment.TransactionStatus status) {
         if (status == null) return null;
+        if (status == com.alphateckplus.potify.data_jpa.entity.payment.TransactionStatus.INITIATED) {
+            return TransactionStatus.PENDING;
+        }
         return TransactionStatus.valueOf(status.name());
     }
 

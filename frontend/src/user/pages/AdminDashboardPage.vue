@@ -164,6 +164,60 @@
           </q-card>
         </div>
       </div>
+
+      <!-- Pending Withdrawal Requests Section -->
+      <div class="row q-col-gutter-lg q-mt-md">
+        <div class="col-12">
+          <q-card class="q-pa-md shadow-2" style="border-radius: 12px; background: white;">
+            <div class="text-subtitle1 text-weight-bold q-mb-md" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
+              Demandes de Retrait en Attente
+            </div>
+
+            <q-table
+              flat
+              bordered
+              :rows="pendingWithdrawals"
+              :columns="withdrawalColumns"
+              row-key="id"
+              :loading="loadingWithdrawals"
+              no-data-label="Aucune demande de retrait en attente."
+            >
+              <template v-slot:body-cell-amount="props">
+                <q-td :props="props" class="text-weight-bold text-primary">
+                  {{ props.row.amount }} €
+                </q-td>
+              </template>
+
+              <template v-slot:body-cell-fees="props">
+                <q-td :props="props" class="text-negative">
+                  - {{ props.row.fees }} €
+                </q-td>
+              </template>
+
+              <template v-slot:body-cell-net="props">
+                <q-td :props="props" class="text-weight-bold text-success" style="color: #2e7d32;">
+                  {{ (props.row.amount - props.row.fees).toFixed(2) }} €
+                </q-td>
+              </template>
+
+              <template v-slot:body-cell-actions="props">
+                <q-td :props="props" class="q-gutter-xs">
+                  <q-btn
+                    label="Confirmer le Retrait"
+                    color="positive"
+                    unelevated
+                    size="sm"
+                    no-caps
+                    icon="check"
+                    :loading="confirmingWithdrawalId === props.row.id"
+                    @click="confirmWithdrawalRequest(props.row.id)"
+                  />
+                </q-td>
+              </template>
+            </q-table>
+          </q-card>
+        </div>
+      </div>
     </div>
   </q-page>
 </template>
@@ -188,6 +242,55 @@ const stats = reactive({
 })
 
 const recentPools = ref([])
+
+const pendingWithdrawals = ref([])
+const loadingWithdrawals = ref(false)
+const confirmingWithdrawalId = ref(null)
+
+const withdrawalColumns = [
+  { name: 'walletId', label: 'ID Cagnotte', field: 'walletId', align: 'left', sortable: true },
+  { name: 'accountHolderName', label: 'Titulaire', field: 'accountHolderName', align: 'left' },
+  { name: 'iban', label: 'IBAN', field: 'iban', align: 'left' },
+  { name: 'bankName', label: 'Banque', field: 'bankName', align: 'left' },
+  { name: 'amount', label: 'Montant demandé', field: 'amount', align: 'right' },
+  { name: 'fees', label: 'Frais (2%)', field: 'fees', align: 'right' },
+  { name: 'net', label: 'Net à transférer', align: 'right' },
+  { name: 'actions', label: 'Actions', align: 'center' }
+]
+
+const loadWithdrawals = async () => {
+  loadingWithdrawals.value = true
+  try {
+    const response = await poolService.getTransactions()
+    pendingWithdrawals.value = response.data.filter(
+      tx => tx.type === 'WITHDRAWAL' && tx.status === 'PENDING'
+    )
+  } catch (error) {
+    console.error('Erreur chargement retraits', error)
+  } finally {
+    loadingWithdrawals.value = false
+  }
+}
+
+const confirmWithdrawalRequest = async (transactionId) => {
+  confirmingWithdrawalId.value = transactionId
+  try {
+    await poolService.confirmWithdrawal(transactionId)
+    $q.notify({
+      type: 'positive',
+      message: 'Le retrait a été confirmé et le virement réel a été exécuté avec succès !'
+    })
+    await Promise.all([loadWithdrawals(), loadStats()])
+  } catch (error) {
+    console.error('Erreur confirmation retrait', error)
+    $q.notify({
+      type: 'negative',
+      message: error.response?.data?.message || 'Erreur lors de la confirmation du retrait.'
+    })
+  } finally {
+    confirmingWithdrawalId.value = null
+  }
+}
 
 const loadStats = async () => {
   loading.value = true
@@ -240,6 +343,7 @@ const loadStats = async () => {
 
 onMounted(() => {
   loadStats()
+  loadWithdrawals()
 })
 </script>
 

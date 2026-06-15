@@ -117,6 +117,21 @@ export const poolService = {
    */
   withdrawFunds(data) {
     return paymentApi.post('/payments/withdraw', data)
+  },
+
+  /**
+   * Récupère la liste complète des transactions.
+   */
+  getTransactions() {
+    return paymentApi.get('/payments/transactions')
+  },
+
+  /**
+   * Confirme un retrait en attente.
+   * @param {string} transactionId - ID de la transaction à confirmer.
+   */
+  confirmWithdrawal(transactionId) {
+    return paymentApi.post(`/payments/withdraw/${transactionId}/confirm`)
   }
 }
 

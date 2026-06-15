@@ -5,6 +5,7 @@ package com.alphateckplus.potify.data_jpa.entity.payment;
  */
 public enum TransactionStatus {
     INITIATED,
+    PENDING,
     SUCCESS,
     FAILED
 }
