@@ -73,7 +73,8 @@ body.body--dark {
   }
 
   // Override explicit white background blocks
-  .bg-white {
+  .bg-white,
+  .bg-white .q-field__control {
     background: #0A111E !important;
   }
   
@@ -153,6 +154,29 @@ body.body--dark {
     .text-grey-9 {
       color: rgba(255, 255, 255, 0.8) !important;
     }
+  }
+
+  .bg-grey-2 {
+    background: #121F32 !important;
+    color: #FFFFFF !important;
+  }
+
+  .q-field__control {
+    background: #0D1B2E !important;
+    color: #FFFFFF !important;
+    
+    &::before {
+      border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+  }
+
+  .q-field__native,
+  .q-field__prefix,
+  .q-field__suffix,
+  .q-field__input,
+  .q-field__label,
+  .q-placeholder {
+    color: rgba(255, 255, 255, 0.9) !important;
   }
 
   .q-drawer {

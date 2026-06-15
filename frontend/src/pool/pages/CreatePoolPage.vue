@@ -225,7 +225,7 @@
         <!-- SOUS-CAGNOTTES SECTION (Only if mode === 'multi') -->
         <div v-if="mode === 'multi'" class="q-mt-lg">
           <div class="row items-center justify-between q-mb-md">
-            <div class="text-subtitle1 text-weight-bold" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
+            <div class="text-subtitle1 text-weight-bold" :style="{ color: $q.dark.isActive ? '#FFFFFF' : '#0D1B2E', borderBottom: '2px solid #FFB300' }" style="display: inline-block;">
               {{ $t('createPool.step3ComplexHeader') }}
             </div>
             <q-btn 
@@ -238,7 +238,7 @@
             />
           </div>
 
-          <div v-for="(subPool, spIndex) in form.subPools" :key="spIndex" class="q-pa-md q-mb-md bg-grey-2 rounded-borders border-accent relative-position" style="border-inline-start: 6px solid #0D1B2E;">
+          <div v-for="(subPool, spIndex) in form.subPools" :key="spIndex" class="q-pa-md q-mb-md bg-grey-2 rounded-borders border-accent relative-position" :style="{ borderInlineStart: $q.dark.isActive ? '6px solid #FFA726' : '6px solid #0D1B2E' }">
             <q-btn 
               v-if="form.subPools.length > 1"
               icon="close" 
@@ -376,7 +376,7 @@
         <!-- PHASES SECTION (Only if mode === 'simple') -->
         <div v-if="mode === 'simple'" class="q-mt-lg">
           <div class="row items-center justify-between q-mb-md">
-            <div class="text-subtitle1 text-weight-bold" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
+            <div class="text-subtitle1 text-weight-bold" :style="{ color: $q.dark.isActive ? '#FFFFFF' : '#0D1B2E', borderBottom: '2px solid #FFB300' }" style="display: inline-block;">
               {{ $t('createPool.phasesHeaderSimple') }}
             </div>
             <q-btn 
