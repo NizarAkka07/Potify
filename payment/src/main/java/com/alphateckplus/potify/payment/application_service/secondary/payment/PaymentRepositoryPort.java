@@ -17,6 +17,7 @@ public interface PaymentRepositoryPort {
     Transaction saveTransaction(Transaction transaction);
     List<Transaction> findAllTransactions();
     void creditPoolAndWallet(String poolId, BigDecimal amount);
+    void debitWallet(String poolId, BigDecimal amount);
     String getPoolOwnerId(String poolId);
     String getPoolTitle(String poolId);
 }

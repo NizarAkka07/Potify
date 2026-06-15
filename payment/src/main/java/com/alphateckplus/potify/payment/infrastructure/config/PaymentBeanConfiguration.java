@@ -17,6 +17,8 @@ import com.alphateckplus.potify.payment.application_service.primary.payment.init
 import com.alphateckplus.potify.payment.application_service.secondary.payment.PayPalGatewayPort;
 import com.alphateckplus.potify.payment.application_service.secondary.payment.PaymentRepositoryPort;
 import com.alphateckplus.potify.payment.application_service.secondary.payment.StripeGatewayPort;
+import com.alphateckplus.potify.payment.application_service.primary.payment.withdraw.WithdrawService;
+import com.alphateckplus.potify.payment.application_service.primary.payment.withdraw.DefaultWithdrawService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -76,5 +78,10 @@ public class PaymentBeanConfiguration {
     public com.alphateckplus.potify.payment.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort(
             org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate) {
         return new com.alphateckplus.potify.payment.infrastructure.secondary.notification.KafkaNotificationEventPublisherAdapter(kafkaTemplate);
+    }
+
+    @Bean
+    public WithdrawService withdrawService(PaymentRepositoryPort repositoryPort) {
+        return new DefaultWithdrawService(repositoryPort);
     }
 }

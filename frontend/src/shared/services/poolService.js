@@ -109,6 +109,14 @@ export const poolService = {
    */
   getUserContributions(userId) {
     return paymentApi.get(`/contributions/user/${userId}`)
+  },
+
+  /**
+   * Effectue un retrait depuis le portefeuille d'une cagnotte.
+   * @param {Object} data - Contient poolId, userId, amount, iban, accountHolderName, bankName.
+   */
+  withdrawFunds(data) {
+    return paymentApi.post('/payments/withdraw', data)
   }
 }
 

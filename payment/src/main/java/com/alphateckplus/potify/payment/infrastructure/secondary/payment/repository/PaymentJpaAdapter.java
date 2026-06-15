@@ -172,6 +172,17 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
         }
     }
 
+    @Override
+    public void debitWallet(String poolId, BigDecimal amount) {
+        CagnotteWalletEntity wallet = walletRepository.findByPoolId(poolId)
+                .orElseThrow(() -> new IllegalArgumentException("Portefeuille introuvable"));
+        if (wallet.getAvailableBalance().compareTo(amount) < 0) {
+            throw new IllegalArgumentException("Solde insuffisant pour effectuer ce retrait");
+        }
+        wallet.setAvailableBalance(wallet.getAvailableBalance().subtract(amount));
+        walletRepository.save(wallet);
+    }
+
     // Mappers
     private Contribution mapToDomain(ContributionEntity entity) {
         if (entity == null) return null;
@@ -225,11 +236,17 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
 
     private TransactionType mapTypeToDomain(com.alphateckplus.potify.data_jpa.entity.payment.TransactionType type) {
         if (type == null) return null;
+        if (type == com.alphateckplus.potify.data_jpa.entity.payment.TransactionType.PAYOUT) {
+            return TransactionType.WITHDRAWAL;
+        }
         return TransactionType.valueOf(type.name());
     }
 
     private com.alphateckplus.potify.data_jpa.entity.payment.TransactionType mapTypeToEntity(TransactionType type) {
         if (type == null) return null;
+        if (type == TransactionType.WITHDRAWAL) {
+            return com.alphateckplus.potify.data_jpa.entity.payment.TransactionType.PAYOUT;
+        }
         return com.alphateckplus.potify.data_jpa.entity.payment.TransactionType.valueOf(type.name());
     }
 

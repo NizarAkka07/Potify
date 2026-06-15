@@ -330,23 +330,35 @@
 
             <!-- SECTION FINANCIERE (Visible uniquement par le proprietaire) -->
             <div v-if="isOwner" class="q-mb-xl">
-              <div class="text-h6 text-weight-bold q-mb-md" style="color: #0D1B2E;">
+              <div class="text-h6 text-weight-bold q-mb-md" :style="{ color: $q.dark.isActive ? '#FFFFFF' : '#0D1B2E' }">
                 <q-icon name="account_balance_wallet" color="primary" class="q-mr-sm" />
                 {{ $t('poolDetail.financialDashboard') }}
               </div>
               <div class="row q-col-gutter-md">
                 <div class="col-12 col-sm-6">
-                  <q-card flat bordered class="bg-green-1 text-green-9" style="border-radius: 12px;">
-                    <q-card-section>
+                  <q-card flat bordered :class="$q.dark.isActive ? 'bg-grey-9 text-green-4' : 'bg-green-1 text-green-9'" style="border-radius: 12px; border: 1px solid rgba(76, 175, 80, 0.3);">
+                    <q-card-section class="column justify-between" style="min-height: 140px;">
                       <div class="text-overline">{{ $t('poolDetail.availableBalance') }}</div>
                       <div class="text-h4 text-weight-bolder">{{ pool.availableBalance || 0 }} €</div>
                       <div class="text-caption">{{ $t('poolDetail.readyToWithdraw') }}</div>
+                      <div class="q-mt-md" v-if="pool.availableBalance > 0">
+                        <q-btn 
+                          label="Demander un retrait" 
+                          color="positive" 
+                          unelevated 
+                          no-caps 
+                          icon="payment"
+                          class="full-width text-weight-bold"
+                          style="border-radius: 8px;"
+                          @click="openWithdrawDialog"
+                        />
+                      </div>
                     </q-card-section>
                   </q-card>
                 </div>
                 <div class="col-12 col-sm-6">
-                  <q-card flat bordered class="bg-blue-1 text-blue-9" style="border-radius: 12px;">
-                    <q-card-section>
+                  <q-card flat bordered :class="$q.dark.isActive ? 'bg-grey-9 text-blue-4' : 'bg-blue-1 text-blue-9'" style="border-radius: 12px; border: 1px solid rgba(33, 150, 243, 0.3);">
+                    <q-card-section class="column justify-between" style="min-height: 140px;">
                       <div class="text-overline">{{ $t('poolDetail.pending') }}</div>
                       <div class="text-h4 text-weight-bolder">{{ pool.pendingBalance || 0 }} €</div>
                       <div class="text-caption">{{ $t('poolDetail.pendingDesc') }}</div>
@@ -643,6 +655,98 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+    <!-- Dialogue de Retrait (Withdrawal) -->
+    <q-dialog v-model="withdrawDialog" persistent>
+      <q-card style="min-width: 400px; border-radius: 16px;" :dark="$q.dark.isActive">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6 text-weight-bold">Demander un retrait</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section class="q-pt-md">
+          <div class="q-pa-md bg-amber-1 text-amber-9 text-caption rounded-borders q-mb-md flex items-start no-wrap" :style="$q.dark.isActive ? { background: 'rgba(255, 193, 7, 0.15)', color: '#FFD54F' } : {}">
+            <q-icon name="warning" class="q-mr-xs q-mt-xs" size="sm" />
+            <div>
+              <strong>Frais applicables :</strong> Des frais de service et de transaction de <strong>2%</strong> seront appliqués au montant retiré. Veuillez vous assurer que vos coordonnées bancaires sont correctes.
+            </div>
+          </div>
+
+          <div class="q-gutter-md">
+            <q-input
+              outlined
+              v-model.number="withdrawForm.amount"
+              type="number"
+              label="Montant à retirer"
+              suffix="€"
+              :rules="[
+                val => val > 0 || 'Le montant doit être supérieur à 0',
+                val => val <= pool.availableBalance || 'Le montant dépasse le solde disponible (' + pool.availableBalance + ' €)'
+              ]"
+              color="secondary"
+              autofocus
+            />
+
+            <q-input
+              outlined
+              v-model="withdrawForm.accountHolderName"
+              label="Titulaire du compte"
+              placeholder="Ex: Jean Dupont"
+              color="secondary"
+              :rules="[val => !!val || 'Le titulaire du compte est obligatoire']"
+            />
+
+            <q-input
+              outlined
+              v-model="withdrawForm.iban"
+              label="IBAN"
+              placeholder="FR76 3000..."
+              color="secondary"
+              :rules="[
+                val => !!val || 'L\'IBAN est obligatoire',
+                val => val.length >= 14 || 'Format IBAN invalide'
+              ]"
+            />
+
+            <q-input
+              outlined
+              v-model="withdrawForm.bankName"
+              label="Nom de la banque"
+              placeholder="Ex: Société Générale"
+              color="secondary"
+            />
+
+            <!-- Résumé des frais -->
+            <div class="q-pa-md rounded-borders" :style="{ background: $q.dark.isActive ? 'rgba(255,255,255,0.05)' : '#F5F5F5' }">
+              <div class="row justify-between q-mb-xs">
+                <span>Montant demandé :</span>
+                <span class="text-weight-bold">{{ withdrawForm.amount || 0 }} €</span>
+              </div>
+              <div class="row justify-between text-negative q-mb-xs">
+                <span>Frais de service (2%) :</span>
+                <span>- {{ calculatedFees }} €</span>
+              </div>
+              <q-separator class="q-my-sm" />
+              <div class="row justify-between text-h6 text-weight-bolder text-primary">
+                <span>Montant transféré :</span>
+                <span>{{ netAmount }} €</span>
+              </div>
+            </div>
+
+            <div class="row justify-end q-mt-lg">
+              <q-btn label="Annuler" flat v-close-popup class="q-mr-sm" />
+              <q-btn 
+                label="Confirmer le retrait" 
+                color="positive" 
+                unelevated 
+                :loading="withdrawing"
+                @click="submitWithdrawal"
+              />
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -669,6 +773,15 @@ const invitations = ref([])
 const inviteEmail = ref('')
 const sendingInvite = ref(false)
 const mediaSlide = ref('image')
+
+const withdrawDialog = ref(false)
+const withdrawing = ref(false)
+const withdrawForm = reactive({
+  amount: 0,
+  iban: '',
+  accountHolderName: '',
+  bankName: ''
+})
 let messageEventSource = null
 
 const isOwner = computed(() => {
@@ -1033,6 +1146,74 @@ const submitPayment = async (method) => {
   } finally {
     submitting.value = false
     selectedMethod.value = null
+  }
+}
+
+const openWithdrawDialog = () => {
+  withdrawForm.amount = pool.value.availableBalance || 0
+  withdrawForm.iban = ''
+  withdrawForm.accountHolderName = authStore.user.value?.firstName 
+    ? `${authStore.user.value.firstName} ${authStore.user.value.lastName || ''}`.trim()
+    : 'Titulaire'
+  withdrawForm.bankName = ''
+  withdrawDialog.value = true
+}
+
+const calculatedFees = computed(() => {
+  if (!withdrawForm.amount || isNaN(withdrawForm.amount)) return '0.00'
+  return (withdrawForm.amount * 0.02).toFixed(2)
+})
+
+const netAmount = computed(() => {
+  if (!withdrawForm.amount || isNaN(withdrawForm.amount)) return '0.00'
+  const net = withdrawForm.amount - parseFloat(calculatedFees.value)
+  return net > 0 ? net.toFixed(2) : '0.00'
+})
+
+const submitWithdrawal = async () => {
+  if (withdrawForm.amount <= 0 || withdrawForm.amount > pool.value.availableBalance) {
+    $q.notify({
+      type: 'negative',
+      message: 'Le montant du retrait est invalide.'
+    })
+    return
+  }
+  if (!withdrawForm.iban || !withdrawForm.accountHolderName) {
+    $q.notify({
+      type: 'negative',
+      message: "Veuillez renseigner l'IBAN et le titulaire du compte."
+    })
+    return
+  }
+  
+  withdrawing.value = true
+  try {
+    const payload = {
+      poolId: pool.value.id,
+      userId: authStore.user.value?.id,
+      amount: withdrawForm.amount,
+      iban: withdrawForm.iban,
+      accountHolderName: withdrawForm.accountHolderName,
+      bankName: withdrawForm.bankName
+    }
+    await poolService.withdrawFunds(payload)
+    
+    $q.notify({
+      type: 'positive',
+      message: 'Votre demande de retrait a été traitée avec succès !'
+    })
+    withdrawDialog.value = false
+    
+    // Refresh pool details to update balances
+    await fetchPool()
+  } catch (err) {
+    console.error('Erreur lors du retrait:', err)
+    $q.notify({
+      type: 'negative',
+      message: err.response?.data?.message || 'Erreur lors du traitement du retrait.'
+    })
+  } finally {
+    withdrawing.value = false
   }
 }
 
