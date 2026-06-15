@@ -43,7 +43,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolGenerationGatewayPort;
-import com.alphateckplus.potify.pool.infrastructure.secondary.ai.GeminiPoolGenerationAdapter;
+import com.alphateckplus.potify.pool.infrastructure.secondary.ai.MistralPoolGenerationAdapter;
 import com.alphateckplus.potify.pool.application_service.primary.pool.generate_pool_structure.GeneratePoolStructureService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.generate_pool_structure.DefaultGeneratePoolStructureService;
 
@@ -181,7 +181,7 @@ public class PoolBeanConfiguration {
 
     @Bean
     public PoolGenerationGatewayPort poolGenerationGatewayPort() {
-        return new GeminiPoolGenerationAdapter();
+        return new MistralPoolGenerationAdapter();
     }
 
     @Bean

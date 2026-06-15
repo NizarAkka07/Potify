@@ -13,13 +13,13 @@ import org.springframework.web.client.RestTemplate;
 import java.util.*;
 
 /**
- * Adaptateur secondaire pour la génération de cagnotte via l'API Gemini.
+ * Adaptateur secondaire pour la génération de cagnotte via l'API Mistral AI.
  */
 @Slf4j
-public class GeminiPoolGenerationAdapter implements PoolGenerationGatewayPort {
+public class MistralPoolGenerationAdapter implements PoolGenerationGatewayPort {
 
-    @Value("${application.ai.gemini.api-key:}")
-    private String geminiApiKeyFromConfig;
+    @Value("${application.ai.mistral.api-key:}")
+    private String mistralApiKeyFromConfig;
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -27,20 +27,21 @@ public class GeminiPoolGenerationAdapter implements PoolGenerationGatewayPort {
     @Override
     @SuppressWarnings("unchecked")
     public Map<String, Object> generateStructure(String prompt) {
-        String apiKey = System.getenv("GEMINI_API_KEY");
+        String apiKey = System.getenv("MISTRAL_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
-            apiKey = geminiApiKeyFromConfig;
+            apiKey = mistralApiKeyFromConfig;
         }
 
         if (apiKey == null || apiKey.isBlank()) {
-            throw new RuntimeException("La clé API Gemini (GEMINI_API_KEY) n'est pas configurée.");
+            throw new RuntimeException("La clé API Mistral (MISTRAL_API_KEY) n'est pas configurée.");
         }
 
         try {
-            String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
+            String url = "https://api.mistral.ai/v1/chat/completions";
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(apiKey);
 
             String instructions = "Tu es un assistant IA spécialisé dans la structuration de cagnottes (crowdfunding) pour la plateforme Potify.\n" +
                     "Prends le besoin de l'utilisateur et génère une structure de cagnotte en français.\n" +
@@ -74,96 +75,104 @@ public class GeminiPoolGenerationAdapter implements PoolGenerationGatewayPort {
                     "5. La somme des budgets des phases (simple ou dans les sous-cagnottes) doit égaler exactement 'goalAmount'.\n" +
                     "Le besoin de l'utilisateur est : \"" + prompt + "\"";
 
-            Map<String, Object> textPart = new HashMap<>();
-            textPart.put("text", instructions);
+            // Define request payload for Mistral AI
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("model", "mistral-large-latest");
+            
+            Map<String, Object> message = new HashMap<>();
+            message.put("role", "user");
+            message.put("content", instructions);
+            requestBody.put("messages", List.of(message));
 
-            Map<String, Object> partContainer = new HashMap<>();
-            partContainer.put("parts", List.of(textPart));
-
-            Map<String, Object> contents = new HashMap<>();
-            contents.put("contents", List.of(partContainer));
-
-            // Imposer un type de réponse JSON structuré
+            // Structured JSON output configuration
             Map<String, Object> responseSchemaProperties = new HashMap<>();
-            responseSchemaProperties.put("title", Map.of("type", "STRING"));
-            responseSchemaProperties.put("description", Map.of("type", "STRING"));
-            responseSchemaProperties.put("category", Map.of("type", "STRING", "enum", List.of("Santé", "Éducation", "Urgence", "Animaux", "Projets", "Sport")));
-            responseSchemaProperties.put("goalAmount", Map.of("type", "NUMBER"));
-            responseSchemaProperties.put("mode", Map.of("type", "STRING", "enum", List.of("simple", "multi")));
+            responseSchemaProperties.put("title", Map.of("type", "string"));
+            responseSchemaProperties.put("description", Map.of("type", "string"));
+            responseSchemaProperties.put("category", Map.of("type", "string", "enum", List.of("Santé", "Éducation", "Urgence", "Animaux", "Projets", "Sport")));
+            responseSchemaProperties.put("goalAmount", Map.of("type", "number"));
+            responseSchemaProperties.put("mode", Map.of("type", "string", "enum", List.of("simple", "multi")));
             
             // Phase schema
             Map<String, Object> phaseProperties = new HashMap<>();
-            phaseProperties.put("title", Map.of("type", "STRING"));
-            phaseProperties.put("goalAmount", Map.of("type", "NUMBER"));
+            phaseProperties.put("title", Map.of("type", "string"));
+            phaseProperties.put("goalAmount", Map.of("type", "number"));
             Map<String, Object> phaseSchema = Map.of(
-                "type", "OBJECT",
+                "type", "object",
                 "properties", phaseProperties,
-                "required", List.of("title", "goalAmount")
+                "required", List.of("title", "goalAmount"),
+                "additionalProperties", false
             );
 
             // Simple phases schema
             responseSchemaProperties.put("simplePhases", Map.of(
-                "type", "ARRAY",
+                "type", "array",
                 "items", phaseSchema
             ));
 
             // Subpool schema
             Map<String, Object> subPoolProperties = new HashMap<>();
-            subPoolProperties.put("title", Map.of("type", "STRING"));
-            subPoolProperties.put("description", Map.of("type", "STRING"));
-            subPoolProperties.put("hasDeadline", Map.of("type", "BOOLEAN"));
+            subPoolProperties.put("title", Map.of("type", "string"));
+            subPoolProperties.put("description", Map.of("type", "string"));
+            subPoolProperties.put("hasDeadline", Map.of("type", "boolean"));
             subPoolProperties.put("phases", Map.of(
-                "type", "ARRAY",
+                "type", "array",
                 "items", phaseSchema
             ));
             Map<String, Object> subPoolSchema = Map.of(
-                "type", "OBJECT",
+                "type", "object",
                 "properties", subPoolProperties,
-                "required", List.of("title", "phases")
+                "required", List.of("title", "phases"),
+                "additionalProperties", false
             );
 
             responseSchemaProperties.put("subPools", Map.of(
-                "type", "ARRAY",
+                "type", "array",
                 "items", subPoolSchema
             ));
 
             Map<String, Object> responseSchema = Map.of(
-                "type", "OBJECT",
+                "type", "object",
                 "properties", responseSchemaProperties,
-                "required", List.of("title", "description", "category", "goalAmount", "mode")
+                "required", List.of("title", "description", "category", "goalAmount", "mode"),
+                "additionalProperties", false
             );
 
-            Map<String, Object> generationConfig = new HashMap<>();
-            generationConfig.put("responseMimeType", "application/json");
-            generationConfig.put("responseSchema", responseSchema);
+            Map<String, Object> jsonSchemaConfig = Map.of(
+                "name", "pool_structure_schema",
+                "strict", true,
+                "schema", responseSchema
+            );
 
-            contents.put("generationConfig", generationConfig);
+            Map<String, Object> responseFormat = Map.of(
+                "type", "json_schema",
+                "json_schema", jsonSchemaConfig
+            );
 
-            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(contents, headers);
+            requestBody.put("response_format", responseFormat);
+
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
             ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, requestEntity, String.class);
 
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 Map<String, Object> responseMap = objectMapper.readValue(responseEntity.getBody(), Map.class);
-                List<Map<String, Object>> candidates = (List<Map<String, Object>>) responseMap.get("candidates");
-                if (candidates != null && !candidates.isEmpty()) {
-                    Map<String, Object> contentMap = (Map<String, Object>) candidates.get(0).get("content");
-                    if (contentMap != null) {
-                        List<Map<String, Object>> parts = (List<Map<String, Object>>) contentMap.get("parts");
-                        if (parts != null && !parts.isEmpty()) {
-                            String responseJson = (String) parts.get(0).get("text");
-                            log.info("Réponse brute de l'IA : {}", responseJson);
-                            return objectMapper.readValue(responseJson, Map.class);
-                        }
+                List<Map<String, Object>> choices = (List<Map<String, Object>>) responseMap.get("choices");
+                if (choices != null && !choices.isEmpty()) {
+                    Map<String, Object> choice = choices.get(0);
+                    Map<String, Object> messageMap = (Map<String, Object>) choice.get("message");
+                    if (messageMap != null) {
+                        String responseJson = (String) messageMap.get("content");
+                        log.info("Réponse brute de l'IA (Mistral) : {}", responseJson);
+                        return objectMapper.readValue(responseJson, Map.class);
                     }
                 }
             }
-            throw new RuntimeException("La requête Gemini API a échoué avec le statut : " + responseEntity.getStatusCode());
+            throw new RuntimeException("La requête Mistral API a échoué avec le statut : " + responseEntity.getStatusCode());
         } catch (org.springframework.web.client.HttpStatusCodeException e) {
-            log.error("Erreur HTTP Gemini API : Status = {}, Body = {}", e.getStatusCode(), e.getResponseBodyAsString(), e);
-            throw new RuntimeException("Erreur Gemini API (" + e.getStatusCode() + ") : " + e.getResponseBodyAsString(), e);
+            log.error("Erreur HTTP Mistral API : Status = {}, Body = {}", e.getStatusCode(), e.getResponseBodyAsString(), e);
+            throw new RuntimeException("Erreur Mistral API (" + e.getStatusCode() + ") : " + e.getResponseBodyAsString(), e);
         } catch (Exception e) {
-            log.error("Erreur lors de l'appel Gemini API : {}", e.getMessage(), e);
-            throw new RuntimeException("Erreur de communication avec Gemini : " + e.getMessage(), e);
+            log.error("Erreur lors de l'appel Mistral API : {}", e.getMessage(), e);
+            throw new RuntimeException("Erreur de communication avec Mistral : " + e.getMessage(), e);
         }
     }
 }

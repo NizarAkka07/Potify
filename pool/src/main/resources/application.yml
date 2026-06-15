@@ -51,4 +51,6 @@ application:
   ai:
     gemini:
       api-key: "AQ.Ab8RN6J9G1xnw7NB3AcONErZZH3TZVWdZtdLXq3YfQW471tSPA"
+    mistral:
+      api-key: "iHHRFrffoeZSVrs3NiVPDgESNA55lTf5"
 
