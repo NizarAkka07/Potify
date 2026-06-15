@@ -189,6 +189,17 @@ body.body--dark {
       color: rgba(255, 255, 255, 0.6) !important;
     }
   }
+
+  .notif-unread {
+    background: rgba(255, 167, 38, 0.08) !important;
+    border-left: 3px solid #FFA726;
+  }
+}
+
+.notif-unread {
+  background: rgba(255, 167, 38, 0.05) !important;
+  border-left: 3px solid #FFA726;
+  transition: all 0.3s ease;
 }
 
 

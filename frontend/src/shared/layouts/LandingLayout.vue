@@ -53,8 +53,8 @@
             <!-- Cloche de Notifications -->
             <q-btn flat round dense icon="notifications" style="color: rgba(255,255,255,0.85); margin-right: 8px;" @click="fetchNotifications">
               <q-badge v-if="unreadCount > 0" color="red" floating>{{ unreadCount }}</q-badge>
-              <q-menu style="min-width: 320px; max-height: 400px; border-radius: 8px;" class="q-pa-none">
-                <div class="row items-center justify-between q-pa-md bg-grey-2" style="border-bottom: 1px solid #e0e0e0;">
+              <q-menu :dark="$q.dark.isActive" style="min-width: 320px; max-height: 400px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);" class="q-pa-none">
+                <div class="row items-center justify-between q-pa-md" :style="{ background: $q.dark.isActive ? '#162540' : '#f5f5f5', borderBottom: $q.dark.isActive ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e0e0e0' }">
                   <span class="text-weight-bold text-subtitle1">{{ $t('nav.notifications') }}</span>
                   <span class="text-caption text-grey-7" v-if="unreadCount > 0">{{ unreadCount }} {{ $t('nav.noNotifications') }}</span>
                 </div>
@@ -63,7 +63,13 @@
                   <q-item v-if="notifications.length === 0" class="q-py-md text-center text-grey-6">
                     <q-item-section>{{ $t('nav.noNotifications') }}</q-item-section>
                   </q-item>
-                  <q-item v-for="notif in notifications" :key="notif.id" :class="{'bg-yellow-1': notif.status === 'ACTIVE'}" class="q-py-md" style="border-bottom: 1px solid #f0f0f0;">
+                  <q-item 
+                    v-for="notif in notifications" 
+                    :key="notif.id" 
+                    :class="{'notif-unread': notif.status === 'ACTIVE'}" 
+                    class="q-py-md" 
+                    :style="{ borderBottom: $q.dark.isActive ? '1px solid rgba(255,255,255,0.08)' : '1px solid #f0f0f0' }"
+                  >
                     <q-item-section avatar>
                       <q-icon 
                         :name="notif.type === 'CONTRIBUTION' ? 'monetization_on' : (notif.type === 'MESSAGE' ? 'chat' : (notif.type === 'INVITATION' ? 'person_add' : (notif.type === 'REACTION' ? 'favorite' : 'notifications')))" 
@@ -72,7 +78,7 @@
                     </q-item-section>
                     <q-item-section>
                       <q-item-label class="text-weight-bold">{{ notif.title }}</q-item-label>
-                      <q-item-label caption class="text-grey-9">{{ notif.content }}</q-item-label>
+                      <q-item-label caption :class="$q.dark.isActive ? 'text-grey-4' : 'text-grey-9'">{{ notif.content }}</q-item-label>
                       <q-item-label caption class="text-grey-5">{{ formatDate(notif.createdAt) }}</q-item-label>
                     </q-item-section>
                     <q-item-section side v-if="notif.status === 'ACTIVE'">
