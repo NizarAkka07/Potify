@@ -78,14 +78,14 @@
                 no-caps
                 :label="$t('home.createButton')"
                 to="/pools/create"
-                style="background: #0D1B2E; color: #FFFFFF; font-weight: 700; padding: 10px 24px; border-radius: 8px;"
+                :style="$q.dark.isActive ? 'background: #FFA726; color: #1A1A2A; font-weight: 700; padding: 10px 24px; border-radius: 8px;' : 'background: #0D1B2E; color: #FFFFFF; font-weight: 700; padding: 10px 24px; border-radius: 8px;'"
               />
               <q-btn
                 flat
                 no-caps
                 :label="$t('home.howItWorksButton')"
                 to="#how-it-works"
-                style="color: #0D1B2E; font-weight: 600;"
+                :style="$q.dark.isActive ? 'color: #FFA726; font-weight: 600;' : 'color: #0D1B2E; font-weight: 600;'"
               />
             </div>
           </div>

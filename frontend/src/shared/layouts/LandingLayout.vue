@@ -1,8 +1,8 @@
 <template>
-  <q-layout view="hHh lpR fFf" style="background: #FFFFFF;">
+  <q-layout view="hHh lpR fFf" :style="$q.dark.isActive ? 'background: #0A111E; color: #FFFFFF;' : 'background: #FFFFFF; color: #1A1A2A;'">
 
     <!-- NAVBAR – Dark navy Akkodis exact -->
-    <q-header style="background: #0D1B2E; border-bottom: none; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
+    <q-header :style="{ background: $q.dark.isActive ? '#070F1A' : '#0D1B2E' }" style="border-bottom: none; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
       <q-toolbar class="q-px-xl" style="min-height: 64px;">
 
         <!-- Logo : texte blanc + barre jaune -->
@@ -90,6 +90,16 @@
             </q-btn>
           </template>
 
+          <!-- Dark Mode Toggle -->
+          <q-btn
+            flat round dense
+            :icon="$q.dark.isActive ? 'light_mode' : 'dark_mode'"
+            style="color: rgba(255,255,255,0.85); margin-right: 8px;"
+            @click="toggleDarkMode"
+          >
+            <q-tooltip>{{ $q.dark.isActive ? 'Mode clair' : 'Mode sombre' }}</q-tooltip>
+          </q-btn>
+
           <!-- Language Selector -->
           <q-btn-dropdown
             :key="locale"
@@ -128,7 +138,7 @@
       <router-view />
 
       <!-- FOOTER – dark navy Akkodis avec top-border jaune -->
-      <div style="background: #0D1B2E; border-top: 3px solid #FFB300;">
+      <div :style="{ background: $q.dark.isActive ? '#070F1A' : '#0D1B2E' }" style="border-top: 3px solid #FFB300;">
         <div class="q-px-xl q-py-xl" style="max-width: 1200px; margin: 0 auto;">
           <div class="row q-col-gutter-xl">
 
@@ -188,12 +198,19 @@
 import { useRouter } from 'vue-router'
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useQuasar } from 'quasar'
 import authStore from 'src/shared/stores/auth'
 import notificationService from 'src/shared/services/notificationService'
 import { date } from 'quasar'
 
 const { locale } = useI18n()
 const router = useRouter()
+const $q = useQuasar()
+
+function toggleDarkMode() {
+  $q.dark.toggle()
+  localStorage.setItem('darkMode', $q.dark.isActive)
+}
 
 const langs = [
   { value: 'fr', label: 'Français', flag: '🇫🇷' },

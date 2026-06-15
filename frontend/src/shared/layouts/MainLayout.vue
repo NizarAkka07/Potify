@@ -18,6 +18,17 @@
 
         <div style="color: rgba(255,255,255,0.6);" class="gt-xs">Microservice User</div>
 
+        <!-- Dark Mode Toggle -->
+        <q-btn
+          flat round dense
+          :icon="$q.dark.isActive ? 'light_mode' : 'dark_mode'"
+          style="color: rgba(255,255,255,0.85);"
+          class="q-ml-md"
+          @click="toggleDarkMode"
+        >
+          <q-tooltip>{{ $q.dark.isActive ? 'Mode clair' : 'Mode sombre' }}</q-tooltip>
+        </q-btn>
+
         <!-- Language Selector -->
         <q-btn-dropdown
           :key="locale"
@@ -132,11 +143,18 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useQuasar } from 'quasar'
 import authStore from 'src/shared/stores/auth'
 
 const { locale } = useI18n()
 const router = useRouter()
+const $q = useQuasar()
 const leftDrawerOpen = ref(false)
+
+function toggleDarkMode() {
+  $q.dark.toggle()
+  localStorage.setItem('darkMode', $q.dark.isActive)
+}
 
 const langs = [
   { value: 'fr', label: 'Français', flag: '🇫🇷' },

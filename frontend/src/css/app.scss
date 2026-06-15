@@ -13,13 +13,21 @@
   --akkodis-grey-light:  #F5F5F5;  /* Fond sections alternées */
 }
 
+body.body--dark {
+  --akkodis-white:       #162540;
+  --akkodis-bg:          #0A111E;
+  --akkodis-text:        #FFFFFF;
+  --akkodis-grey-light:  #0E1A2F;
+  --akkodis-navy:        #070F1A;
+}
+
 // Font moderne (Inter comme Akkodis)
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 body {
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-  color: #1A1A2A;
-  background: #E0E0E0;
+  color: var(--akkodis-text);
+  background: var(--akkodis-bg);
 }
 
 // Bouton yellow Akkodis – texte sombre
@@ -44,4 +52,117 @@ body {
   background: #0D1B2E;
   border-bottom: none;
 }
+
+// ── Dark Mode Overrides ──
+body.body--dark {
+  // Page backgrounds and page tags
+  .q-page {
+    background: #0A111E !important;
+    color: #FFFFFF !important;
+  }
+  
+  // Cards
+  .q-card {
+    background: #121F32 !important;
+    color: #FFFFFF !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    
+    .text-dark {
+      color: #FFFFFF !important;
+    }
+  }
+
+  // Override explicit white background blocks
+  .bg-white {
+    background: #0A111E !important;
+  }
+  
+  // Text overrides
+  .text-dark, 
+  .text-grey-9,
+  .text-black {
+    color: #FFFFFF !important;
+  }
+  
+  .text-grey-6,
+  .text-grey-7,
+  .text-grey-8 {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .text-grey-4,
+  .text-grey-5 {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  // Headings
+  h1, h2, h3, h4, h5, h6,
+  .text-h1, .text-h2, .text-h3, .text-h4, .text-h5, .text-h6,
+  .hero-title, .hero-subtitle {
+    color: #FFFFFF !important;
+  }
+
+  // Specific components like search bar, tags, and step-circles
+  .search-bar {
+    background: #162540 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    
+    .q-field__native,
+    .q-field__input {
+      color: #FFFFFF !important;
+    }
+  }
+
+  .step-icon-circle {
+    background: #FFA726 !important;
+    color: #0D1B2E !important;
+  }
+
+  .simple-pool-card {
+    background: #121F32 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .category-flat-card {
+    background: #121F32 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    
+    .text-dark {
+      color: #FFFFFF !important;
+    }
+  }
+
+  .simple-badge {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .badge-text {
+    color: #FFFFFF !important;
+  }
+
+  // List elements
+  .q-list {
+    background: #121F32 !important;
+    color: #FFFFFF !important;
+  }
+  
+  .q-item {
+    color: #FFFFFF !important;
+    
+    .text-grey-9 {
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+  }
+
+  .q-drawer {
+    background: #0A111E !important;
+    border-right-color: rgba(255, 255, 255, 0.08) !important;
+    
+    .q-item-label--header {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+  }
+}
+
 
