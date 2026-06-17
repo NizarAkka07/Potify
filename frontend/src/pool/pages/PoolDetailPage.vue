@@ -573,6 +573,23 @@
               autofocus
             />
 
+            <!-- Résumé des frais de contribution -->
+            <div class="q-pa-md rounded-borders q-mt-sm" :style="{ background: $q.dark.isActive ? 'rgba(255,255,255,0.05)' : '#F5F5F5', borderRadius: '8px' }">
+              <div class="row justify-between text-caption text-grey-7 q-mb-xs">
+                <span>Montant de votre don :</span>
+                <span>{{ contributionForm.amount || 0 }} €</span>
+              </div>
+              <div class="row justify-between text-caption text-negative q-mb-xs">
+                <span>Frais de service ({{ poolFees }}% déduits) :</span>
+                <span>- {{ (contributionForm.amount * (poolFees / 100) || 0).toFixed(2) }} €</span>
+              </div>
+              <q-separator class="q-my-sm" />
+              <div class="row justify-between text-subtitle2 text-weight-bold text-primary">
+                <span>Montant net collecté pour la cagnotte :</span>
+                <span>{{ (contributionForm.amount * (1 - poolFees / 100) || 0).toFixed(2) }} €</span>
+              </div>
+            </div>
+
             <div v-if="!authStore.isAuthenticated.value" class="q-pa-md bg-amber-1 text-amber-9 text-caption rounded-borders q-mb-sm flex items-center no-wrap">
               <q-icon name="info" class="q-mr-xs" size="sm" />
               <span>Vous n'êtes pas connecté. Saisissez votre nom et adresse email. Si vous créez un compte plus tard avec cette même adresse email, toutes vos contributions y seront associées après confirmation de votre compte.</span>
@@ -665,10 +682,10 @@
         </q-card-section>
 
         <q-card-section class="q-pt-md">
-          <div class="q-pa-md bg-amber-1 text-amber-9 text-caption rounded-borders q-mb-md flex items-start no-wrap" :style="$q.dark.isActive ? { background: 'rgba(255, 193, 7, 0.15)', color: '#FFD54F' } : {}">
-            <q-icon name="warning" class="q-mr-xs q-mt-xs" size="sm" />
+          <div class="q-pa-md bg-green-1 text-green-9 text-caption rounded-borders q-mb-md flex items-start no-wrap" :style="$q.dark.isActive ? { background: 'rgba(76, 175, 80, 0.15)', color: '#81C784' } : {}">
+            <q-icon name="info" class="q-mr-xs q-mt-xs" size="sm" />
             <div>
-              <strong>Frais applicables :</strong> Des frais de service et de transaction de <strong>2%</strong> seront appliqués au montant retiré. Veuillez vous assurer que vos coordonnées bancaires sont correctes.
+              Les frais de service de {{ poolFees }}% ont déjà été déduits lors des contributions. Aucun frais supplémentaire ne sera prélevé sur ce retrait.
             </div>
           </div>
 
@@ -722,13 +739,13 @@
                 <span>Montant demandé :</span>
                 <span class="text-weight-bold">{{ withdrawForm.amount || 0 }} €</span>
               </div>
-              <div class="row justify-between text-negative q-mb-xs">
-                <span>Frais de service (2%) :</span>
-                <span>- {{ calculatedFees }} €</span>
+              <div class="row justify-between text-grey-7 q-mb-xs">
+                <span>Frais de service (déduits au dépôt) :</span>
+                <span>0.00 €</span>
               </div>
               <q-separator class="q-my-sm" />
               <div class="row justify-between text-h6 text-weight-bolder text-primary">
-                <span>Montant transféré :</span>
+                <span>Montant transféré net :</span>
                 <span>{{ netAmount }} €</span>
               </div>
             </div>
@@ -790,6 +807,12 @@ const isOwner = computed(() => {
 
 const isAdmin = computed(() => {
   return authStore.isAuthenticated.value && (authStore.user.value?.roles?.includes('ADMIN') || authStore.user.value?.role === 'ADMIN')
+})
+
+const poolFees = computed(() => {
+  return pool.value && pool.value.fees !== undefined && pool.value.fees !== null
+    ? pool.value.fees
+    : 2
 })
 
 const youtubeId = computed(() => {
@@ -1159,15 +1182,9 @@ const openWithdrawDialog = () => {
   withdrawDialog.value = true
 }
 
-const calculatedFees = computed(() => {
-  if (!withdrawForm.amount || isNaN(withdrawForm.amount)) return '0.00'
-  return (withdrawForm.amount * 0.02).toFixed(2)
-})
-
 const netAmount = computed(() => {
   if (!withdrawForm.amount || isNaN(withdrawForm.amount)) return '0.00'
-  const net = withdrawForm.amount - parseFloat(calculatedFees.value)
-  return net > 0 ? net.toFixed(2) : '0.00'
+  return withdrawForm.amount.toFixed(2)
 })
 
 const submitWithdrawal = async () => {

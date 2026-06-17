@@ -64,6 +64,10 @@ public class ContributionEntity extends BaseEntity {
     @Column(name = "payment_method", length = 255)
     private String paymentMethod;
 
+    @Column(name = "fees", nullable = false, precision = 19, scale = 2)
+    @lombok.Builder.Default
+    private BigDecimal fees = BigDecimal.ZERO;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
     private ContributionStatus status;

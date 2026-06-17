@@ -84,6 +84,16 @@
         </q-td>
       </template>
 
+      <!-- Custom fees cell -->
+      <template v-slot:body-cell-fees="props">
+        <q-td :props="props" class="text-center">
+          <q-btn flat dense no-caps color="primary" icon-right="edit" class="text-weight-bold" @click="editPoolFees(props.row)">
+            {{ props.row.fees !== undefined && props.row.fees !== null ? props.row.fees : '2.00' }} %
+            <q-tooltip>Modifier le taux de frais</q-tooltip>
+          </q-btn>
+        </q-td>
+      </template>
+
       <!-- Custom Actions cell -->
       <template v-slot:body-cell-actions="props">
         <q-td :props="props" class="text-center q-gutter-xs">
@@ -162,6 +172,7 @@ const columns = [
   { name: 'category', align: 'center', label: 'Catégorie', field: 'category', sortable: true },
   { name: 'progress', align: 'left', label: 'Collecte', field: 'currentAmount', sortable: true },
   { name: 'status', align: 'center', label: 'Statut', field: 'status', sortable: true },
+  { name: 'fees', align: 'center', label: 'Frais (%)', field: 'fees', sortable: true },
   { name: 'actions', align: 'center', label: 'Actions', field: 'actions', sortable: false }
 ]
 
@@ -237,6 +248,45 @@ const changeStatus = (pool, newStatus) => {
       $q.notify({
         type: 'negative',
         message: 'Erreur de mise à jour du statut'
+      })
+    }
+  })
+}
+
+const editPoolFees = (pool) => {
+  $q.dialog({
+    title: 'Modifier les frais',
+    message: `Définir le pourcentage de frais pour la cagnotte "${pool.title}" :`,
+    prompt: {
+      model: pool.fees !== undefined && pool.fees !== null ? pool.fees.toString() : '2.00',
+      type: 'number',
+      step: '0.01',
+      min: '0',
+      max: '100',
+      isValid: val => val >= 0 && val <= 100
+    },
+    cancel: true,
+    persistent: true
+  }).onOk(async (newFees) => {
+    try {
+      await poolService.updatePool(pool.id, {
+        title: pool.title,
+        description: pool.description,
+        goalAmount: pool.goalAmount,
+        status: pool.status,
+        videoUrl: pool.videoUrl,
+        fees: parseFloat(newFees)
+      })
+      $q.notify({
+        type: 'positive',
+        message: 'Le taux de frais a été mis à jour avec succès.'
+      })
+      loadPools()
+    } catch (error) {
+      console.error(error)
+      $q.notify({
+        type: 'negative',
+        message: 'Erreur lors de la mise à jour des frais'
       })
     }
   })

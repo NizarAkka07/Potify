@@ -30,6 +30,7 @@ public class DefaultUpdatePoolService implements UpdatePoolService {
         if (poolToUpdate.getVideoUrl() != null) pool.setVideoUrl(poolToUpdate.getVideoUrl());
         if (poolToUpdate.getImageContent() != null) pool.setImageContent(poolToUpdate.getImageContent());
         if (poolToUpdate.getImageContentType() != null) pool.setImageContentType(poolToUpdate.getImageContentType());
+        if (poolToUpdate.getFees() != null) pool.setFees(poolToUpdate.getFees());
 
         pool.setUpdatedAt(Instant.now());
 

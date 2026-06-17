@@ -12,5 +12,6 @@ public record UpdatePoolRequest(
     String status,
     String videoUrl,
     String imageData, // Base64
-    String imageContentType
+    String imageContentType,
+    BigDecimal fees
 ) {}

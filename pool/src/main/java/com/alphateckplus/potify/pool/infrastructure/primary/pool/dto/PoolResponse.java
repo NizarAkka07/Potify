@@ -32,5 +32,6 @@ public record PoolResponse(
     Boolean hasDeadline,
     java.time.LocalDateTime deadlineDate,
     Instant createdAt,
-    Instant updatedAt
+    Instant updatedAt,
+    BigDecimal fees
 ) {}

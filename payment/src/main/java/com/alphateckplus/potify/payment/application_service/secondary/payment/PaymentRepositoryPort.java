@@ -21,4 +21,5 @@ public interface PaymentRepositoryPort {
     void debitWallet(String poolId, BigDecimal amount);
     String getPoolOwnerId(String poolId);
     String getPoolTitle(String poolId);
+    BigDecimal getPoolFees(String poolId);
 }

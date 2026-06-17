@@ -53,6 +53,7 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
         entity.setAnonymous(domain.isAnonymous());
         entity.setPaymentMethod(domain.getPaymentMethod());
         entity.setStatus(mapStatusToEntity(domain.getStatus()));
+        entity.setFees(domain.getFees() != null ? domain.getFees() : BigDecimal.ZERO);
 
         if (domain.getPoolId() != null) {
             PoolEntity pool = poolRepository.findById(domain.getPoolId())
@@ -205,6 +206,7 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
                 .anonymous(entity.isAnonymous())
                 .paymentMethod(entity.getPaymentMethod())
                 .status(mapStatusToDomain(entity.getStatus()))
+                .fees(entity.getFees())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
@@ -276,5 +278,12 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
         return poolRepository.findById(poolId)
                 .map(com.alphateckplus.potify.data_jpa.entity.pool.PoolEntity::getTitle)
                 .orElseThrow(() -> new IllegalArgumentException("Cagnotte introuvable: " + poolId));
+    }
+
+    @Override
+    public BigDecimal getPoolFees(String poolId) {
+        return poolRepository.findById(poolId)
+                .map(pool -> pool.getFees() != null ? pool.getFees() : new BigDecimal("2.00"))
+                .orElse(new BigDecimal("2.00"));
     }
 }

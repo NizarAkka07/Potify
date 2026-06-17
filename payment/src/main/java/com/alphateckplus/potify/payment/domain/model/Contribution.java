@@ -18,6 +18,7 @@ public class Contribution {
     private String poolId;
     private String userId;
     private BigDecimal amount;
+    private BigDecimal fees;
     private String contributorEmail;
     private String contributorName;
     private String message;

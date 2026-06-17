@@ -103,6 +103,10 @@ public class Pool {
     /** Date limite si applicable. */
     private java.time.LocalDateTime deadlineDate;
 
+    /** Frais applicables (en pourcentage, ex: 2.00 pour 2%). */
+    @Builder.Default
+    private BigDecimal fees = new BigDecimal("2.00");
+
     // --- Logique Metier ---
 
     /**

@@ -253,7 +253,7 @@ const withdrawalColumns = [
   { name: 'iban', label: 'IBAN', field: 'iban', align: 'left' },
   { name: 'bankName', label: 'Banque', field: 'bankName', align: 'left' },
   { name: 'amount', label: 'Montant demandé', field: 'amount', align: 'right' },
-  { name: 'fees', label: 'Frais (2%)', field: 'fees', align: 'right' },
+  { name: 'fees', label: 'Frais', field: 'fees', align: 'right' },
   { name: 'net', label: 'Net à transférer', align: 'right' },
   { name: 'actions', label: 'Actions', align: 'center' }
 ]

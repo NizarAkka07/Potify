@@ -112,6 +112,7 @@ public class PoolRestMapper {
                 .videoUrl(request.videoUrl())
                 .imageContent(imageBytes)
                 .imageContentType(request.imageContentType())
+                .fees(request.fees())
                 .build();
     }
 
@@ -182,7 +183,8 @@ public class PoolRestMapper {
                 pool.getHasDeadline() != null ? pool.getHasDeadline() : false,
                 pool.getDeadlineDate(),
                 pool.getCreatedAt(),
-                pool.getUpdatedAt()
+                pool.getUpdatedAt(),
+                pool.getFees()
         );
     }
 }

@@ -33,9 +33,8 @@ public class DefaultWithdrawService implements WithdrawService {
             throw new IllegalAccessException("Seul le propriétaire de la cagnotte peut effectuer un retrait");
         }
 
-        // Calculate 2% fees
-        BigDecimal feePercent = new BigDecimal("0.02");
-        BigDecimal fees = request.getAmount().multiply(feePercent);
+        // No fees applied on withdrawal anymore, as they are deducted on deposit
+        BigDecimal fees = BigDecimal.ZERO;
 
         // Debit wallet available balance (reserve funds)
         repositoryPort.debitWallet(request.getPoolId(), request.getAmount());
@@ -57,7 +56,7 @@ public class DefaultWithdrawService implements WithdrawService {
         try {
             String poolTitle = repositoryPort.getPoolTitle(request.getPoolId());
             String title = "Demande de retrait enregistrée";
-            String content = "Votre demande de retrait de " + request.getAmount() + "€ (frais appliqués : " + fees + "€) pour la cagnotte '" + poolTitle + "' est en cours de traitement.";
+            String content = "Votre demande de retrait de " + request.getAmount() + "€ pour la cagnotte '" + poolTitle + "' est en cours de traitement (aucun frais supplémentaire n'est prélevé).";
             notificationEventPublisherPort.publish(request.getUserId(), "WITHDRAWAL_REQUESTED", title, content);
         } catch (Exception e) {
             log.error("Erreur lors de la publication de la notification de retrait", e);

@@ -41,17 +41,24 @@ public class DefaultConfirmPayPalPaymentService implements ConfirmPayPalPaymentS
     }
 
     private void processSuccessfulPayment(Contribution contribution) {
+        BigDecimal amount = contribution.getAmount();
+        BigDecimal poolFeesPercent = repositoryPort.getPoolFees(contribution.getPoolId());
+        BigDecimal feeMultiplier = poolFeesPercent.divide(new BigDecimal("100"), 4, java.math.RoundingMode.HALF_UP);
+        BigDecimal fees = amount.multiply(feeMultiplier).setScale(2, java.math.RoundingMode.HALF_UP);
+        BigDecimal netAmount = amount.subtract(fees);
+
         contribution.setStatus(ContributionStatus.CONFIRMED);
+        contribution.setFees(fees);
         repositoryPort.saveContribution(contribution);
 
-        repositoryPort.creditPoolAndWallet(contribution.getPoolId(), contribution.getAmount());
+        repositoryPort.creditPoolAndWallet(contribution.getPoolId(), netAmount);
 
         Transaction transaction = Transaction.builder()
                 .walletId(contribution.getPoolId())
                 .contributionId(contribution.getId())
                 .type(TransactionType.DEPOSIT)
-                .amount(contribution.getAmount())
-                .fees(BigDecimal.ZERO)
+                .amount(amount)
+                .fees(fees)
                 .status(TransactionStatus.SUCCESS)
                 .build();
         repositoryPort.saveTransaction(transaction);
@@ -61,12 +68,12 @@ public class DefaultConfirmPayPalPaymentService implements ConfirmPayPalPaymentS
             String poolTitle = repositoryPort.getPoolTitle(contribution.getPoolId());
             String contributorName = contribution.getContributorName() != null ? contribution.getContributorName() : "Un visiteur";
             String title = "Nouvelle contribution !";
-            String content = contributorName + " a contribué " + contribution.getAmount() + "€ à votre cagnotte '" + poolTitle + "'.";
+            String content = contributorName + " a contribué un montant net de " + netAmount + "€ à votre cagnotte '" + poolTitle + "'.";
             notificationEventPublisherPort.publish(ownerId, "CONTRIBUTION", title, content);
         } catch (Exception e) {
             log.error("Erreur lors de la publication de la notification de contribution", e);
         }
 
-        log.info("Payment successfully processed for contribution ID: {}", contribution.getId());
+        log.info("Payment successfully processed for contribution ID: {}. Net amount: {}, Fees: {}", contribution.getId(), netAmount, fees);
     }
 }

@@ -80,7 +80,12 @@ public class DefaultConfirmWithdrawalService implements ConfirmWithdrawalService
             String ownerId = repositoryPort.getPoolOwnerId(transaction.getWalletId());
             String poolTitle = repositoryPort.getPoolTitle(transaction.getWalletId());
             String title = "Retrait confirmé !";
-            String content = "Votre demande de retrait de " + transaction.getAmount() + "€ pour la cagnotte '" + poolTitle + "' a été approuvée. Un transfert de " + netAmount + "€ (après déduction des 2% de frais) a été envoyé vers vos coordonnées de paiement.";
+            String content;
+            if (transaction.getFees() != null && transaction.getFees().compareTo(BigDecimal.ZERO) > 0) {
+                content = "Votre demande de retrait de " + transaction.getAmount() + "€ pour la cagnotte '" + poolTitle + "' a été approuvée. Un transfert de " + netAmount + "€ (après déduction des 2% de frais) a été envoyé vers vos coordonnées de paiement.";
+            } else {
+                content = "Votre demande de retrait de " + transaction.getAmount() + "€ pour la cagnotte '" + poolTitle + "' a été approuvée. Un transfert de " + netAmount + "€ (frais déduits au dépôt) a été envoyé vers vos coordonnées de paiement.";
+            }
             notificationEventPublisherPort.publish(ownerId, "WITHDRAWAL_CONFIRMED", title, content);
         } catch (Exception e) {
             log.error("Erreur envoi notification de confirmation de retrait", e);
