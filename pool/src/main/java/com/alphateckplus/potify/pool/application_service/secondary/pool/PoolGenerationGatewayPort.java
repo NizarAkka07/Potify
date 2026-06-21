@@ -1,5 +1,6 @@
 package com.alphateckplus.potify.pool.application_service.secondary.pool;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -7,4 +8,5 @@ import java.util.Map;
  */
 public interface PoolGenerationGatewayPort {
     Map<String, Object> generateStructure(String prompt);
+    Map<String, Object> chatStructure(List<Map<String, String>> messages, String mode);
 }

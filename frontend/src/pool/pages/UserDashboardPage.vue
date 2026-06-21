@@ -63,14 +63,14 @@
             <div v-for="pool in userPools" :key="pool.id" class="col-12 col-sm-6 col-md-4">
               <q-card class="pool-card shadow-1" @click="$router.push(`/pools/${pool.id}`)">
                 <q-img v-if="pool.imageUrl" :src="pool.imageUrl" style="height: 180px;" fit="cover">
-                  <div class="absolute-top-left q-ma-sm">
+                  <div class="absolute-top-left q-ma-sm" style="background: transparent; padding: 0;">
                     <q-chip :color="getTypeColor(pool.type)" text-white size="sm" class="text-weight-bold">
                       {{ getTypeText(pool.type) }}
                     </q-chip>
                   </div>
-                  <div class="absolute-top-right q-ma-sm">
+                  <div class="absolute-top-right q-ma-sm" style="background: transparent; padding: 0;">
                     <q-chip :color="getStatusColor(pool.status)" text-white size="sm" class="text-weight-bold">
-                      {{ pool.status }}
+                      {{ getStatusText(pool.status) }}
                     </q-chip>
                   </div>
                 </q-img>
@@ -82,7 +82,7 @@
                   </div>
                   <div class="absolute-top-right q-ma-sm">
                     <q-chip :color="getStatusColor(pool.status)" text-white size="sm" class="text-weight-bold">
-                      {{ pool.status }}
+                      {{ getStatusText(pool.status) }}
                     </q-chip>
                   </div>
                 </div>
@@ -123,12 +123,12 @@
             <div v-for="pool in invitedPools" :key="pool.id" class="col-12 col-sm-6 col-md-4">
               <q-card class="pool-card shadow-1" @click="$router.push(`/pools/${pool.id}`)">
                 <q-img v-if="pool.imageUrl" :src="pool.imageUrl" style="height: 180px;" fit="cover">
-                  <div class="absolute-top-left q-ma-sm">
+                  <div class="absolute-top-left q-ma-sm" style="background: transparent; padding: 0;">
                     <q-chip :color="getTypeColor(pool.type)" text-white size="sm" class="text-weight-bold">
                       {{ getTypeText(pool.type) }}
                     </q-chip>
                   </div>
-                  <div class="absolute-bottom-right q-ma-sm">
+                  <div class="absolute-bottom-right q-ma-sm" style="background: transparent; padding: 0;">
                     <q-chip color="orange-7" text-white size="sm" icon="group_add" class="text-weight-bold">
                       {{ $t('dashboard.invited') }}
                     </q-chip>
@@ -786,9 +786,24 @@ const formatNotificationDate = (isoString) => {
 const getStatusColor = (status) => {
   switch (status) {
     case 'PUBLIEE': return 'green-7'
-    case 'EN_COURS': return 'blue-7'
-    case 'TERMINEE': return 'grey-7'
+    case 'EN_REVUE': return 'amber-7'
+    case 'CLOTUREE': case 'COMPLETED': return 'grey-7'
+    case 'SUSPENDUE': return 'red-7'
+    case 'BROUILLON': return 'orange-7'
     default: return 'orange-7'
+  }
+}
+
+const getStatusText = (status) => {
+  switch (status) {
+    case 'BROUILLON': return 'Brouillon'
+    case 'EN_REVUE': return 'En revue'
+    case 'PUBLIEE': return 'Publiée'
+    case 'SUSPENDUE': return 'Suspendue'
+    case 'CLOTUREE': return 'Clôturée'
+    case 'ARCHIVEE': return 'Archivée'
+    case 'COMPLETED': return 'Terminée'
+    default: return status
   }
 }
 

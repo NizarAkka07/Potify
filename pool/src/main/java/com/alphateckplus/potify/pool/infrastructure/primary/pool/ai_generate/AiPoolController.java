@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -36,6 +37,25 @@ public class AiPoolController {
 
         try {
             Map<String, Object> suggestion = generatePoolStructureService.execute(prompt);
+            return ResponseEntity.ok(suggestion);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/chat")
+    @Operation(summary = "Discuter avec PotiBuddy pour structurer/modifier la cagnotte")
+    @SuppressWarnings("unchecked")
+    public ResponseEntity<Map<String, Object>> chatWithAi(@RequestBody Map<String, Object> request) {
+        List<Map<String, String>> messages = (List<Map<String, String>>) request.get("messages");
+        if (messages == null || messages.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Le paramètre 'messages' est obligatoire"));
+        }
+        
+        String mode = (String) request.get("mode");
+
+        try {
+            Map<String, Object> suggestion = generatePoolStructureService.chat(messages, mode);
             return ResponseEntity.ok(suggestion);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("message", e.getMessage()));

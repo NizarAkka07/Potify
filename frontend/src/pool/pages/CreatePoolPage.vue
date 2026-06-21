@@ -13,40 +13,87 @@
 
       <q-form @submit="onSubmit" class="q-pa-xl q-gutter-md">
         <!-- Assistant IA Panel -->
-        <q-card class="q-mb-xl q-pa-md text-white bg-gradient-ai shadow-3" style="border-radius: 12px; position: relative; overflow: hidden; background: linear-gradient(135deg, #0D1B2E 0%, #1e3a5f 100%); border-inline-start: 6px solid #FFB300;">
-          <div class="row items-center q-col-gutter-sm q-mb-md">
-            <div class="col-auto">
-              <q-avatar color="amber" text-color="dark" icon="auto_awesome" class="animate-pulse" />
+        <q-card class="q-mb-xl q-pa-md text-white shadow-3" style="border-radius: 12px; position: relative; overflow: hidden; background: linear-gradient(135deg, #0D1B2E 0%, #1e3a5f 100%); border-inline-start: 6px solid #FFB300;">
+          <!-- Card Header with Title and Reset Button -->
+          <div class="row items-center justify-between q-mb-md">
+            <div class="col row items-center q-col-gutter-sm">
+              <div class="col-auto">
+                <q-avatar color="amber" text-color="dark" icon="auto_awesome" class="animate-pulse" />
+              </div>
+              <div class="col">
+                <div class="text-subtitle1 text-weight-bold text-amber">{{ $t('createPool.aiTitle') }}</div>
+              </div>
             </div>
-            <div class="col">
-              <div class="text-subtitle1 text-weight-bold text-amber">{{ $t('createPool.aiTitle') }}</div>
-              <div class="text-caption text-grey-3" style="line-height: 1.4;">{{ $t('createPool.aiDesc') }}</div>
+            <div class="col-auto">
+              <q-btn flat round dense icon="refresh" color="amber" @click="resetChat">
+                <q-tooltip>{{ $t('createPool.aiReset') || 'Réinitialiser la discussion' }}</q-tooltip>
+              </q-btn>
+            </div>
+          </div>
+
+          <!-- Conversational Chat Area -->
+          <div ref="chatContainer" class="q-mb-md q-pa-md rounded-borders" style="max-height: 250px; overflow-y: auto; background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.1);">
+            <div v-for="(msg, idx) in chatHistory" :key="idx" class="q-mb-md">
+              <!-- Bot Message -->
+              <div v-if="msg.role === 'assistant'" class="row items-start justify-start q-col-gutter-sm">
+                <div class="col-auto">
+                  <q-avatar size="28px" color="amber" text-color="dark" icon="auto_awesome" />
+                </div>
+                <div class="col" style="max-width: 85%;">
+                  <div class="bg-grey-9 q-pa-sm text-white text-body2" style="border-radius: 4px 12px 12px 12px; line-height: 1.4; white-space: pre-line;">
+                    {{ msg.content }}
+                  </div>
+                </div>
+              </div>
+              <!-- User Message -->
+              <div v-else class="row items-start justify-end q-col-gutter-sm">
+                <div class="col text-right" style="max-width: 85%;">
+                  <div class="bg-amber text-dark q-pa-sm text-body2 text-left inline-block" style="border-radius: 12px 12px 4px 12px; line-height: 1.4; white-space: pre-line;">
+                    {{ msg.content }}
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <q-avatar size="28px" color="primary" text-color="white" icon="person" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div v-if="aiLoading" class="row items-start justify-start q-col-gutter-sm q-mb-md">
+              <div class="col-auto">
+                <q-avatar size="28px" color="amber" text-color="dark" icon="auto_awesome" class="animate-pulse" />
+              </div>
+              <div class="col" style="max-width: 85%;">
+                <div class="bg-grey-9 q-pa-sm text-white text-body2 inline-block" style="border-radius: 4px 12px 12px 12px;">
+                  <q-spinner-dots color="amber" size="sm" />
+                </div>
+              </div>
             </div>
           </div>
           
-          <div class="row q-col-gutter-sm items-start">
-            <div class="col-12 col-md-9">
+          <!-- Prompt/Message Input Area -->
+          <div class="row q-col-gutter-sm items-center">
+            <div class="col">
               <q-input
                 v-model="aiPrompt"
-                type="textarea"
-                rows="2"
+                type="text"
                 dark
                 filled
+                dense
                 color="amber"
                 :placeholder="$t('createPool.aiPromptPlaceholder')"
                 class="q-mb-none"
+                @keyup.enter="sendChatMessage"
               />
             </div>
-            <div class="col-12 col-md-3 text-center q-pt-sm">
+            <div class="col-auto">
               <q-btn
-                :label="$t('createPool.aiButton')"
-                icon="bolt"
+                round
                 color="amber"
                 text-color="dark"
-                class="full-width q-py-sm text-weight-bold"
-                no-caps
+                icon="send"
                 :loading="aiLoading"
-                @click="generateWithAi"
+                @click="sendChatMessage"
               />
             </div>
           </div>
@@ -556,7 +603,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, nextTick } from 'vue'
 import { poolApi } from 'boot/axios'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
@@ -574,24 +621,70 @@ const aiPrompt = ref('')
 const aiLoading = ref(false)
 const aiSuggestion = ref(null)
 
-const generateWithAi = async () => {
-  if (!aiPrompt.value.trim()) {
+const chatHistory = ref([
+  {
+    role: 'assistant',
+    content: t('createPool.aiDesc') || "Je suis PotiBuddy, votre assistant intelligent. Décrivez votre projet de cagnotte en quelques mots, et je vous aiderai à le concevoir, le structurer et remplir le formulaire automatiquement (titre, budget, description et phases de financement) !"
+  }
+])
+const apiHistory = ref([])
+const chatContainer = ref(null)
+
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (chatContainer.value) {
+      chatContainer.value.scrollTop = chatContainer.value.scrollHeight
+    }
+  })
+}
+
+const sendChatMessage = async () => {
+  const userText = aiPrompt.value.trim()
+  if (!userText) {
     $q.notify({
       type: 'warning',
       message: t('createPool.aiPromptWarning')
     })
     return
   }
-  
+
+  // Add to UI history
+  chatHistory.value.push({
+    role: 'user',
+    content: userText
+  })
+
+  // Add to API history
+  apiHistory.value.push({
+    role: 'user',
+    content: userText
+  })
+
+  aiPrompt.value = ''
   aiLoading.value = true
-  aiSuggestion.value = null
-  
+  scrollToBottom()
+
   try {
-    const response = await poolApi.post('/pools/ai/generate', {
-      prompt: aiPrompt.value,
+    const response = await poolApi.post('/pools/ai/chat', {
+      messages: apiHistory.value,
       mode: mode.value
     })
-    aiSuggestion.value = response.data
+
+    const suggestion = response.data
+    aiSuggestion.value = suggestion
+
+    // Add bot response to UI history
+    chatHistory.value.push({
+      role: 'assistant',
+      content: suggestion.botReply || t('createPool.aiSuccessMsg')
+    })
+
+    // Add bot raw JSON to API history so it preserves full state
+    apiHistory.value.push({
+      role: 'assistant',
+      content: JSON.stringify(suggestion)
+    })
+
     $q.notify({
       type: 'positive',
       message: t('createPool.aiSuccessMsg'),
@@ -599,6 +692,12 @@ const generateWithAi = async () => {
     })
   } catch (error) {
     console.error(error)
+    // Remove last user message from API history to let user retry
+    apiHistory.value.pop()
+    chatHistory.value.push({
+      role: 'assistant',
+      content: "Désolé, je n'ai pas pu générer de suggestion. Veuillez réessayer."
+    })
     $q.notify({
       type: 'negative',
       message: t('createPool.createError') + (error.response?.data?.message || error.response?.data?.error || 'Serveur injoignable'),
@@ -606,7 +705,24 @@ const generateWithAi = async () => {
     })
   } finally {
     aiLoading.value = false
+    scrollToBottom()
   }
+}
+
+const resetChat = () => {
+  chatHistory.value = [
+    {
+      role: 'assistant',
+      content: t('createPool.aiDesc') || "Je suis PotiBuddy, votre assistant intelligent. Décrivez votre projet de cagnotte en quelques mots, et je vous aiderai à le concevoir, le structurer et remplir le formulaire automatiquement (titre, budget, description et phases de financement) !"
+    }
+  ]
+  apiHistory.value = []
+  aiSuggestion.value = null
+  $q.notify({
+    type: 'info',
+    message: 'Discussion réinitialisée.',
+    position: 'top-right'
+  })
 }
 
 const applyAiSuggestion = () => {

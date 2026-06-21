@@ -1,6 +1,7 @@
 package com.alphateckplus.potify.pool.application_service.primary.pool.generate_pool_structure;
 
 import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolGenerationGatewayPort;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,5 +18,10 @@ public class DefaultGeneratePoolStructureService implements GeneratePoolStructur
     @Override
     public Map<String, Object> execute(String prompt) {
         return gatewayPort.generateStructure(prompt);
+    }
+
+    @Override
+    public Map<String, Object> chat(List<Map<String, String>> messages, String mode) {
+        return gatewayPort.chatStructure(messages, mode);
     }
 }

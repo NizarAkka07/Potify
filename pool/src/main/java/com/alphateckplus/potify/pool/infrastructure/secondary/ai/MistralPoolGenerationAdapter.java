@@ -25,8 +25,16 @@ public class MistralPoolGenerationAdapter implements PoolGenerationGatewayPort {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    @SuppressWarnings("unchecked")
     public Map<String, Object> generateStructure(String prompt) {
+        Map<String, String> userMessage = new HashMap<>();
+        userMessage.put("role", "user");
+        userMessage.put("content", prompt);
+        return chatStructure(List.of(userMessage), null);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> chatStructure(List<Map<String, String>> messages, String mode) {
         String apiKey = System.getenv("MISTRAL_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
             apiKey = mistralApiKeyFromConfig;
@@ -43,11 +51,12 @@ public class MistralPoolGenerationAdapter implements PoolGenerationGatewayPort {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setBearerAuth(apiKey);
 
-            String instructions = "Tu es un assistant IA spécialisé dans la structuration de cagnottes (crowdfunding) pour la plateforme Potify.\n" +
-                    "Prends le besoin de l'utilisateur et génère une structure de cagnotte en français.\n" +
+            String instructions = "Tu es un assistant IA nommé PotiBuddy, spécialisé dans la structuration de cagnottes (crowdfunding) pour la plateforme Potify.\n" +
+                    "Prends la conversation en cours avec l'utilisateur et génère ou mets à jour une structure de cagnotte en français en fonction de ses demandes.\n" +
                     "Tu DOIS retourner STRICTEMENT un objet JSON respectant le format décrit par ce schéma sans aucun autre texte :\n" +
                     "{\n" +
-                    "  \"title\": \"Titre court et accrocheur\",\n" +
+                    "  \"botReply\": \"Un message chaleureux en français de l'assistant expliquant les choix, les modifications ou demandant des clarifications (1 à 3 phrases).\",\n" +
+                    "  \"title\": \"Titre court et accrocheur de la cagnotte\",\n" +
                     "  \"description\": \"Description détaillée du projet (2-3 paragraphes)\",\n" +
                     "  \"category\": \"Santé ou Éducation ou Urgence ou Animaux ou Projets ou Sport\",\n" +
                     "  \"goalAmount\": 5000,\n" +
@@ -59,7 +68,7 @@ public class MistralPoolGenerationAdapter implements PoolGenerationGatewayPort {
                     "  \"subPools\": [\n" +
                     "    {\n" +
                     "      \"title\": \"Titre de la sous-cagnotte\",\n" +
-                    "      \"description\": \"Description\",\n" +
+                    "      \"description\": \"Description de la sous-cagnotte\",\n" +
                     "      \"hasDeadline\": false,\n" +
                     "      \"phases\": [\n" +
                     "        { \"title\": \"Étape 1\", \"goalAmount\": 2500 }\n" +
@@ -73,19 +82,37 @@ public class MistralPoolGenerationAdapter implements PoolGenerationGatewayPort {
                     "3. Si mode = 'simple', remplis 'simplePhases' (au moins une phase) et laisse 'subPools' vide.\n" +
                     "4. Si mode = 'multi', remplis 'subPools' (au moins une sous-cagnotte, contenant chacune au moins une phase) et laisse 'simplePhases' vide.\n" +
                     "5. La somme des budgets des phases (simple ou dans les sous-cagnottes) doit égaler exactement 'goalAmount'.\n" +
-                    "Le besoin de l'utilisateur est : \"" + prompt + "\"";
+                    "6. Remplis TOUJOURS 'botReply' avec un message chaleureux, récapitulant les modifications ou expliquant les suggestions.";
+
+            if (mode != null && !mode.isBlank()) {
+                if ("multi".equalsIgnoreCase(mode) || "complexe".equalsIgnoreCase(mode)) {
+                    instructions = instructions + "\n(NOTE IMPORTANTE : Tu dois impérativement générer ce projet au format complexe 'multi' avec plusieurs sous-cagnottes et phases)";
+                } else if ("simple".equalsIgnoreCase(mode)) {
+                    instructions = instructions + "\n(NOTE IMPORTANTE : Tu dois générer ce projet au format 'simple' avec des phases de progression)";
+                }
+            }
 
             // Define request payload for Mistral AI
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", "mistral-large-latest");
             
-            Map<String, Object> message = new HashMap<>();
-            message.put("role", "user");
-            message.put("content", instructions);
-            requestBody.put("messages", List.of(message));
+            List<Map<String, Object>> apiMessages = new ArrayList<>();
+            Map<String, Object> systemMessage = new HashMap<>();
+            systemMessage.put("role", "system");
+            systemMessage.put("content", instructions);
+            apiMessages.add(systemMessage);
+
+            for (Map<String, String> msg : messages) {
+                Map<String, Object> apiMsg = new HashMap<>();
+                apiMsg.put("role", msg.get("role"));
+                apiMsg.put("content", msg.get("content"));
+                apiMessages.add(apiMsg);
+            }
+            requestBody.put("messages", apiMessages);
 
             // Structured JSON output configuration
             Map<String, Object> responseSchemaProperties = new HashMap<>();
+            responseSchemaProperties.put("botReply", Map.of("type", "string"));
             responseSchemaProperties.put("title", Map.of("type", "string"));
             responseSchemaProperties.put("description", Map.of("type", "string"));
             responseSchemaProperties.put("category", Map.of("type", "string", "enum", List.of("Santé", "Éducation", "Urgence", "Animaux", "Projets", "Sport")));
@@ -133,7 +160,7 @@ public class MistralPoolGenerationAdapter implements PoolGenerationGatewayPort {
             Map<String, Object> responseSchema = Map.of(
                 "type", "object",
                 "properties", responseSchemaProperties,
-                "required", List.of("title", "description", "category", "goalAmount", "mode"),
+                "required", List.of("title", "description", "category", "goalAmount", "mode", "botReply"),
                 "additionalProperties", false
             );
 
@@ -161,7 +188,7 @@ public class MistralPoolGenerationAdapter implements PoolGenerationGatewayPort {
                     Map<String, Object> messageMap = (Map<String, Object>) choice.get("message");
                     if (messageMap != null) {
                         String responseJson = (String) messageMap.get("content");
-                        log.info("Réponse brute de l'IA (Mistral) : {}", responseJson);
+                        log.info("Réponse brute de l'IA (Mistral Chat) : {}", responseJson);
                         return objectMapper.readValue(responseJson, Map.class);
                     }
                 }
