@@ -7,10 +7,11 @@ import axios from 'axios'
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const api = axios.create({ baseURL: 'http://localhost:8081/api' })
-const poolApi = axios.create({ baseURL: 'http://localhost:8082/api' })
-const paymentApi = axios.create({ baseURL: 'http://localhost:8083/api' })
-const notificationApi = axios.create({ baseURL: 'http://localhost:8084/api' })
+const host = window.location.hostname
+const api = axios.create({ baseURL: `http://${host}:8081/api` })
+const poolApi = axios.create({ baseURL: `http://${host}:8082/api` })
+const paymentApi = axios.create({ baseURL: `http://${host}:8083/api` })
+const notificationApi = axios.create({ baseURL: `http://${host}:8084/api` })
 
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api

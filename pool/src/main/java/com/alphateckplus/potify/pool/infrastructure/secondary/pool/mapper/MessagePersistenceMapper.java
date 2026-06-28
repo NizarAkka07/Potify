@@ -27,6 +27,17 @@ public class MessagePersistenceMapper {
                         .build())
                 .collect(java.util.stream.Collectors.toList()) : new java.util.ArrayList<>();
         
+        java.util.List<com.alphateckplus.potify.pool.domain.model.MessageReport> reports = entity.getReports() != null ? entity.getReports().stream()
+                .map(rep -> com.alphateckplus.potify.pool.domain.model.MessageReport.builder()
+                        .id(rep.getId())
+                        .messageId(entity.getId())
+                        .userId(rep.getUser() != null ? rep.getUser().getId() : null)
+                        .userName(rep.getUser() != null ? rep.getUser().getFullName() : null)
+                        .reason(rep.getReason())
+                        .createdAt(rep.getCreatedAt())
+                        .build())
+                .collect(java.util.stream.Collectors.toList()) : new java.util.ArrayList<>();
+        
         return Message.builder()
                 .id(entity.getId())
                 .poolId(entity.getPool() != null ? entity.getPool().getId() : null)
@@ -35,6 +46,7 @@ public class MessagePersistenceMapper {
                 .content(entity.getContent())
                 .isPublic(entity.isPublic())
                 .reactions(reactions)
+                .reports(reports)
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

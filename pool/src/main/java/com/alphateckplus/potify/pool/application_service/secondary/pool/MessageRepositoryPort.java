@@ -8,4 +8,7 @@ public interface MessageRepositoryPort {
     List<Message> findByPoolId(String poolId);
     void deleteById(String id);
     java.util.Optional<Message> findById(String id);
+    List<Message> findByReported(boolean reported);
+    void addReport(String messageId, String userId, String reason);
+    void clearReports(String messageId);
 }

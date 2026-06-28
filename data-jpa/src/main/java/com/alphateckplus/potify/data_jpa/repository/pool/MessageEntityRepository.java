@@ -6,4 +6,7 @@ import java.util.List;
 
 public interface MessageEntityRepository extends JpaRepository<MessageEntity, String> {
     List<MessageEntity> findByPoolIdOrderByCreatedAtDesc(String poolId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT DISTINCT m FROM MessageEntity m JOIN m.reports r ORDER BY m.createdAt DESC")
+    List<MessageEntity> findReportedMessages();
 }

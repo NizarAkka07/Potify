@@ -99,8 +99,9 @@ public class PoolBeanConfiguration {
             MessageEntityRepository messageEntityRepository,
             PoolEntityRepository poolEntityRepository,
             UserEntityRepository userEntityRepository,
+            com.alphateckplus.potify.data_jpa.repository.pool.MessageReportEntityRepository messageReportEntityRepository,
             MessagePersistenceMapper messagePersistenceMapper) {
-        return new MessageJpaAdapter(messageEntityRepository, poolEntityRepository, userEntityRepository, messagePersistenceMapper);
+        return new MessageJpaAdapter(messageEntityRepository, poolEntityRepository, userEntityRepository, messageReportEntityRepository, messagePersistenceMapper);
     }
 
     @Bean

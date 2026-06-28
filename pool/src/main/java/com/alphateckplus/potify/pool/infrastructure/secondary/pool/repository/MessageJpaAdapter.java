@@ -9,6 +9,8 @@ import com.alphateckplus.potify.data_jpa.repository.user.UserEntityRepository;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.MessageRepositoryPort;
 import com.alphateckplus.potify.pool.domain.model.Message;
 import com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper.MessagePersistenceMapper;
+import com.alphateckplus.potify.data_jpa.repository.pool.MessageReportEntityRepository;
+import com.alphateckplus.potify.data_jpa.entity.pool.MessageReportEntity;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -22,6 +24,7 @@ public class MessageJpaAdapter implements MessageRepositoryPort {
     private final MessageEntityRepository messageEntityRepository;
     private final PoolEntityRepository poolEntityRepository;
     private final UserEntityRepository userEntityRepository;
+    private final MessageReportEntityRepository messageReportEntityRepository;
     private final MessagePersistenceMapper mapper;
 
     @Override
@@ -54,5 +57,43 @@ public class MessageJpaAdapter implements MessageRepositoryPort {
     @Override
     public java.util.Optional<Message> findById(String id) {
         return messageEntityRepository.findById(id).map(mapper::toDomain);
+    }
+
+    @Override
+    public List<Message> findByReported(boolean reported) {
+        if (!reported) {
+            return List.of();
+        }
+        return messageEntityRepository.findReportedMessages().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public void addReport(String messageId, String userId, String reason) {
+        MessageEntity message = messageEntityRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("Message non trouve"));
+        UserEntity user = userEntityRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouve"));
+
+        if (messageReportEntityRepository.findByMessageIdAndUserId(messageId, userId).isPresent()) {
+            return;
+        }
+
+        MessageReportEntity report = MessageReportEntity.builder()
+                .message(message)
+                .user(user)
+                .reason(reason)
+                .build();
+        messageReportEntityRepository.save(report);
+    }
+
+    @Override
+    public void clearReports(String messageId) {
+        MessageEntity message = messageEntityRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("Message non trouve"));
+        
+        message.getReports().clear();
+        messageEntityRepository.save(message);
     }
 }

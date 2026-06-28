@@ -132,6 +132,27 @@ export const poolService = {
    */
   confirmWithdrawal(transactionId) {
     return paymentApi.post(`/payments/withdraw/${transactionId}/confirm`)
+  },
+
+  /**
+   * Récupère la liste des commentaires signalés (Modération).
+   */
+  getReportedMessages() {
+    return poolApi.get('/messages/reported')
+  },
+
+  /**
+   * Rejette le signalement d'un commentaire.
+   */
+  dismissReport(messageId) {
+    return poolApi.post(`/messages/${messageId}/dismiss`)
+  },
+
+  /**
+   * Supprime un commentaire.
+   */
+  deleteMessage(messageId) {
+    return poolApi.delete(`/messages/${messageId}`)
   }
 }
 

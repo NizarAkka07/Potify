@@ -48,4 +48,8 @@ public class MessageEntity extends BaseEntity {
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @lombok.Builder.Default
     private java.util.List<CommentReactionEntity> reactions = new java.util.ArrayList<>();
+
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @lombok.Builder.Default
+    private java.util.List<MessageReportEntity> reports = new java.util.ArrayList<>();
 }

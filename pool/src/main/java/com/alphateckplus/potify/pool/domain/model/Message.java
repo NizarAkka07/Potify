@@ -23,5 +23,22 @@ public class Message {
     private String content;
     private boolean isPublic;
     private java.util.List<Reaction> reactions;
+    private java.util.List<MessageReport> reports;
     private java.time.Instant createdAt;
+
+    public boolean isReported() {
+        return reports != null && !reports.isEmpty();
+    }
+
+    public String getReportReason() {
+        if (reports == null || reports.isEmpty()) return null;
+        return reports.stream()
+                .map(MessageReport::getReason)
+                .filter(r -> r != null && !r.isBlank())
+                .collect(java.util.stream.Collectors.joining(" | "));
+    }
+
+    public int getReportCount() {
+        return reports != null ? reports.size() : 0;
+    }
 }

@@ -145,10 +145,10 @@
                 <q-item-section avatar>
                   <q-avatar size="32px" color="blue-1" text-color="primary">
                     <template v-if="contrib.anonymous">
-                      <span v-if="isOwner">{{ contrib.contributorName.charAt(0) }}</span>
+                      <span v-if="isOwner">{{ (contrib.contributorName || 'A').charAt(0) }}</span>
                       <span v-else>?</span>
                     </template>
-                    <span v-else>{{ contrib.contributorName.charAt(0) }}</span>
+                    <span v-else>{{ (contrib.contributorName || 'A').charAt(0) }}</span>
                   </q-avatar>
                 </q-item-section>
                 <q-item-section>
@@ -445,16 +445,45 @@
                     </div>
                   </div>
                   
-                  <!-- Bouton Réaction (Style WhatsApp) -->
-                  <div v-if="authStore.isAuthenticated.value" class="reaction-trigger">
-                    <q-btn flat round dense icon="add_reaction" color="grey-7" size="sm">
-                      <q-menu anchor="top middle" self="bottom middle" class="reaction-menu no-shadow">
-                        <div class="row no-wrap q-pa-xs q-gutter-x-sm bg-white shadow-2" style="border-radius: 30px; border: 1px solid #EEE;">
-                          <q-btn v-for="emoji in availableEmojis" :key="emoji.type" 
-                                 flat round dense :label="emoji.icon" class="emoji-btn"
-                                 @click="toggleReaction(msg.id, emoji.type)" v-close-popup />
-                        </div>
-                      </q-menu>
+                  <!-- Bouton Réaction & Modération -->
+                  <div class="row items-center q-gutter-x-xs">
+                    <div v-if="authStore.isAuthenticated.value" class="reaction-trigger">
+                      <q-btn flat round dense icon="add_reaction" color="grey-7" size="sm">
+                        <q-menu anchor="top middle" self="bottom middle" class="reaction-menu no-shadow">
+                          <div class="row no-wrap q-pa-xs q-gutter-x-sm bg-white shadow-2" style="border-radius: 30px; border: 1px solid #EEE;">
+                            <q-btn v-for="emoji in availableEmojis" :key="emoji.type" 
+                                   flat round dense :label="emoji.icon" class="emoji-btn"
+                                   @click="toggleReaction(msg.id, emoji.type)" v-close-popup />
+                          </div>
+                        </q-menu>
+                      </q-btn>
+                    </div>
+                    
+                     <q-btn 
+                      v-if="authStore.isModerator.value" 
+                      flat 
+                      round 
+                      dense 
+                      icon="delete" 
+                      color="negative" 
+                      size="sm" 
+                      @click="deleteComment(msg.id)"
+                    >
+                      <q-tooltip>Supprimer ce commentaire (Modération)</q-tooltip>
+                    </q-btn>
+
+                    <!-- Bouton de Signalement -->
+                    <q-btn 
+                      v-if="authStore.isAuthenticated.value && msg.userId !== authStore.user.value?.id"
+                      flat 
+                      round 
+                      dense 
+                      icon="flag" 
+                      color="warning" 
+                      size="sm" 
+                      @click="reportComment(msg)"
+                    >
+                      <q-tooltip>Signaler ce commentaire</q-tooltip>
                     </q-btn>
                   </div>
                 </div>
@@ -936,6 +965,80 @@ const postComment = async () => {
   } finally {
     sendingComment.value = false
   }
+}
+
+const deleteComment = async (messageId) => {
+  $q.dialog({
+    title: 'Confirmer la suppression',
+    message: 'Voulez-vous vraiment supprimer ce commentaire ? Cette action est irréversible.',
+    cancel: {
+      label: 'Annuler',
+      flat: true
+    },
+    ok: {
+      label: 'Supprimer',
+      color: 'negative',
+      unelevated: true
+    },
+    persistent: true
+  }).onOk(async () => {
+    try {
+      await poolApi.delete(`/messages/${messageId}`)
+      $q.notify({
+        type: 'positive',
+        message: 'Le commentaire a été supprimé par modération.'
+      })
+      await fetchMessages()
+    } catch (err) {
+      console.error('Erreur suppression commentaire:', err)
+      $q.notify({
+        type: 'negative',
+        message: 'Erreur lors de la suppression du commentaire.'
+      })
+    }
+  })
+}
+
+const reportComment = (message) => {
+  $q.dialog({
+    title: 'Signaler ce commentaire',
+    message: 'Veuillez saisir le motif du signalement (ex: propos injurieux, spam, etc.) :',
+    prompt: {
+      model: '',
+      type: 'text',
+      required: true,
+      isValid: val => val.trim().length > 0
+    },
+    cancel: {
+      label: 'Annuler',
+      flat: true
+    },
+    ok: {
+      label: 'Signaler',
+      color: 'warning',
+      unelevated: true
+    },
+    persistent: true
+  }).onOk(async (reason) => {
+    try {
+      await poolApi.post(`/messages/${message.id}/report`, null, {
+        params: { 
+          userId: authStore.user.value?.id,
+          reason 
+        }
+      })
+      $q.notify({
+        type: 'positive',
+        message: 'Le commentaire a été signalé avec succès.'
+      })
+    } catch (err) {
+      console.error('Erreur lors du signalement:', err)
+      $q.notify({
+        type: 'negative',
+        message: 'Erreur lors du signalement.'
+      })
+    }
+  })
 }
 
 // Gestion des contributions

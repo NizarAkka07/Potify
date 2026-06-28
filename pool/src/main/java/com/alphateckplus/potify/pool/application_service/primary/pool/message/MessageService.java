@@ -8,4 +8,8 @@ public interface MessageService {
     List<Message> getPoolMessages(String poolId);
     void toggleReaction(String messageId, String userId, String type);
     Message getMessage(String messageId);
+    void deleteMessage(String messageId);
+    void reportMessage(String messageId, String userId, String reason);
+    List<Message> getReportedMessages();
+    void dismissReport(String messageId);
 }

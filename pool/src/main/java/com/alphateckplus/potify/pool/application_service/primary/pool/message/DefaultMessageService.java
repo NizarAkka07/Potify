@@ -75,4 +75,24 @@ public class DefaultMessageService implements MessageService {
         return messageRepositoryPort.findById(messageId)
                 .orElseThrow(() -> new RuntimeException("Message introuvable"));
     }
+
+    @Override
+    public void deleteMessage(String messageId) {
+        messageRepositoryPort.deleteById(messageId);
+    }
+
+    @Override
+    public void reportMessage(String messageId, String userId, String reason) {
+        messageRepositoryPort.addReport(messageId, userId, reason);
+    }
+
+    @Override
+    public List<Message> getReportedMessages() {
+        return messageRepositoryPort.findByReported(true);
+    }
+
+    @Override
+    public void dismissReport(String messageId) {
+        messageRepositoryPort.clearReports(messageId);
+    }
 }
