@@ -65,7 +65,7 @@
       <!-- Section de redirection pour les nouveaux utilisateurs -->
       <q-card-section class="text-center q-py-lg register-section">
         <span class="text-grey-7">{{ $t('auth.noAccount') }} </span>
-        <q-btn flat no-caps dense color="orange-9" :label="$t('auth.signUp')" to="/register" class="text-weight-bold" />
+        <q-btn flat no-caps dense color="primary" :label="$t('auth.signUp')" to="/register" class="text-weight-bold" />
       </q-card-section>
     </q-card>
   </q-page>
@@ -125,31 +125,31 @@ const onSubmit = async () => {
 
 <style lang="scss" scoped>
 .auth-page {
-  background: radial-gradient(circle at 50% 50%, rgba(255, 167, 38, 0.02) 0%, transparent 60%),
-              radial-gradient(circle at 10% 20%, rgba(13, 27, 46, 0.03) 0%, transparent 50%),
-              #FAFAFB;
+  background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 60%),
+              radial-gradient(circle at 10% 20%, rgba(30, 27, 75, 0.03) 0%, transparent 50%),
+              var(--akkodis-bg);
 }
 
 .auth-card {
   width: 100%;
   max-width: 440px;
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(13, 27, 46, 0.06);
+  box-shadow: 0 10px 30px rgba(30, 27, 75, 0.06);
   border: 1px solid rgba(0, 0, 0, 0.04);
-  background: #FFFFFF;
+  background: var(--akkodis-white);
   overflow: hidden;
 }
 
 .auth-header {
-  background: #0D1B2E;
+  background: var(--akkodis-navy);
   color: #FFFFFF;
-  border-bottom: 3px solid #FFA726;
+  border-bottom: 3px solid var(--akkodis-yellow);
 }
 
 .logo-container {
   display: inline-flex;
   padding: 12px;
-  background: rgba(255, 167, 38, 0.1);
+  background: rgba(139, 92, 246, 0.1);
   border-radius: 50%;
 }
 
@@ -158,8 +158,8 @@ const onSubmit = async () => {
 }
 
 .submit-btn {
-  background: #FFA726;
-  color: #0D1B2E;
+  background: var(--akkodis-yellow);
+  color: #FFFFFF;
   border-radius: 8px;
   padding: 8px 24px;
   transition: transform 0.2s ease, filter 0.2s ease;
@@ -178,8 +178,7 @@ const onSubmit = async () => {
 }
 
 .register-section {
-  background: #FAFAFB;
+  background: var(--akkodis-grey-light);
   border-top: 1px solid rgba(0, 0, 0, 0.04);
 }
 </style>
-

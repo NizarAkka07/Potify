@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated style="background: #0A1628; border-bottom: 3px solid #F5C518;">
+    <q-header elevated style="background: var(--akkodis-navy); border-bottom: 3px solid var(--akkodis-yellow);">
       <q-toolbar>
         <q-btn
           flat
@@ -9,11 +9,12 @@
           icon="menu"
           aria-label="Menu"
           @click="toggleLeftDrawer"
-          style="color: #F5C518;"
+          style="color: var(--akkodis-yellow);"
         />
 
-        <q-toolbar-title style="color: #FFFFFF; font-weight: 700;">
-          <span style="color: #F5C518;">Potify</span> Admin
+        <q-toolbar-title class="row items-center cursor-pointer no-wrap" style="color: #FFFFFF; font-weight: 700;" @click="$router.push('/')">
+          <img src="~assets/logo.png" style="height: 32px; margin-right: 10px; object-fit: contain;" alt="Potify Logo" />
+          <span style="color: #FFFFFF; font-weight: 800; font-size: 1.2rem; letter-spacing: 1px;">POTIFY Admin</span>
         </q-toolbar-title>
 
         <div style="color: rgba(255,255,255,0.6);" class="gt-xs">Microservice User</div>
@@ -35,9 +36,9 @@
           flat no-caps
           class="text-white q-ml-md"
           :label="currentLangLabel"
-          content-style="background: #0A1628; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;"
+          content-style="background: var(--akkodis-navy-mid); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;"
         >
-          <q-list style="min-width: 150px; background: #0A1628; color: white;">
+          <q-list style="min-width: 150px; background: var(--akkodis-navy-mid); color: white;">
             <q-item
               v-for="lang in langs"
               :key="lang.value"
@@ -45,7 +46,7 @@
               v-close-popup
               @click="changeLanguage(lang.value)"
               :active="locale === lang.value"
-              active-class="bg-yellow-8 text-black"
+              active-class="bg-primary text-dark"
               style="border-radius: 4px;"
             >
               <q-item-section avatar style="min-width: auto; padding-right: 8px;">

@@ -1,24 +1,33 @@
-// ── app global css ── Palette Akkodis (akkodis.com) ──
+// ── app global css ── Palette Potify Vivid ──
 
-// CSS Custom Properties exactes Akkodis
+// CSS Custom Properties Potify Vivid
 :root {
-  --akkodis-yellow:      #FFA726;  /* Orange clair */
-  --akkodis-yellow-hover:#FB8C00;  /* Orange hover plus foncé */
-  --akkodis-navy:        #0D1B2E;  /* Dark navy navbar */
-  --akkodis-navy-mid:    #162540;  /* Navy intermédiaire */
-  --akkodis-white:       #E0E0E0;  /* Gris mat au lieu de blanc */
-  --akkodis-bg:          #E0E0E0;  /* Fond gris mat */
-  --akkodis-text:        #1A1A2A;  /* Texte sombre */
-  --akkodis-blue-link:   #1E6BE6;  /* Bleu lien corps de texte */
-  --akkodis-grey-light:  #F5F5F5;  /* Fond sections alternées */
+  --akkodis-yellow: #00e676;
+  /* Primary Luminous Green */
+  --akkodis-yellow-hover: #00c853;
+  /* Hover Neon Green */
+  --akkodis-navy: #062f25;
+  /* Deep Forest Navy */
+  --akkodis-navy-mid: #093d30;
+  /* Forest Mid */
+  --akkodis-white: #ffffff;
+  /* Pure White */
+  --akkodis-bg: #f8fafc;
+  /* Clean Slate BG */
+  --akkodis-text: #0f172a;
+  /* Dark Slate Text */
+  --akkodis-blue-link: #00e676;
+  /* Vivid Green */
+  --akkodis-grey-light: #f1f5f9;
+  /* Light Slate BG */
 }
 
 body.body--dark {
-  --akkodis-white:       #162540;
-  --akkodis-bg:          #0A111E;
-  --akkodis-text:        #FFFFFF;
-  --akkodis-grey-light:  #0E1A2F;
-  --akkodis-navy:        #070F1A;
+  --akkodis-white: #062f25;
+  --akkodis-bg: #05100d;
+  --akkodis-text: #f8fafc;
+  --akkodis-grey-light: #091f1a;
+  --akkodis-navy: #040c0a;
 }
 
 // Font moderne (Inter comme Akkodis)
@@ -30,16 +39,16 @@ body {
   background: var(--akkodis-bg);
 }
 
-// Bouton yellow Akkodis – texte sombre
+// Bouton primary – texte sombre pour lisibilité
 .q-btn.bg-primary {
-  color: #1A1A2A !important;
+  color: #062f25 !important;
   font-weight: 700 !important;
 }
 
-// Hover sur CTA jaune
+// Hover sur CTA primary
 .q-btn.bg-primary:hover {
-  background: #FB8C00 !important;
-  box-shadow: 0 4px 12px rgba(255, 167, 38, 0.4) !important;
+  background: var(--akkodis-yellow-hover) !important;
+  box-shadow: 0 4px 12px rgba(0, 230, 118, 0.4) !important;
 }
 
 // Section alternée gris clair (comme Akkodis)
@@ -55,18 +64,19 @@ body {
 
 // ── Dark Mode Overrides ──
 body.body--dark {
+
   // Page backgrounds and page tags
   .q-page {
     background: #0A111E !important;
     color: #FFFFFF !important;
   }
-  
+
   // Cards
   .q-card {
     background: #121F32 !important;
     color: #FFFFFF !important;
     border-color: rgba(255, 255, 255, 0.08) !important;
-    
+
     .text-dark {
       color: #FFFFFF !important;
     }
@@ -77,14 +87,14 @@ body.body--dark {
   .bg-white .q-field__control {
     background: #0A111E !important;
   }
-  
+
   // Text overrides
-  .text-dark, 
+  .text-dark,
   .text-grey-9,
   .text-black {
     color: #FFFFFF !important;
   }
-  
+
   .text-grey-6,
   .text-grey-7,
   .text-grey-8 {
@@ -97,9 +107,20 @@ body.body--dark {
   }
 
   // Headings
-  h1, h2, h3, h4, h5, h6,
-  .text-h1, .text-h2, .text-h3, .text-h4, .text-h5, .text-h6,
-  .hero-title, .hero-subtitle {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .text-h1,
+  .text-h2,
+  .text-h3,
+  .text-h4,
+  .text-h5,
+  .text-h6,
+  .hero-title,
+  .hero-subtitle {
     color: #FFFFFF !important;
   }
 
@@ -107,7 +128,7 @@ body.body--dark {
   .search-bar {
     background: #162540 !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    
+
     .q-field__native,
     .q-field__input {
       color: #FFFFFF !important;
@@ -127,7 +148,7 @@ body.body--dark {
   .category-flat-card {
     background: #121F32 !important;
     border-color: rgba(255, 255, 255, 0.08) !important;
-    
+
     .text-dark {
       color: #FFFFFF !important;
     }
@@ -147,10 +168,10 @@ body.body--dark {
     background: #121F32 !important;
     color: #FFFFFF !important;
   }
-  
+
   .q-item {
     color: #FFFFFF !important;
-    
+
     .text-grey-9 {
       color: rgba(255, 255, 255, 0.8) !important;
     }
@@ -166,7 +187,7 @@ body.body--dark {
   .q-field__control {
     background: #0D1B2E !important;
     color: #FFFFFF !important;
-    
+
     &::before {
       border-color: rgba(255, 255, 255, 0.15) !important;
     }
@@ -184,7 +205,7 @@ body.body--dark {
   .q-drawer {
     background: #0A111E !important;
     border-right-color: rgba(255, 255, 255, 0.08) !important;
-    
+
     .q-item-label--header {
       color: rgba(255, 255, 255, 0.6) !important;
     }
@@ -201,5 +222,3 @@ body.body--dark {
   border-left: 3px solid #FFA726;
   transition: all 0.3s ease;
 }
-
-

@@ -29,6 +29,7 @@ const messages = {
     },
     "home": {
       "badge": "Financement Participatif Solidaire",
+      "heroBadge": "Collectes actives en temps réel",
       "title": "Ensemble, donnons vie à ce qui compte.",
       "subtitle": "Créez une cagnotte en quelques clics, organisez-la par étapes transparentes avec PotiBuddy, et mobilisez votre entourage en toute confiance.",
       "searchPlaceholder": "Rechercher une cause...",
@@ -55,6 +56,8 @@ const messages = {
       "ctaTitle": "Prêt à changer les choses ?",
       "ctaSubtitle": "Créez votre première cagnotte dès maintenant et concrétisez vos projets.",
       "ctaButton": "Lancer ma cagnotte",
+      "ctaBtn": "Lancer ma première cagnotte",
+      "learnMore": "Comment ça marche",
       "catHealth": "Santé",
       "catEducation": "Éducation",
       "catEmergency": "Urgence",
@@ -504,6 +507,7 @@ const messages = {
     },
     "home": {
       "badge": "Solidary Crowdfunding",
+      "heroBadge": "Active campaigns in real-time",
       "title": "Together, let's bring to life what matters.",
       "subtitle": "Create a pool in a few clicks, organize it in transparent steps with PotiBuddy, and mobilize your community with complete confidence.",
       "searchPlaceholder": "Search a cause...",
@@ -530,6 +534,8 @@ const messages = {
       "ctaTitle": "Ready to make a change?",
       "ctaSubtitle": "Create your first pool now and realize your projects.",
       "ctaButton": "Launch my pool",
+      "ctaBtn": "Launch my first campaign",
+      "learnMore": "How it works",
       "catHealth": "Health",
       "catEducation": "Education",
       "catEmergency": "Emergency",

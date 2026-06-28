@@ -12,16 +12,15 @@
 // to match your app's branding.
 // Tip: Use the "Theme Builder" on Quasar's documentation website.
 
-// ── Palette Akkodis (akkodis.com) : JAUNE #FFB300 + DARK NAVY + BLANC ──
-// Source : https://www.akkodis.com/
-$primary   : #FFA726;   // Orange clair (bouton LEARN MORE)
-$secondary : #0D1B2E;   // Dark navy Akkodis (navbar)
-$accent    : #1E6BE6;   // Bleu lien Akkodis (corps de texte)
+// ── Palette Potify Vivid : NEON GREEN #00E676 + DEEP JUNGLE #062F25 + VIVID SUN YELLOW #FACC15 ──
+$primary   : #00e676;   // Luminous Neon Green
+$secondary : #062f25;   // Deep Forest Navy/Teal
+$accent    : #facc15;   // Vivid Sun Yellow
 
-$dark      : #0D1B2E;   // Dark navy (navbar Akkodis)
-$dark-page : #07101C;   // Navy encore plus profond
+$dark      : #091f1a;   // Deep Jungle Mid
+$dark-page : #05100d;   // Deepest Jungle Black
 
-$positive  : #00C853;   // Vert succès
-$negative  : #D32F2F;   // Rouge erreur
-$info      : #1E6BE6;   // Bleu info = bleu lien Akkodis
-$warning   : #FFA726;   // Ambre = orange clair
+$positive  : #10b981;   // Neon Emerald
+$negative  : #f43f5e;   // Vivid Rose/Red
+$info      : #06b6d4;   // Electric Cyan
+$warning   : #facc15;   // Vivid Gold/Yellow
