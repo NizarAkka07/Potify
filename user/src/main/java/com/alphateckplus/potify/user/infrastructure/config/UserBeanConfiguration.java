@@ -137,8 +137,8 @@ public class UserBeanConfiguration {
     }
 
     @Bean
-    public CreateUserService createUserService(UserRepositoryPort userRepositoryPort, NotificationPort notificationPort, PasswordHashingPort passwordHashingPort) {
-        return new DefaultCreateUserService(userRepositoryPort, notificationPort, passwordHashingPort);
+    public CreateUserService createUserService(UserRepositoryPort userRepositoryPort, NotificationPort notificationPort, PasswordHashingPort passwordHashingPort, RoleRepositoryPort roleRepositoryPort) {
+        return new DefaultCreateUserService(userRepositoryPort, notificationPort, passwordHashingPort, roleRepositoryPort);
     }
 
     @Bean

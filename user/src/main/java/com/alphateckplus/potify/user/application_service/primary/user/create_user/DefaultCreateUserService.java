@@ -2,6 +2,7 @@ package com.alphateckplus.potify.user.application_service.primary.user.create_us
 
 import com.alphateckplus.potify.user.application_service.secondary.notification.NotificationPort;
 import com.alphateckplus.potify.user.application_service.secondary.user.UserRepositoryPort;
+import com.alphateckplus.potify.user.application_service.secondary.role.RoleRepositoryPort;
 import com.alphateckplus.potify.user.domain.exception.UserAlreadyExistsException;
 import com.alphateckplus.potify.user.domain.model.User;
 import com.alphateckplus.potify.user.domain.model.UserStatus;
@@ -15,11 +16,13 @@ public class DefaultCreateUserService implements CreateUserService {
     private final UserRepositoryPort userRepositoryPort;
     private final NotificationPort notificationPort;
     private final PasswordHashingPort passwordHashingPort;
+    private final RoleRepositoryPort roleRepositoryPort;
 
-    public DefaultCreateUserService(UserRepositoryPort userRepositoryPort, NotificationPort notificationPort, PasswordHashingPort passwordHashingPort) {
+    public DefaultCreateUserService(UserRepositoryPort userRepositoryPort, NotificationPort notificationPort, PasswordHashingPort passwordHashingPort, RoleRepositoryPort roleRepositoryPort) {
         this.userRepositoryPort = userRepositoryPort;
         this.notificationPort = notificationPort;
         this.passwordHashingPort = passwordHashingPort;
+        this.roleRepositoryPort = roleRepositoryPort;
     }
 
     @Override
@@ -35,6 +38,11 @@ public class DefaultCreateUserService implements CreateUserService {
         user.setVerificationToken(token);
 
         User createdUser = userRepositoryPort.save(user);
+
+        // Assigner le rôle par défaut 'USER' à la création
+        roleRepositoryPort.findByName("USER").ifPresent(role -> {
+            userRepositoryPort.addRoleToUser(createdUser.getId(), role.getId());
+        });
 
         // Envoi du mail de verification
         notificationPort.sendVerificationEmail(createdUser.getEmail(), createdUser.getFullName(), token);

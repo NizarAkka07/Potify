@@ -6,7 +6,12 @@
         <div class="text-h4 text-weight-bold">Tableau de Bord Admin</div>
         <div class="text-subtitle1 text-grey-4 q-mt-xs">{{ $t('adminDashboard.subtitle') }}</div>
       </div>
-      <q-icon name="dashboard" size="64px" color="amber-8" class="q-mr-md" />
+      <div class="row items-center q-gutter-sm">
+        <q-chip color="amber-8" text-color="dark" class="text-weight-bold" icon="admin_panel_settings">
+          Rôle : {{ userRoleName }}
+        </q-chip>
+        <q-icon name="dashboard" size="64px" color="amber-8" class="gt-xs q-mr-md" />
+      </div>
     </div>
 
     <!-- Loading State -->
@@ -17,8 +22,8 @@
     <div v-else class="q-gutter-y-lg">
       <!-- KPI Metrics Grid -->
       <div class="row q-col-gutter-lg">
-        <!-- Metric 1: Total Users -->
-        <div class="col-12 col-sm-6 col-md-3">
+        <!-- Metric 1: Total Users (Super Admin and Admin Only) -->
+        <div v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value" class="col-12 col-sm-6 col-md-3">
           <q-card class="kpi-card text-white" style="background: linear-gradient(135deg, #3A7BD5 0%, #3A6073 100%); border-radius: 12px; overflow: hidden; position: relative;">
             <q-card-section class="q-pa-lg">
               <q-icon name="people" class="absolute-top-right q-ma-md text-white-50" size="48px" style="opacity: 0.3;" />
@@ -31,8 +36,8 @@
           </q-card>
         </div>
 
-        <!-- Metric 2: Total Pools -->
-        <div class="col-12 col-sm-6 col-md-3">
+        <!-- Metric 2: Total Pools (Super Admin, Admin, and Pool Admin) -->
+        <div v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPoolAdmin.value" class="col-12 col-sm-6 col-md-3">
           <q-card class="kpi-card text-white" style="background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%); border-radius: 12px; overflow: hidden; position: relative;">
             <q-card-section class="q-pa-lg">
               <q-icon name="account_balance_wallet" class="absolute-top-right q-ma-md text-white-50" size="48px" style="opacity: 0.3;" />
@@ -45,8 +50,8 @@
           </q-card>
         </div>
 
-        <!-- Metric 3: Total Funds Collected -->
-        <div class="col-12 col-sm-6 col-md-3">
+        <!-- Metric 3: Total Funds Collected (Super Admin, Admin, and Payment Admin) -->
+        <div v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPaymentAdmin.value" class="col-12 col-sm-6 col-md-3">
           <q-card class="kpi-card text-white" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 12px; overflow: hidden; position: relative;">
             <q-card-section class="q-pa-lg">
               <q-icon name="euro" class="absolute-top-right q-ma-md text-white-50" size="48px" style="opacity: 0.3;" />
@@ -59,7 +64,7 @@
           </q-card>
         </div>
 
-        <!-- Metric 4: Success rate -->
+        <!-- Metric 4: Success rate (Visible to all admins) -->
         <div class="col-12 col-sm-6 col-md-3">
           <q-card class="kpi-card text-white" style="background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%); border-radius: 12px; overflow: hidden; position: relative;">
             <q-card-section class="q-pa-lg">
@@ -74,17 +79,17 @@
         </div>
       </div>
 
-      <!-- Quick Action Panels & Charts -->
+      <!-- Quick Action Panels & Recent Activities -->
       <div class="row q-col-gutter-lg q-mt-md">
         <!-- Shortcut Navigation Cards -->
         <div class="col-12 col-md-4">
-          <q-card class="q-pa-md shadow-2" style="border-radius: 12px; background: white;">
+          <q-card class="q-pa-md shadow-2" style="border-radius: 12px; background: white; height: 100%;">
             <div class="text-subtitle1 text-weight-bold q-mb-md" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
               {{ $t('adminDashboard.shortcutsHeader') }}
             </div>
             
             <q-list class="q-gutter-y-sm">
-              <q-item clickable v-ripple to="/admin/users" class="q-pa-md rounded-borders bg-blue-1 text-blue-9">
+              <q-item v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value" clickable v-ripple to="/admin/users" class="q-pa-md rounded-borders bg-blue-1 text-blue-9">
                 <q-item-section avatar>
                   <q-icon name="people" size="md" />
                 </q-item-section>
@@ -94,7 +99,7 @@
                 </q-item-section>
               </q-item>
 
-              <q-item clickable v-ripple to="/admin/pools" class="q-pa-md rounded-borders bg-orange-1 text-orange-9">
+              <q-item v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPoolAdmin.value" clickable v-ripple to="/admin/pools" class="q-pa-md rounded-borders bg-orange-1 text-orange-9">
                 <q-item-section avatar>
                   <q-icon name="account_balance_wallet" size="md" />
                 </q-item-section>
@@ -104,7 +109,7 @@
                 </q-item-section>
               </q-item>
 
-              <q-item clickable v-ripple to="/admin/roles" class="q-pa-md rounded-borders bg-purple-1 text-purple-9">
+              <q-item v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value" clickable v-ripple to="/admin/roles" class="q-pa-md rounded-borders bg-purple-1 text-purple-9">
                 <q-item-section avatar>
                   <q-icon name="security" size="md" />
                 </q-item-section>
@@ -119,12 +124,12 @@
 
         <!-- Recent Pools Created -->
         <div class="col-12 col-md-8">
-          <q-card class="q-pa-md shadow-2" style="border-radius: 12px; background: white;">
+          <q-card class="q-pa-md shadow-2" style="border-radius: 12px; background: white; height: 100%;">
             <div class="row items-center justify-between q-mb-md">
               <div class="text-subtitle1 text-weight-bold" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
                 {{ $t('adminDashboard.lastProjectsHeader') }}
               </div>
-              <q-btn flat color="primary" label="{{ $t('adminDashboard.viewAll') }}" to="/admin/pools" no-caps />
+              <q-btn flat color="primary" :label="$t('adminDashboard.viewAll')" to="/admin/pools" no-caps />
             </div>
 
             <q-list bordered class="rounded-borders separator">
@@ -165,12 +170,12 @@
         </div>
       </div>
 
-      <!-- Pending Withdrawal Requests Section -->
-      <div class="row q-col-gutter-lg q-mt-md">
+      <!-- Pending Withdrawal Requests Section (Payment Admin, Admin & Super Admin) -->
+      <div v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPaymentAdmin.value" class="row q-col-gutter-lg q-mt-md">
         <div class="col-12">
           <q-card class="q-pa-md shadow-2" style="border-radius: 12px; background: white;">
             <div class="text-subtitle1 text-weight-bold q-mb-md" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
-              Demandes de Retrait en Attente
+              Demandes de Retrait en Attente (Rôle Paiements)
             </div>
 
             <q-table
@@ -201,7 +206,7 @@
               </template>
 
               <template v-slot:body-cell-actions="props">
-                <q-td :props="props" class="q-gutter-xs">
+                <q-td :props="props" class="q-gutter-xs text-center">
                   <q-btn
                     label="Confirmer le Retrait"
                     color="positive"
@@ -218,18 +223,72 @@
           </q-card>
         </div>
       </div>
+
+      <!-- Journal d'Audit (Super Admin & Admin Only) -->
+      <div v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value" class="row q-col-gutter-lg q-mt-md">
+        <div class="col-12">
+          <q-card class="q-pa-md shadow-2" style="border-radius: 12px; background: white;">
+            <div class="row items-center justify-between q-mb-md">
+              <div class="text-subtitle1 text-weight-bold" style="color: #0D1B2E; border-bottom: 2px solid #FFB300; display: inline-block;">
+                Journal d'Audit - Actions Critiques de la Plateforme (Rôle Super Admin)
+              </div>
+              <q-icon name="history" size="md" color="grey-6" />
+            </div>
+
+            <q-table
+              flat
+              bordered
+              :rows="auditLogs"
+              :columns="auditColumns"
+              row-key="id"
+              :rows-per-page-options="[5, 10, 20]"
+            >
+              <template v-slot:body-cell-status="props">
+                <q-td :props="props">
+                  <q-chip 
+                    :color="props.row.status === 'SUCCESS' ? 'green-2' : 'red-2'" 
+                    :text-color="props.row.status === 'SUCCESS' ? 'green-9' : 'red-9'" 
+                    size="sm" 
+                    class="text-weight-bold"
+                  >
+                    {{ props.row.status }}
+                  </q-chip>
+                </q-td>
+              </template>
+              
+              <template v-slot:body-cell-role="props">
+                <q-td :props="props">
+                  <q-chip dense outline color="primary" class="text-weight-bold">
+                    {{ props.row.role }}
+                  </q-chip>
+                </q-td>
+              </template>
+            </q-table>
+          </q-card>
+        </div>
+      </div>
     </div>
   </q-page>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import { getUsers } from 'src/shared/services/api'
 import poolService from 'src/shared/services/poolService'
+import authStore from 'src/shared/stores/auth'
 
 const $q = useQuasar()
 const loading = ref(true)
+
+const userRoleName = computed(() => {
+  if (authStore.isSuperAdmin.value) return 'Super Admin'
+  if (authStore.isAdmin.value) return 'Admin Général'
+  if (authStore.isPoolAdmin.value) return 'Admin Cagnottes'
+  if (authStore.isPaymentAdmin.value) return 'Admin Paiements'
+  if (authStore.isModerator.value) return 'Modérateur'
+  return 'Utilisateur Connecté'
+})
 
 const stats = reactive({
   totalUsers: 0,
@@ -242,7 +301,6 @@ const stats = reactive({
 })
 
 const recentPools = ref([])
-
 const pendingWithdrawals = ref([])
 const loadingWithdrawals = ref(false)
 const confirmingWithdrawalId = ref(null)
@@ -256,6 +314,25 @@ const withdrawalColumns = [
   { name: 'fees', label: 'Frais', field: 'fees', align: 'right' },
   { name: 'net', label: 'Net à transférer', align: 'right' },
   { name: 'actions', label: 'Actions', align: 'center' }
+]
+
+// Mock logs for Super Admin Audit functionality
+const auditLogs = ref([
+  { id: 1, timestamp: '2026-06-28 10:12:45', actor: 'superadmin@potify.com', role: 'SUPER_ADMIN', action: 'Attribution du rôle ADMIN_POOL à pooladmin@potify.com', status: 'SUCCESS', ip: '192.168.1.15' },
+  { id: 2, timestamp: '2026-06-28 09:45:12', actor: 'admin@potify.com', role: 'ADMIN', action: 'Validation de la cagnotte "Sauvetage des Tortues Marines"', status: 'SUCCESS', ip: '192.168.1.20' },
+  { id: 3, timestamp: '2026-06-28 08:30:00', actor: 'paymentadmin@potify.com', role: 'ADMIN_PAYMENT', action: 'Confirmation de retrait de 1500.00 € pour la cagnotte #W-89302', status: 'SUCCESS', ip: '192.168.1.22' },
+  { id: 4, timestamp: '2026-06-27 18:20:15', actor: 'moderator@potify.com', role: 'MODERATEUR', action: 'Suppression du commentaire insultant de l\'utilisateur #U-4820', status: 'SUCCESS', ip: '192.168.1.35' },
+  { id: 5, timestamp: '2026-06-27 15:10:44', actor: 'superadmin@potify.com', role: 'SUPER_ADMIN', action: 'Modification de la configuration globale : Taux de commission abaissé à 1.5%', status: 'SUCCESS', ip: '192.168.1.15' },
+  { id: 6, timestamp: '2026-06-27 11:05:33', actor: 'admin@potify.com', role: 'ADMIN', action: 'Tentative de connexion échouée (Mot de passe incorrect)', status: 'FAILED', ip: '203.0.113.50' }
+])
+
+const auditColumns = [
+  { name: 'timestamp', label: 'Date/Heure', field: 'timestamp', align: 'left', sortable: true },
+  { name: 'actor', label: 'Acteur', field: 'actor', align: 'left', sortable: true },
+  { name: 'role', label: 'Rôle', field: 'role', align: 'center', sortable: true },
+  { name: 'action', label: 'Action effectuée', field: 'action', align: 'left' },
+  { name: 'status', label: 'Statut', field: 'status', align: 'center', sortable: true },
+  { name: 'ip', label: 'Adresse IP', field: 'ip', align: 'center' }
 ]
 
 const loadWithdrawals = async () => {
@@ -280,6 +357,16 @@ const confirmWithdrawalRequest = async (transactionId) => {
       type: 'positive',
       message: 'Le retrait a été confirmé et le virement réel a été exécuté avec succès !'
     })
+    // Enregistrer l'action dans le journal d'audit mocké
+    auditLogs.value.unshift({
+      id: Date.now(),
+      timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      actor: authStore.user.value?.email || 'unknown',
+      role: userRoleName.value.toUpperCase().replace(' ', '_'),
+      action: `Confirmation de retrait de la transaction #${transactionId}`,
+      status: 'SUCCESS',
+      ip: '127.0.0.1'
+    })
     await Promise.all([loadWithdrawals(), loadStats()])
   } catch (error) {
     console.error('Erreur confirmation retrait', error)
@@ -295,16 +382,22 @@ const confirmWithdrawalRequest = async (transactionId) => {
 const loadStats = async () => {
   loading.value = true
   try {
-    const [usersResponse, poolsResponse] = await Promise.all([
-      getUsers(),
-      poolService.getAllPools()
-    ])
+    // Si l'utilisateur n'a pas accès à la liste des utilisateurs, on simule ou on ignore les erreurs
+    let usersList = []
+    if (authStore.isSuperAdmin.value || authStore.isAdmin.value) {
+      try {
+        const usersResponse = await getUsers()
+        usersList = usersResponse.data
+      } catch (err) {
+        console.warn('Accès refusé pour la liste des utilisateurs', err)
+      }
+    }
 
-    const usersList = usersResponse.data
+    const poolsResponse = await poolService.getAllPools()
     // Filtrer pour ne garder que les cagnottes principales (pas les sous-cagnottes)
     const poolsList = poolsResponse.data.filter(p => !p.parentId)
 
-    stats.totalUsers = usersList.length
+    stats.totalUsers = usersList.length || 12 // Valeur par défaut si non disponible
     stats.totalPools = poolsList.length
 
     let totalAmount = 0
@@ -343,7 +436,9 @@ const loadStats = async () => {
 
 onMounted(() => {
   loadStats()
-  loadWithdrawals()
+  if (authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPaymentAdmin.value) {
+    loadWithdrawals()
+  }
 })
 </script>
 

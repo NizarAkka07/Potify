@@ -11,6 +11,7 @@ import com.alphateckplus.potify.data_jpa.repository.user.RoleEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.user.UserEntityRepository;
 // Importation des utilitaires Java et Spring
 import java.util.Set;
+import java.util.HashSet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,45 +54,67 @@ public class DataInitializer implements CommandLineRunner {
         long userCount = userRepository.count();
         System.out.println(">>> [Initialisation] Nombre d'utilisateurs en base : " + userCount);
         
-        // Si l'administrateur par défaut existe déjà, on ne fait rien
-        if (userRepository.findByEmail("admin@potify.com").isPresent()) {
-            System.out.println(">>> [Initialisation] L'utilisateur admin@potify.com existe déjà. Passage.");
-            return;
+        // 1. Initialiser les permissions si elles n'existent pas
+        PermissionEntity allPerm = getOrCreatePermission("ALL", "Accès complet à toutes les ressources");
+        PermissionEntity manageUsersPerm = getOrCreatePermission("MANAGE_USERS", "Gérer les utilisateurs");
+        PermissionEntity manageRolesPerm = getOrCreatePermission("MANAGE_ROLES", "Gérer les rôles et permissions");
+        PermissionEntity validatePoolsPerm = getOrCreatePermission("VALIDATE_POOLS", "Valider et gérer les cagnottes");
+        PermissionEntity moderateContentPerm = getOrCreatePermission("MODERATE_CONTENT", "Modérer les messages et commentaires");
+        PermissionEntity managePaymentsPerm = getOrCreatePermission("MANAGE_PAYMENTS", "Gérer les transactions et confirmer les retraits");
+
+        // 2. Initialiser les rôles si ils n'existent pas
+        RoleEntity superAdminRole = getOrCreateRole("SUPER_ADMIN", "Super administrateur du système", Set.of(allPerm));
+        RoleEntity adminRole = getOrCreateRole("ADMIN", "Administrateur général", Set.of(manageUsersPerm, manageRolesPerm, validatePoolsPerm, moderateContentPerm, managePaymentsPerm));
+        RoleEntity poolAdminRole = getOrCreateRole("ADMIN_POOL", "Administrateur des cagnottes", Set.of(validatePoolsPerm));
+        RoleEntity paymentAdminRole = getOrCreateRole("ADMIN_PAYMENT", "Administrateur des paiements", Set.of(managePaymentsPerm));
+        RoleEntity moderatorRole = getOrCreateRole("MODERATEUR", "Modérateur de contenu", Set.of(moderateContentPerm));
+        RoleEntity userRole = getOrCreateRole("USER", "Utilisateur standard", Set.of());
+
+        // 3. Initialiser les comptes de test s'ils n'existent pas
+        createTestUserIfAbsent("superadmin@potify.com", "superadmin", "Super Admin", superAdminRole);
+        createTestUserIfAbsent("admin@potify.com", "admin123", "Admin General", adminRole);
+        createTestUserIfAbsent("moderator@potify.com", "admin123", "Modérateur Potify", moderatorRole);
+        createTestUserIfAbsent("pooladmin@potify.com", "admin123", "Admin Cagnottes", poolAdminRole);
+        createTestUserIfAbsent("paymentadmin@potify.com", "admin123", "Admin Paiements", paymentAdminRole);
+        createTestUserIfAbsent("user@potify.com", "user123", "Utilisateur Simple", userRole);
+
+        System.out.println(">>> [Initialisation] Comptes et rôles configurés avec succès.");
+    }
+
+    private PermissionEntity getOrCreatePermission(String code, String description) {
+        return permissionRepository.findByCode(code)
+                .orElseGet(() -> permissionRepository.save(
+                        PermissionEntity.builder()
+                                .code(code)
+                                .description(description)
+                                .build()
+                ));
+    }
+
+    private RoleEntity getOrCreateRole(String name, String description, Set<PermissionEntity> permissions) {
+        return roleRepository.findByName(name)
+                .orElseGet(() -> roleRepository.save(
+                        RoleEntity.builder()
+                                .name(name)
+                                .description(description)
+                                .permissions(permissions)
+                                .build()
+                ));
+    }
+
+    private void createTestUserIfAbsent(String email, String password, String fullName, RoleEntity role) {
+        if (userRepository.findByEmail(email).isEmpty()) {
+            UserEntity user = UserEntity.builder()
+                    .fullName(fullName)
+                    .email(email)
+                    .password(passwordEncoder.encode(password))
+                    .status(UserStatus.ACTIVE)
+                    .enabled(true)
+                    .accountNonLocked(true)
+                    .roles(Set.of(role))
+                    .build();
+            userRepository.save(user);
+            System.out.println(">>> [Initialisation] Utilisateur de test créé : " + email + " / " + password + " (" + role.getName() + ")");
         }
-
-        System.out.println(">>> [Initialisation] Base de données vide ou admin absent. Création de l'administrateur par défaut...");
-
-        // 1. Création de la permission 'ALL' (Accès total)
-        // Respecte le principe de granularité des accès
-        PermissionEntity allPermission = PermissionEntity.builder()
-                .code("ALL")
-                .description("Accès complet à toutes les ressources")
-                .build();
-        permissionRepository.save(allPermission); // Sauvegarde en base
-
-        // 2. Création du rôle 'ADMIN'
-        // On associe la permission 'ALL' à ce rôle
-        RoleEntity adminRole = RoleEntity.builder()
-                .name("ADMIN")
-                .description("Administrateur du système")
-                .permissions(Set.of(allPermission)) // Association de la permission
-                .build();
-        roleRepository.save(adminRole); // Sauvegarde du rôle
-
-        // 3. Création de l'utilisateur 'ADMIN'
-        // Cet utilisateur aura le rôle ADMIN et pourra se connecter immédiatement
-        UserEntity adminUser = UserEntity.builder()
-                .fullName("Admin System")
-                .email("admin@potify.com")
-                // Encodage sécurisé du mot de passe (admin123)
-                .password(passwordEncoder.encode("admin123"))
-                .status(UserStatus.ACTIVE)
-                .enabled(true) // Compte activé
-                .accountNonLocked(true) // Compte non verrouillé
-                .roles(Set.of(adminRole)) // Attribution du rôle
-                .build();
-        userRepository.save(adminUser); // Sauvegarde de l'utilisateur
-
-        System.out.println(">>> [Initialisation] Données d'administration créées : admin@potify.com / admin123");
     }
 }

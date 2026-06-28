@@ -10,6 +10,7 @@ import com.alphateckplus.potify.user.application_service.primary.user.create_use
 import com.alphateckplus.potify.user.application_service.primary.user.update_user.DefaultUpdateUserService;
 import com.alphateckplus.potify.user.application_service.secondary.notification.NotificationPort;
 import com.alphateckplus.potify.user.application_service.secondary.user.UserRepositoryPort;
+import com.alphateckplus.potify.user.application_service.secondary.role.RoleRepositoryPort;
 import com.alphateckplus.potify.user.domain.exception.UserAlreadyExistsException;
 import com.alphateckplus.potify.user.domain.model.User;
 import com.alphateckplus.potify.user.domain.model.UserStatus;
@@ -38,12 +39,15 @@ class UserServiceTest {
     @Mock
     private PasswordHashingPort passwordHashingPort;
 
+    @Mock
+    private RoleRepositoryPort roleRepositoryPort;
+
     private DefaultCreateUserService defaultCreateUserService;
     private DefaultUpdateUserService defaultUpdateUserService;
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        defaultCreateUserService = new DefaultCreateUserService(userRepositoryPort, notificationPort, passwordHashingPort);
+        defaultCreateUserService = new DefaultCreateUserService(userRepositoryPort, notificationPort, passwordHashingPort, roleRepositoryPort);
         defaultUpdateUserService = new DefaultUpdateUserService(userRepositoryPort);
     }
 

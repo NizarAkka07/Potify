@@ -82,7 +82,7 @@
           {{ $t('dashboardLayout.title') }}
         </q-item-label>
 
-        <q-item clickable v-ripple to="/admin" exact>
+        <q-item clickable v-ripple to="/admin" exact v-if="authStore.hasAdminAccess.value">
           <q-item-section avatar>
             <q-icon name="dashboard" />
           </q-item-section>
@@ -92,7 +92,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple to="/admin/users" exact>
+        <q-item clickable v-ripple to="/admin/users" exact v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value">
           <q-item-section avatar>
             <q-icon name="people" />
           </q-item-section>
@@ -102,7 +102,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple to="/admin/pools" exact>
+        <q-item clickable v-ripple to="/admin/pools" exact v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPoolAdmin.value">
           <q-item-section avatar>
             <q-icon name="account_balance_wallet" />
           </q-item-section>
@@ -112,7 +112,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple to="/admin/roles" exact>
+        <q-item clickable v-ripple to="/admin/roles" exact v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value">
           <q-item-section avatar>
             <q-icon name="security" />
           </q-item-section>
@@ -122,7 +122,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple to="/admin/permissions" exact>
+        <q-item clickable v-ripple to="/admin/permissions" exact v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value">
           <q-item-section avatar>
             <q-icon name="vpn_key" />
           </q-item-section>

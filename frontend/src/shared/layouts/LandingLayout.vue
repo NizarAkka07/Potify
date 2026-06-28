@@ -29,7 +29,7 @@
           <span class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="$router.push('/pools')">Explorer</span>
           <span class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="scrollToHowItWorks">Comment ça marche</span>
           <span class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="$router.push('/dashboard')">Mon espace</span>
-          <span v-if="authStore.isAdmin.value" class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="$router.push('/admin')">Administration</span>
+          <span v-if="authStore.hasAdminAccess.value" class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="$router.push('/admin')">Administration</span>
         </div>
 
         <q-space />
