@@ -4,21 +4,31 @@
     <!-- Tabler Header Title -->
     <div class="row items-center justify-between q-mb-lg">
       <div>
-        <h1 class="dashboard-title q-my-none">Tableau de bord</h1>
+        <div class="text-overline text-grey-5 font-inter text-weight-bold" style="letter-spacing: 0.8px; line-height: 1.2;">
+          Aperçu analytique
+        </div>
+        <h1 class="dashboard-title q-my-none text-weight-bold text-dark font-inter" style="font-size: 1.8rem; letter-spacing: -0.5px;">
+          Tableau de bord
+        </h1>
       </div>
       <div class="row items-center q-gutter-md">
         <q-btn
-          flat
-          dense
+          outline
           no-caps
           color="primary"
-          icon="launch"
+          icon="open_in_new"
           label="Visiter le site"
           to="/"
-          class="text-weight-bold"
+          class="action-btn text-weight-bold bg-white text-primary"
         />
-        <div class="text-caption text-grey-6">
-          Connecté en tant que : <strong class="text-grey-8">{{ userRoleName }}</strong>
+        <div class="role-badge">
+          <q-avatar size="24px" class="bg-blue-1 text-primary q-mr-sm">
+            <q-icon name="admin_panel_settings" size="16px" />
+          </q-avatar>
+          <div class="column">
+            <span class="text-caption text-grey-5 leading-none" style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px;">RÔLE ACTUEL</span>
+            <span class="text-weight-bold text-dark font-inter leading-none q-mt-xs" style="font-size: 0.75rem;">{{ userRoleName }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -1248,5 +1258,32 @@ body.body--dark .border-bottom-light {
 body.body--dark .tabler-table-header-row th {
   background: #141c2c;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.role-badge {
+  background: #ffffff;
+  border: 1px solid rgba(101, 109, 119, 0.16);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+}
+body.body--dark .role-badge {
+  background: #182235;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+body.body--dark .role-badge .text-dark {
+  color: #f1f3f9 !important;
+}
+
+.action-btn {
+  border: 1px solid rgba(101, 109, 119, 0.16);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+body.body--dark .action-btn {
+  background: #182235 !important;
+  border-color: rgba(255, 255, 255, 0.12);
 }
 </style>
