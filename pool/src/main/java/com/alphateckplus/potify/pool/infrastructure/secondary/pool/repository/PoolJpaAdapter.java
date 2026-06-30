@@ -20,14 +20,17 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     private final PoolEntityRepository poolEntityRepository;
     private final UserEntityRepository userEntityRepository;
     private final PoolPersistenceMapper poolPersistenceMapper;
+    private final com.alphateckplus.potify.data_jpa.repository.pool.PoolReportEntityRepository poolReportEntityRepository;
 
     public PoolJpaAdapter(
             PoolEntityRepository poolEntityRepository,
             UserEntityRepository userEntityRepository,
-            PoolPersistenceMapper poolPersistenceMapper) {
+            PoolPersistenceMapper poolPersistenceMapper,
+            com.alphateckplus.potify.data_jpa.repository.pool.PoolReportEntityRepository poolReportEntityRepository) {
         this.poolEntityRepository = poolEntityRepository;
         this.userEntityRepository = userEntityRepository;
         this.poolPersistenceMapper = poolPersistenceMapper;
+        this.poolReportEntityRepository = poolReportEntityRepository;
     }
 
     @Override
@@ -106,6 +109,41 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     @Transactional(readOnly = true)
     public List<Pool> findInvitedPools(String userId, String email) {
         return poolEntityRepository.findInvitedPools(userId, email).stream()
+                .map(poolPersistenceMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public void addReport(String poolId, String userId, String reason) {
+        PoolEntity pool = poolEntityRepository.findById(poolId)
+                .orElseThrow(() -> new IllegalArgumentException("Cagnotte non trouvee"));
+        UserEntity user = userEntityRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouve"));
+
+        if (poolReportEntityRepository.findByPoolIdAndUserId(poolId, userId).isPresent()) {
+            return;
+        }
+
+        com.alphateckplus.potify.data_jpa.entity.pool.PoolReportEntity report = com.alphateckplus.potify.data_jpa.entity.pool.PoolReportEntity.builder()
+                .pool(pool)
+                .user(user)
+                .reason(reason)
+                .build();
+        poolReportEntityRepository.save(report);
+    }
+
+    @Override
+    public void clearReports(String poolId) {
+        PoolEntity pool = poolEntityRepository.findById(poolId)
+                .orElseThrow(() -> new IllegalArgumentException("Cagnotte non trouvee"));
+        pool.getReports().clear();
+        poolEntityRepository.save(pool);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Pool> findReportedPools() {
+        return poolEntityRepository.findReportedPools().stream()
                 .map(poolPersistenceMapper::toDomain)
                 .toList();
     }

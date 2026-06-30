@@ -24,6 +24,7 @@
       >
         <q-tab name="pools" label="Cagnottes" icon="account_balance_wallet" no-caps />
         <q-tab name="reports" label="Messages Signalés" icon="report_problem" no-caps />
+        <q-tab name="poolReports" label="Cagnottes Signalées" icon="warning" no-caps />
       </q-tabs>
     </div>
 
@@ -221,6 +222,63 @@
       </q-card>
     </div>
 
+    <!-- Reported pools view -->
+    <div v-if="authStore.isModerator.value && activeTab === 'poolReports'">
+      <q-card class="q-pa-md shadow-2" style="border-radius: 12px; background: white;">
+        <div class="row items-center justify-between q-mb-md">
+          <div class="text-h6 text-weight-bold text-dark">Cagnottes signalées par les utilisateurs</div>
+          <q-btn flat dense round icon="refresh" color="primary" @click="loadReportedPools">
+            <q-tooltip>Actualiser</q-tooltip>
+          </q-btn>
+        </div>
+
+        <q-table
+          :rows="reportedPools"
+          :columns="poolReportColumns"
+          row-key="id"
+          :loading="loadingPoolReports"
+          flat
+          bordered
+          style="border-radius: 12px;"
+          :pagination="{ rowsPerPage: 10 }"
+          no-data-label="Aucune cagnotte signalée pour le moment"
+        >
+          <!-- Custom title cell linking to details page -->
+          <template v-slot:body-cell-title="props">
+            <q-td :props="props">
+              <router-link :to="`/pools/${props.row.id}`" class="text-primary text-weight-bold text-subtitle2" style="text-decoration: none;">
+                {{ props.row.title }}
+              </router-link>
+            </q-td>
+          </template>
+
+          <!-- Custom count cell -->
+          <template v-slot:body-cell-count="props">
+            <q-td :props="props" class="text-center">
+              <q-chip color="red-1" text-color="red-9" class="text-weight-bold" size="sm">
+                {{ props.row.reportCount }}
+              </q-chip>
+            </q-td>
+          </template>
+
+          <!-- Custom actions cell -->
+          <template v-slot:body-cell-actions="props">
+            <q-td :props="props" class="text-center q-gutter-x-xs">
+              <q-btn flat round color="info" icon="info" size="sm" @click="showPoolReportDetails(props.row)">
+                <q-tooltip>Voir les détails des signalements</q-tooltip>
+              </q-btn>
+              <q-btn flat round color="positive" icon="check" size="sm" @click="dismissPoolReport(props.row.id)">
+                <q-tooltip>Rejeter le signalement (Conserver la cagnotte)</q-tooltip>
+              </q-btn>
+              <q-btn flat round color="negative" icon="delete" size="sm" @click="deleteReportedPool(props.row)">
+                <q-tooltip>Supprimer la cagnotte</q-tooltip>
+              </q-btn>
+            </q-td>
+          </template>
+        </q-table>
+      </q-card>
+    </div>
+
     <!-- Dialog Détails des Signalements -->
     <q-dialog v-model="detailsDialog">
       <q-card style="border-radius: 16px; min-width: 450px;">
@@ -267,6 +325,53 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- Dialog Détails des Signalements de Cagnotte -->
+    <q-dialog v-model="poolDetailsDialog">
+      <q-card style="border-radius: 16px; min-width: 450px;">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6 text-weight-bold text-dark">Détails des Signalements de Cagnotte</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section class="q-pa-md">
+          <div class="q-mb-md bg-grey-1 q-pa-sm rounded-borders" style="border-left: 4px solid var(--q-warning);">
+            <div class="text-weight-bold text-grey-8">Cagnotte signalée :</div>
+            <div class="text-weight-medium text-grey-9 q-mt-xs">{{ selectedPoolForDetails?.title }}</div>
+            <div class="text-caption text-grey-6 q-mt-xs">Créateur : {{ selectedPoolForDetails?.ownerName }}</div>
+          </div>
+
+          <div class="text-subtitle2 q-mb-xs text-weight-medium">Historique des signalements ({{ selectedPoolForDetails?.reports?.length || 0 }}) :</div>
+          <q-list bordered separator style="border-radius: 8px;">
+            <q-item v-for="rep in selectedPoolForDetails?.reports" :key="rep.id">
+              <q-item-section>
+                <q-item-label class="text-weight-medium text-primary">
+                  {{ rep.userName || 'Utilisateur inconnu' }}
+                </q-item-label>
+                <q-item-label caption class="text-grey-8">
+                  Motif : {{ rep.reason }}
+                </q-item-label>
+              </q-item-section>
+              <q-item-section side top>
+                <q-item-label caption>
+                  {{ rep.createdAt ? new Date(rep.createdAt).toLocaleString('fr-FR') : '-' }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item v-if="!selectedPoolForDetails?.reports || selectedPoolForDetails.reports.length === 0">
+              <q-item-section class="text-center text-grey-5 q-py-md">
+                Aucun rapport individuel enregistré.
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn label="Fermer" color="grey" flat v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -290,9 +395,23 @@ const activeTab = ref('pools')
 const reportedMessages = ref([])
 const loadingReports = ref(false)
 
+const reportedPools = ref([])
+const loadingPoolReports = ref(false)
+const poolDetailsDialog = ref(false)
+const selectedPoolForDetails = ref(null)
+
 const reportColumns = [
   { name: 'author', align: 'left', label: 'Auteur', field: 'userName', sortable: true },
   { name: 'content', align: 'left', label: 'Message', field: 'content', sortable: true },
+  { name: 'count', align: 'center', label: 'Signalements', field: 'reportCount', sortable: true },
+  { name: 'reason', align: 'left', label: 'Motif(s)', field: 'reportReason', sortable: true },
+  { name: 'date', align: 'left', label: 'Dernier signalement', field: 'createdAt', sortable: true, format: val => val ? new Date(val).toLocaleString('fr-FR') : '-' },
+  { name: 'actions', align: 'center', label: 'Actions', field: 'actions', sortable: false }
+]
+
+const poolReportColumns = [
+  { name: 'owner', align: 'left', label: 'Créateur', field: 'ownerName', sortable: true },
+  { name: 'title', align: 'left', label: 'Titre de la cagnotte', field: 'title', sortable: true },
   { name: 'count', align: 'center', label: 'Signalements', field: 'reportCount', sortable: true },
   { name: 'reason', align: 'left', label: 'Motif(s)', field: 'reportReason', sortable: true },
   { name: 'date', align: 'left', label: 'Dernier signalement', field: 'createdAt', sortable: true, format: val => val ? new Date(val).toLocaleString('fr-FR') : '-' },
@@ -520,6 +639,77 @@ const showReportDetails = (msg) => {
   detailsDialog.value = true
 }
 
+const loadReportedPools = async () => {
+  loadingPoolReports.value = true
+  try {
+    const response = await poolService.getReportedPools()
+    reportedPools.value = response.data
+  } catch (err) {
+    console.error('Erreur chargement signalements cagnottes:', err)
+    $q.notify({
+      type: 'negative',
+      message: 'Erreur lors du chargement des cagnottes signalées.'
+    })
+  } finally {
+    loadingPoolReports.value = false
+  }
+}
+
+const dismissPoolReport = async (poolId) => {
+  try {
+    await poolService.dismissPoolReport(poolId)
+    $q.notify({
+      type: 'positive',
+      message: 'Les signalements de la cagnotte ont été rejetés.'
+    })
+    await loadReportedPools()
+  } catch (err) {
+    console.error('Erreur rejet signalements cagnotte:', err)
+    $q.notify({
+      type: 'negative',
+      message: 'Erreur lors du rejet des signalements.'
+    })
+  }
+}
+
+const deleteReportedPool = async (pool) => {
+  $q.dialog({
+    title: 'Confirmer la suppression',
+    message: `Voulez-vous vraiment supprimer définitivement la cagnotte "${pool.title}" ? Cette action est irréversible et supprimera toutes les contributions associées.`,
+    cancel: {
+      label: 'Annuler',
+      flat: true
+    },
+    ok: {
+      label: 'Supprimer',
+      color: 'negative',
+      unelevated: true
+    },
+    persistent: true
+  }).onOk(async () => {
+    try {
+      await poolService.deletePool(pool.id)
+      $q.notify({
+        type: 'positive',
+        message: 'La cagnotte a été supprimée avec succès.'
+      })
+      await loadReportedPools()
+      await loadPools()
+    } catch (err) {
+      console.error('Erreur suppression cagnotte:', err)
+      $q.notify({
+        type: 'negative',
+        message: 'Erreur lors de la suppression de la cagnotte.'
+      })
+    }
+  })
+}
+
+const showPoolReportDetails = (pool) => {
+  selectedPoolForDetails.value = pool
+  poolDetailsDialog.value = true
+}
+
 const resetFilters = () => {
   filter.search = ''
   filter.status = 'TOUS'
@@ -529,6 +719,7 @@ onMounted(() => {
   loadPools()
   if (authStore.isModerator.value) {
     loadReportedMessages()
+    loadReportedPools()
   }
 })
 </script>

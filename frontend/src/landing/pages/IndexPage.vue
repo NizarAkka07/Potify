@@ -2,47 +2,56 @@
   <q-page :style="{ background: $q.dark.isActive ? '#0A111E' : '#FFFFFF' }">
 
     <!-- 1. HERO SECTION – Solidarity Design as in tadamon.jpeg -->
-    <div class="hero-section relative-position overflow-hidden" :style="{ background: $q.dark.isActive ? '#0A111E' : '#FFFFFF', height: '92vh', minHeight: '680px' }">
+    <div class="hero-section relative-position overflow-hidden" :style="{ background: $q.dark.isActive ? '#0A111E' : '#FFFFFF', height: '92vh', minHeight: '680px', display: 'flex', alignItems: 'center', justifyContent: 'center' }">
       
       <!-- Solidarity Hands Image on the Right -->
-      <div class="gt-xs hero-floating-image" style="position: absolute; top: 0; right: 0; width: 62%; height: 100%; z-index: 0;">
+      <div class="gt-xs hero-floating-image" :style="{ position: 'absolute', top: 0, right: locale === 'ar' ? 'auto' : '0', left: locale === 'ar' ? '0' : 'auto', width: '62%', height: '100%', zIndex: 0 }">
         <img
           src="~assets/tadamon1.jpeg"
-          style="width: 100%; height: 100%; object-fit: cover;"
+          :style="{ width: '100%', height: '100%', objectFit: 'cover', transform: locale === 'ar' ? 'scaleX(-1)' : 'none' }"
           alt="Solidarity Hands"
         />
         <!-- Gradient Mask to blend image into the white/dark background -->
         <div
           :style="{
             background: $q.dark.isActive
-              ? 'linear-gradient(to right, #0A111E 0%, rgba(10,17,30,0.85) 30%, rgba(10,17,30,0) 100%)'
-              : 'linear-gradient(to right, #FFFFFF 0%, rgba(255,255,255,0.85) 30%, rgba(255,255,255,0) 100%)'
+              ? (locale === 'ar'
+                ? 'linear-gradient(to left, #0A111E 0%, rgba(10,17,30,0.85) 30%, rgba(10,17,30,0) 100%)'
+                : 'linear-gradient(to right, #0A111E 0%, rgba(10,17,30,0.85) 30%, rgba(10,17,30,0) 100%)')
+              : (locale === 'ar'
+                ? 'linear-gradient(to left, #FFFFFF 0%, rgba(255,255,255,0.85) 30%, rgba(255,255,255,0) 100%)'
+                : 'linear-gradient(to right, #FFFFFF 0%, rgba(255,255,255,0.85) 30%, rgba(255,255,255,0) 100%)'),
+            position: 'absolute',
+            top: 0,
+            left: locale === 'ar' ? 'auto' : '-1px',
+            right: locale === 'ar' ? '-1px' : 'auto',
+            width: '101%',
+            height: '100%',
+            pointerEvents: 'none'
           }"
-          style="position: absolute; top: 0; left: -1px; width: 101%; height: 100%; pointer-events: none;"
         ></div>
       </div>
 
       <!-- Hero Content -->
-      <div class="absolute-center text-left q-px-xl max-container fade-up-text" style="z-index: 2; width: 100%;">
+      <div class="q-px-xl max-container fade-up-text" :class="locale === 'ar' ? 'text-right' : 'text-left'" :style="{ direction: locale === 'ar' ? 'rtl' : 'ltr' }" style="z-index: 2; width: 100%;">
         <div class="row items-center">
           <div class="col-12 col-md-7" style="padding-top: 20px;">
             <!-- Badge -->
             <div class="q-mb-lg">
               <span class="simple-badge badge-premium" :style="{ background: 'rgba(22, 163, 74, 0.06)', border: '1px solid rgba(22, 163, 74, 0.15)', borderRadius: '20px', padding: '6px 14px', display: 'inline-flex', alignItems: 'center' }">
-                <span class="badge-dot" style="background: #16A34A; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px;"></span>
-                <span class="badge-text" :style="{ color: $q.dark.isActive ? '#4ade80' : '#166534' }" style="font-size: 0.85rem; font-weight: 600; text-transform: none; letter-spacing: normal;">Collectes actives en temps réel</span>
+                <span class="badge-dot" style="background: #16A34A; width: 8px; height: 8px; border-radius: 50%; margin-inline-end: 8px;"></span>
+                <span class="badge-text" :style="{ color: $q.dark.isActive ? '#4ade80' : '#166534' }" style="font-size: 0.85rem; font-weight: 600; text-transform: none; letter-spacing: normal;">{{ $t('home.heroBadge') }}</span>
               </span>
             </div>
 
             <!-- Title -->
             <h1 class="text-weight-bold q-mb-md hero-title" :style="{ color: $q.dark.isActive ? '#FFFFFF' : '#166534' }" style="font-size: 4rem; line-height: 1.15; font-family: 'Playfair Display', serif; letter-spacing: -1px; margin-top: 0;">
-              Ensemble, donnons <br>
-              vie à ce qui compte.
+              {{ $t('home.title') }}
             </h1>
 
             <!-- Subtitle -->
             <p class="text-body1 q-mb-xl" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.7)' : 'rgba(15,41,66,0.8)' }" style="font-size: 1.05rem; line-height: 1.75; max-width: 520px; font-weight: 400; letter-spacing: -0.1px;">
-              Potify est la plateforme de crowdfunding solidaire intelligente : palier de jalons, assistance IA, paiements sécurisés et traçabilité totale pour des projets qui ont du sens.
+              {{ $t('home.subtitle') }}
             </p>
 
             <!-- Buttons -->
@@ -54,8 +63,8 @@
                 style="padding: 14px 36px; border-radius: 12px; font-weight: 600; font-size: 0.95rem; box-shadow: 0 4px 18px rgba(22, 163, 74, 0.2);"
                 to="/pools/create"
               >
-                <q-icon name="favorite_border" size="18px" class="q-mr-sm" />
-                Lancer ma cagnotte
+                <q-icon name="favorite_border" size="18px" :class="locale === 'ar' ? 'q-ml-sm' : 'q-mr-sm'" />
+                {{ $t('home.ctaButton') }}
               </q-btn>
               <q-btn
                 unelevated
@@ -69,11 +78,13 @@
                 style="padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 0.95rem;"
                 @click="scrollToHowItWorks"
               >
-                <q-icon name="play_circle_outline" size="20px" class="q-mr-sm" style="color: #16A34A;" />
-                Comment ça marche
+                <q-icon name="play_circle_outline" size="20px" :class="locale === 'ar' ? 'q-ml-sm' : 'q-mr-sm'" style="color: #16A34A;" />
+                {{ $t('home.learnMore') }}
               </q-btn>
             </div>
           </div>
+          <!-- Right side placeholder spacer to balance the layout columns -->
+          <div class="gt-xs col-md-5"></div>
         </div>
       </div>
     </div>
@@ -91,35 +102,35 @@
       >
         <div class="row q-col-gutter-lg items-center justify-center text-center">
           <!-- Stat 1 -->
-          <div class="col-12 col-sm-4 row items-center justify-center q-gutter-md">
+          <div class="col-12 col-sm-4 row items-center justify-center q-gutter-md" :style="{ flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }">
             <q-avatar size="48px" style="background: rgba(22, 163, 74, 0.06);">
               <q-icon name="account_balance" size="24px" style="color: #16A34A;" />
             </q-avatar>
-            <div class="text-left">
+            <div :class="locale === 'ar' ? 'text-right' : 'text-left'">
               <div class="text-h4 text-weight-bold" :style="{ color: $q.dark.isActive ? '#FFFFFF' : '#166534' }" style="font-family: 'Playfair Display', serif; font-size: 2.2rem; line-height: 1.1;">{{ collectedCount }}M €</div>
-              <div class="text-caption text-grey-6" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Collectés</div>
+              <div class="text-caption text-grey-6" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">{{ $t('home.statsCollected') }}</div>
             </div>
           </div>
 
           <!-- Stat 2 -->
-          <div class="col-12 col-sm-4 row items-center justify-center q-gutter-md" :style="{ borderLeft: $q.dark.isActive ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(22, 163, 74, 0.1)', borderRight: $q.dark.isActive ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(22, 163, 74, 0.1)' }">
+          <div class="col-12 col-sm-4 row items-center justify-center q-gutter-md" :style="{ borderLeft: $q.dark.isActive ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(22, 163, 74, 0.1)', borderRight: $q.dark.isActive ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(22, 163, 74, 0.1)', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }">
             <q-avatar size="48px" style="background: rgba(22, 163, 74, 0.06);">
               <q-icon name="groups" size="24px" style="color: #16A34A;" />
             </q-avatar>
-            <div class="text-left">
+            <div :class="locale === 'ar' ? 'text-right' : 'text-left'">
               <div class="text-h4 text-weight-bold" :style="{ color: $q.dark.isActive ? '#FFFFFF' : '#166534' }" style="font-family: 'Playfair Display', serif; font-size: 2.2rem; line-height: 1.1;">{{ poolsCount.toLocaleString('fr-FR') }}+</div>
-              <div class="text-caption text-grey-6" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Cagnottes créées</div>
+              <div class="text-caption text-grey-6" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">{{ $t('home.statsProjects') }}</div>
             </div>
           </div>
 
           <!-- Stat 3 -->
-          <div class="col-12 col-sm-4 row items-center justify-center q-gutter-md">
+          <div class="col-12 col-sm-4 row items-center justify-center q-gutter-md" :style="{ flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }">
             <q-avatar size="48px" style="background: rgba(22, 163, 74, 0.06);">
               <q-icon name="favorite_border" size="24px" style="color: #16A34A;" />
             </q-avatar>
-            <div class="text-left">
+            <div :class="locale === 'ar' ? 'text-right' : 'text-left'">
               <div class="text-h4 text-weight-bold" :style="{ color: $q.dark.isActive ? '#FFFFFF' : '#166534' }" style="font-family: 'Playfair Display', serif; font-size: 2.2rem; line-height: 1.1;">{{ contributorsCount }}M</div>
-              <div class="text-caption text-grey-6" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Contributeurs solidaires</div>
+              <div class="text-caption text-grey-6" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">{{ $t('home.statsMembers') }}</div>
             </div>
           </div>
         </div>
@@ -131,13 +142,13 @@
       <div class="max-container q-px-xl">
         <div class="text-center q-mb-xxl">
           <div class="text-overline text-weight-bold text-primary q-mb-xs" style="letter-spacing: 2px; color: #16A34A !important;">
-            PARCOURIR
+            {{ $t('home.browse') }}
           </div>
           <h2 class="text-h3 text-weight-bold q-mb-sm" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="font-family: 'Playfair Display', serif; font-style: italic; letter-spacing: -0.5px;">
-            Toutes les catégories
+            {{ $t('home.allCategoriesTitle') }}
           </h2>
           <p :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-7'" style="font-size: 1.05rem; font-weight: 300;">
-            Des milliers de projets dans 8 catégories solidaires
+            {{ $t('home.allCategoriesDesc') }}
           </p>
         </div>
 
@@ -179,10 +190,10 @@
                   <q-icon name="arrow_forward" size="16px" :class="$q.dark.isActive ? 'text-grey-4' : 'text-grey-7'" />
                 </div>
               </div>
-              <div class="text-weight-bold text-h6 q-mb-xs" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="font-family: 'Inter', sans-serif;">{{ cat.name }}</div>
+              <div class="text-weight-bold text-h6 q-mb-xs" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="font-family: 'Inter', sans-serif;">{{ getCategoryLabel(cat.name) }}</div>
               <div style="font-size: 0.9rem;" class="text-weight-medium">
                 <span :style="{ color: cat.iconColor }" class="q-mr-xs">{{ cat.countNum }}</span>
-                <span :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'">{{ cat.countText }}</span>
+                <span :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'">{{ $t('publicPools.poolsFoundMultiple') }}</span>
               </div>
             </div>
           </div>
@@ -196,20 +207,20 @@
         <div class="row items-end justify-between q-mb-xxl">
           <div>
             <div class="text-overline text-weight-bold text-primary q-mb-xs" style="letter-spacing: 2px; color: #16A34A !important;">
-              EN CE MOMENT
+              {{ $t('home.discover') }}
             </div>
             <h2 class="text-h3 text-weight-bold q-mb-none" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="font-family: 'Playfair Display', serif; font-style: italic; letter-spacing: -0.5px; margin-top: 0;">
-              Cagnottes populaires
+              {{ $t('home.popularCampaigns') }}
             </h2>
             <p :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-7'" class="q-mt-sm q-mb-none" style="font-size: 1.05rem; font-weight: 300;">
-              Les projets qui font vibrer la communauté
+              {{ $t('home.popularCampaignsDesc') }}
             </p>
           </div>
           <q-btn 
             flat 
             no-caps 
             color="primary"
-            label="Voir tout l'explorateur" 
+            :label="$t('home.viewAllExplorer')" 
             to="/pools" 
             icon-right="arrow_forward"
             style="font-weight: 600;"
@@ -239,10 +250,11 @@
                 <img
                   :src="pool.imageUrl"
                   style="height: 200px; object-fit: cover; width: 100%;"
+                  alt="Campaign Image"
                 />
                 <div class="absolute-top-left q-ma-md">
                   <span class="custom-card-tag" :style="{ background: pool.tagBg || '#E2E8F0', color: pool.tagColor || '#475569' }">
-                    {{ pool.tag || 'Actif' }}
+                    {{ getTagLabel(pool.tag) }}
                   </span>
                 </div>
               </div>
@@ -255,7 +267,7 @@
                 <div style="font-size: 4rem;">{{ pool.icon || '🌱' }}</div>
                 <div class="absolute-top-left q-ma-md">
                   <span class="custom-card-tag" :style="{ background: pool.tagBg || '#16A34A', color: pool.tagColor || '#062f25' }">
-                    {{ pool.tag || 'Actif' }}
+                    {{ getTagLabel(pool.tag) }}
                   </span>
                 </div>
               </div>
@@ -267,7 +279,7 @@
                   <q-avatar size="28px" :style="{ background: pool.avatarBg || '#16A34A' }" class="text-white text-weight-bold q-mr-sm" style="font-size: 0.75rem;">
                     {{ pool.ownerInitials || 'P' }}
                   </q-avatar>
-                  <span class="text-caption text-weight-medium" :class="$q.dark.isActive ? 'text-grey-4' : 'text-grey-7'">{{ pool.ownerName || 'Membre Potify' }}</span>
+                  <span class="text-caption text-weight-medium" :class="$q.dark.isActive ? 'text-grey-4' : 'text-grey-7'">{{ pool.ownerName || $t('home.memberPotify') }}</span>
                 </div>
 
                 <h3 class="text-subtitle1 text-weight-bold q-mb-sm line-clamp-2" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="font-family: 'Inter', sans-serif; line-height: 1.35; height: 46px; margin-top:0;">
@@ -291,11 +303,11 @@
               <q-card-section class="q-px-lg q-pb-lg q-pt-none row items-center justify-between" :style="{ borderTop: $q.dark.isActive ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.05)' }">
                 <div class="text-caption row items-center" :class="$q.dark.isActive ? 'text-grey-4' : 'text-grey-7'">
                   <q-icon name="people" size="16px" :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'" class="q-mr-xs" />
-                  {{ pool.contributors || 12 }} contributeurs
+                  {{ pool.contributors || 12 }} {{ $t('home.contributors') }}
                 </div>
                 <div class="text-caption row items-center" :class="$q.dark.isActive ? 'text-grey-4' : 'text-grey-7'">
                   <q-icon name="schedule" size="16px" :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'" class="q-mr-xs" />
-                  {{ pool.daysRemaining || 10 }}j restants
+                  {{ pool.daysRemaining || 10 }}{{ $t('home.days') }} {{ $t('home.daysRemaining') }}
                 </div>
               </q-card-section>
             </q-card>
@@ -322,7 +334,7 @@
                   <div style="font-size: 4rem;">{{ mock.icon }}</div>
                   <div class="absolute-top-left q-ma-md">
                     <span class="custom-card-tag" :style="{ background: mock.tagBg, color: mock.tagColor }">
-                      {{ mock.tag }}
+                      {{ getTagLabel(mock.tag) }}
                     </span>
                   </div>
                 </div>
@@ -356,11 +368,11 @@
                 <q-card-section class="q-px-lg q-pb-lg q-pt-none row items-center justify-between" :style="{ borderTop: $q.dark.isActive ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.05)' }">
                   <div class="text-caption row items-center" :class="$q.dark.isActive ? 'text-grey-4' : 'text-grey-7'">
                     <q-icon name="people" size="16px" :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'" class="q-mr-xs" />
-                    {{ mock.contributors }} contributeurs
+                    {{ mock.contributors }} {{ $t('home.contributors') }}
                   </div>
                   <div class="text-caption row items-center" :class="$q.dark.isActive ? 'text-grey-4' : 'text-grey-7'">
                     <q-icon name="schedule" size="16px" :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'" class="q-mr-xs" />
-                    {{ mock.daysRemaining }}j restants
+                    {{ mock.daysRemaining }}{{ $t('home.days') }} {{ $t('home.daysRemaining') }}
                   </div>
                 </q-card-section>
               </q-card>
@@ -370,12 +382,12 @@
       </div>
     </div>
 
-    <!-- 5. COMMENT ÇA MARCHE – Horizontal high fidelity steps cards -->
+    <!-- 5. COMMENT CA MARCHE – Horizontal high fidelity steps cards -->
     <div id="how-it-works" class="q-py-xxl" :style="{ background: $q.dark.isActive ? '#0A111E' : '#FFFFFF', padding: '100px 0' }">
       <div class="max-container q-px-xl">
         <div class="text-center q-mb-xxl">
           <h2 class="text-h3 text-weight-bold q-mb-sm" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="font-family: 'Playfair Display', serif; letter-spacing: -0.5px; margin-top: 0;">
-            3 étapes simples pour un impact réel.
+            {{ $t('home.stepsHeader') }}
           </h2>
         </div>
 
@@ -402,10 +414,10 @@
                   </div>
                   <div class="col">
                     <h3 class="text-weight-bold text-h6 q-mb-sm" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="font-family: 'Inter', sans-serif; margin-top: 0;">
-                      Créez
+                      {{ $t('home.step1Title') }}
                     </h3>
                     <p :class="$q.dark.isActive ? 'text-grey-4' : 'text-grey-7'" style="font-size: 0.9rem; line-height: 1.6; margin: 0;">
-                      Lancez votre cagnotte en quelques minutes. Définissez votre objectif, ajoutez des jalons et racontez votre histoire.
+                      {{ $t('home.step1Desc') }}
                     </p>
                   </div>
                 </div>
@@ -437,10 +449,10 @@
                   </div>
                   <div class="col">
                     <h3 class="text-weight-bold text-h6 q-mb-sm" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="font-family: 'Inter', sans-serif; margin-top: 0;">
-                      Partagez
+                      {{ $t('home.step2Title') }}
                     </h3>
                     <p :class="$q.dark.isActive ? 'text-grey-4' : 'text-grey-7'" style="font-size: 0.9rem; line-height: 1.6; margin: 0;">
-                      Partagez votre projet avec votre réseau et la communauté. Plus vous partagez, plus votre impact grandit.
+                      {{ $t('home.step2Desc') }}
                     </p>
                   </div>
                 </div>
@@ -469,10 +481,10 @@
                   </div>
                   <div class="col">
                     <h3 class="text-weight-bold text-h6 q-mb-sm" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="font-family: 'Inter', sans-serif; margin-top: 0;">
-                      Récupérez
+                      {{ $t('home.step3Title') }}
                     </h3>
                     <p :class="$q.dark.isActive ? 'text-grey-4' : 'text-grey-7'" style="font-size: 0.9rem; line-height: 1.6; margin: 0;">
-                      Atteignez vos jalons, recevez les fonds en toute sécurité et réalisez votre projet en toute transparence.
+                      {{ $t('home.step3Desc') }}
                     </p>
                   </div>
                 </div>
@@ -488,13 +500,13 @@
       <div class="max-container q-px-xl">
         <div class="text-center q-mb-xxl" style="margin-bottom: 64px;">
           <div class="text-overline text-weight-bold q-mb-xs" style="letter-spacing: 2px; color: #16A34A !important;">
-            POURQUOI POTIFY
+            {{ $t('home.whyPotify') }}
           </div>
           <h2 class="text-h3 text-weight-bold q-mb-sm" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="font-family: 'Playfair Display', serif; font-style: italic; letter-spacing: -0.5px;">
-            Tout ce qu'il faut
+            {{ $t('home.whyPotifyTitle') }}
           </h2>
           <p :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-7'" style="font-size: 1.05rem; font-weight: 300;">
-            Une plateforme complète pour réussir votre collecte
+            {{ $t('home.whyPotifySubtitle') }}
           </p>
         </div>
 
@@ -505,9 +517,9 @@
               <div class="feature-icon-circle flex flex-center q-mb-md" style="background: #F3E8FF; color: #7C3AED;">
                 <q-icon name="smart_toy" size="24px" />
               </div>
-              <h3 class="text-subtitle1 text-weight-bold q-mb-xs" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="margin-top:0;">PotiBuddy IA</h3>
+              <h3 class="text-subtitle1 text-weight-bold q-mb-xs" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="margin-top:0;">{{ $t('home.feature1Title') }}</h3>
               <p :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'" style="font-size: 0.9rem; line-height: 1.6; margin-bottom:0;">
-                Notre assistant IA rédige, améliore et optimise votre cagnotte pour maximiser vos chances de succès.
+                {{ $t('home.feature1Desc') }}
               </p>
             </q-card>
           </div>
@@ -518,9 +530,9 @@
               <div class="feature-icon-circle flex flex-center q-mb-md" style="background: #E0F2FE; color: #0284C7;">
                 <q-icon name="shield" size="24px" />
               </div>
-              <h3 class="text-subtitle1 text-weight-bold q-mb-xs" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="margin-top:0;">Palier de Jalons</h3>
+              <h3 class="text-subtitle1 text-weight-bold q-mb-xs" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="margin-top:0;">{{ $t('home.feature2Title') }}</h3>
               <p :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'" style="font-size: 0.9rem; line-height: 1.6; margin-bottom:0;">
-                Les fonds ne sont débloqués qu'à la validation de chaque étape pour garantir une transparence totale.
+                {{ $t('home.feature2Desc') }}
               </p>
             </q-card>
           </div>
@@ -531,9 +543,9 @@
               <div class="feature-icon-circle flex flex-center q-mb-md" style="background: #DCFCE7; color: #16A34A;">
                 <q-icon name="verified_user" size="24px" />
               </div>
-              <h3 class="text-subtitle1 text-weight-bold q-mb-xs" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="margin-top:0;">Sécurité totale</h3>
+              <h3 class="text-subtitle1 text-weight-bold q-mb-xs" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="margin-top:0;">{{ $t('home.feature3Title') }}</h3>
               <p :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'" style="font-size: 0.9rem; line-height: 1.6; margin-bottom:0;">
-                Paiements sécurisés par Stripe, protocoles HTTPS et vérification systématique de l'identité des créateurs.
+                {{ $t('home.feature3Desc') }}
               </p>
             </q-card>
           </div>
@@ -546,13 +558,13 @@
       <div class="max-container q-px-xl">
         <div class="text-center q-mb-xxl" style="margin-bottom: 64px;">
           <div class="text-overline text-weight-bold q-mb-xs" style="letter-spacing: 2px; color: #16A34A !important;">
-            TÉMOIGNAGES
+            {{ $t('home.testimonialHeader') }}
           </div>
           <h2 class="text-h3 text-weight-bold q-mb-sm" :class="$q.dark.isActive ? 'text-white' : 'text-dark'" style="font-family: 'Playfair Display', serif; font-style: italic; letter-spacing: -0.5px;">
-            Ce que dit notre communauté
+            {{ $t('home.testimonialTitle') }}
           </h2>
           <p :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-7'" style="font-size: 1.05rem; font-weight: 300;">
-            Des milliers de porteurs de projets et de donateurs nous font confiance.
+            {{ $t('home.testimonialSubtitle') }}
           </p>
         </div>
 
@@ -564,7 +576,7 @@
                 <q-icon name="star" size="18px" color="amber-7" v-for="i in 5" :key="i" />
               </div>
               <p class="text-body2 q-mb-lg" :class="$q.dark.isActive ? 'text-grey-4' : 'text-grey-8'" style="font-style: italic; line-height: 1.7; font-size: 0.95rem;">
-                "Grâce aux jalons de Potify et à l'aide précieuse de PotiBuddy, j'ai pu financer l'opération de mon chat en 4 jours. La transparence a rassuré tous mes donateurs !"
+                {{ $t('home.testimonial1Text') }}
               </p>
               <div class="row items-center">
                 <q-avatar size="36px" color="teal-6" class="text-white text-weight-bold q-mr-sm" style="font-size: 0.95rem;">
@@ -572,7 +584,7 @@
                 </q-avatar>
                 <div>
                   <div class="text-subtitle2 text-weight-bold" :class="$q.dark.isActive ? 'text-white' : 'text-dark'">Sarah K. (Casablanca)</div>
-                  <div class="text-caption" :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'">Créatrice de cagnotte</div>
+                  <div class="text-caption" :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'">{{ $t('home.testimonial1Role') }}</div>
                 </div>
               </div>
             </q-card>
@@ -585,7 +597,7 @@
                 <q-icon name="star" size="18px" color="amber-7" v-for="i in 5" :key="i" />
               </div>
               <p class="text-body2 q-mb-lg" :class="$q.dark.isActive ? 'text-grey-4' : 'text-grey-8'" style="font-style: italic; line-height: 1.7; font-size: 0.95rem;">
-                "L'assistant IA PotiBuddy m'a aidé à rédiger une description percutante et à structurer mon projet éducatif en quelques secondes. C'est l'outil parfait pour se lancer."
+                {{ $t('home.testimonial2Text') }}
               </p>
               <div class="row items-center">
                 <q-avatar size="36px" color="purple-6" class="text-white text-weight-bold q-mr-sm" style="font-size: 0.95rem;">
@@ -593,7 +605,7 @@
                 </q-avatar>
                 <div>
                   <div class="text-subtitle2 text-weight-bold" :class="$q.dark.isActive ? 'text-white' : 'text-dark'">Karim A. (Rabat)</div>
-                  <div class="text-caption" :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'">Étudiant & Porteur de projet</div>
+                  <div class="text-caption" :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'">{{ $t('home.testimonial2Role') }}</div>
                 </div>
               </div>
             </q-card>
@@ -606,7 +618,7 @@
                 <q-icon name="star" size="18px" color="amber-7" v-for="i in 5" :key="i" />
               </div>
               <p class="text-body2 q-mb-lg" :class="$q.dark.isActive ? 'text-grey-4' : 'text-grey-8'" style="font-style: italic; line-height: 1.7; font-size: 0.95rem;">
-                "En tant que donateur régulier, j'adore le système de validation des justificatifs de Potify. On se sent impliqué et rassuré sur l'impact de nos dons."
+                {{ $t('home.testimonial3Text') }}
               </p>
               <div class="row items-center">
                 <q-avatar size="36px" color="blue-6" class="text-white text-weight-bold q-mr-sm" style="font-size: 0.95rem;">
@@ -614,7 +626,7 @@
                 </q-avatar>
                 <div>
                   <div class="text-subtitle2 text-weight-bold" :class="$q.dark.isActive ? 'text-white' : 'text-dark'">Marc D. (Marrakech)</div>
-                  <div class="text-caption" :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'">Donateur régulier</div>
+                  <div class="text-caption" :class="$q.dark.isActive ? 'text-grey-5' : 'text-grey-6'">{{ $t('home.testimonial3Role') }}</div>
                 </div>
               </div>
             </q-card>
@@ -631,16 +643,16 @@
          }">
       <div class="max-container q-px-xl" style="max-width: 650px;">
         <h2 class="text-h3 text-weight-bold q-mb-md" style="font-family: 'Playfair Display', serif; font-style: italic; letter-spacing: -0.5px; margin-top:0; line-height: 1.2;">
-          {{ $t('home.ctaTitle') || 'Donnez vie à vos projets dès aujourd\'hui' }}
+          {{ $t('home.ctaTitle') }}
         </h2>
         <p class="text-body2 q-mb-xl text-grey-4" style="line-height: 1.7; font-size: 1.05rem; font-weight: 300; max-width: 540px; margin-left: auto; margin-right: auto;">
-          {{ $t('home.ctaSubtitle') || 'Rejoignez des milliers de personnes qui partagent, soutiennent et réalisent des projets solidaires à travers le monde.' }}
+          {{ $t('home.ctaSubtitle') }}
         </p>
         <q-btn
           no-caps
           unelevated
           class="btn-hero-primary text-white"
-          :label="$t('home.ctaButton') || 'Créer une cagnotte'"
+          :label="$t('home.ctaButton')"
           style="padding: 16px 48px; border-radius: 12px; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 18px rgba(22, 163, 74, 0.25);"
           to="/pools/create"
         />
@@ -654,7 +666,36 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { poolApi } from 'boot/axios'
+import { useI18n } from 'vue-i18n'
+
 const router = useRouter()
+const { t, locale } = useI18n()
+
+const getCategoryLabel = (name) => {
+  const keyMap = {
+    'Santé': 'catHealth',
+    'Solidarité': 'catSolidarity',
+    'Éducation': 'catEducation',
+    'Entrepreneuriat': 'catEntrepreneurship',
+    'Événements': 'catEvents',
+    'Associations': 'catAssociations',
+    'Urgence': 'catEmergency',
+    'Autres': 'catOthers'
+  }
+  const key = keyMap[name]
+  return key ? t(`home.${key}`) : name
+}
+
+const getTagLabel = (tag) => {
+  if (!tag || tag === 'Actif') return t('publicPools.statusActive') || 'Actif'
+  const lang = locale.value
+  const tags = {
+    'Urgent': { fr: 'Urgent', en: 'Urgent', es: 'Urgente', ar: 'عاجل' },
+    'Tendance': { fr: 'Tendance', en: 'Trending', es: 'Tendencia', ar: 'شائع' },
+    'Nouveau': { fr: 'Nouveau', en: 'New', es: 'Nuevo', ar: 'جديد' }
+  }
+  return tags[tag]?.[lang] || tag
+}
 
 const scrollToHowItWorks = () => {
   const el = document.getElementById('how-it-works')
@@ -693,8 +734,8 @@ const animateCounters = () => {
 const mockPools = computed(() => [
   {
     id: 'mock-1',
-    title: "Traitement oncologique pour mon père — Rabat",
-    description: "Soutenez-nous pour financer les séances de chimiothérapie et les soins complémentaires indispensables à la rémission de mon père.",
+    title: t("home.mock1Title"),
+    description: t("home.mock1Desc"),
     category: 'Santé',
     currentAmount: 44000,
     goalAmount: 50000,
@@ -711,8 +752,8 @@ const mockPools = computed(() => [
   },
   {
     id: 'mock-2',
-    title: "Master en IA à Paris — soutien communautaire",
-    description: "Financement des frais d'inscription et de subsistance pour mon master en Intelligence Artificielle à l'Université Paris-Saclay.",
+    title: t("home.mock2Title"),
+    description: t("home.mock2Desc"),
     category: 'Éducation',
     currentAmount: 31500,
     goalAmount: 50000,
@@ -729,8 +770,8 @@ const mockPools = computed(() => [
   },
   {
     id: 'mock-3',
-    title: "Jardin solidaire bio — quartier Hay Hassani",
-    description: "Création d'un potager communautaire partagé pour sensibiliser les enfants et fournir des légumes frais aux familles du quartier.",
+    title: t("home.mock3Title"),
+    description: t("home.mock3Desc"),
     category: 'Autres',
     currentAmount: 8500,
     goalAmount: 25000,
@@ -866,7 +907,7 @@ const fetchPools = async () => {
         avatarBg = '#10B981'
       }
       
-      const ownerName = p.creatorName || p.ownerName || 'Membre Potify'
+      const ownerName = p.creatorName || p.ownerName || t('home.memberPotify')
       const initials = ownerName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
       
       return {
@@ -942,11 +983,11 @@ onMounted(() => {
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translate(-50%, -44%);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, -50%);
+    transform: translateY(0);
   }
 }
 .fade-up-text {

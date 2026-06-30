@@ -26,10 +26,10 @@
 
         <!-- Liens de navigation desktop centered -->
         <div class="gt-sm row items-center q-gutter-xl">
-          <span class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="$router.push('/pools')">Explorer</span>
-          <span class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="scrollToHowItWorks">Comment ça marche</span>
-          <span class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="$router.push('/dashboard')">Mon espace</span>
-          <span v-if="authStore.hasAdminAccess.value" class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="$router.push('/admin')">Administration</span>
+          <span class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="$router.push('/pools')">{{ $t('nav.explore') }}</span>
+          <span class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="scrollToHowItWorks">{{ $t('nav.howItWorks') }}</span>
+          <span class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="$router.push('/dashboard')">{{ $t('nav.mySpace') }}</span>
+          <span v-if="authStore.hasAdminAccess.value" class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="$router.push('/admin')">{{ $t('nav.admin') }}</span>
         </div>
 
         <q-space />
@@ -40,7 +40,7 @@
           <template v-if="!authStore.isAuthenticated.value">
             <q-btn
               flat no-caps
-              label="Connexion"
+              :label="$t('auth.loginTitle')"
               class="btn-nav-flat"
               :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#166534' }"
               style="font-weight: 550; font-size: 0.9rem;"
@@ -48,7 +48,7 @@
             />
             <q-btn
               outline no-caps
-              label="Inscription"
+              :label="$t('auth.registerTitle')"
               class="btn-nav-outline"
               :style="{
                 color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#166534',

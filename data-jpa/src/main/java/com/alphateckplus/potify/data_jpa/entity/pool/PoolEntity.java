@@ -121,4 +121,8 @@ public class PoolEntity extends BaseEntity {
     @jakarta.persistence.OneToMany(mappedBy = "pool", cascade = jakarta.persistence.CascadeType.ALL, fetch = jakarta.persistence.FetchType.LAZY)
     @lombok.Builder.Default
     private java.util.List<PoolInvitationEntity> invitations = new java.util.ArrayList<>();
+
+    @jakarta.persistence.OneToMany(mappedBy = "pool", cascade = jakarta.persistence.CascadeType.ALL, fetch = jakarta.persistence.FetchType.LAZY)
+    @lombok.Builder.Default
+    private java.util.List<PoolReportEntity> reports = new java.util.ArrayList<>();
 }

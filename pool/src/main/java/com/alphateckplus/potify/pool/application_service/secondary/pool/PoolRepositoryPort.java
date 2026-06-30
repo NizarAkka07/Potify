@@ -75,4 +75,8 @@ public interface PoolRepositoryPort {
      * @return La liste des cagnottes.
      */
     List<Pool> findInvitedPools(String userId, String email);
+
+    void addReport(String poolId, String userId, String reason);
+    void clearReports(String poolId);
+    List<Pool> findReportedPools();
 }

@@ -1,66 +1,7 @@
 <template>
   <q-page style="background: #FAFAFB; padding-bottom: 80px; font-family: 'Inter', sans-serif;">
     
-    <!-- Hero Section with Modern Dark-Mesh and Subtle Glowing Gradient -->
-    <div class="hero-section text-white relative-position overflow-hidden q-py-xl" style="background: linear-gradient(135deg, #0D1B2E 0%, #1A2E44 100%);">
-      <!-- Glow Decorations -->
-      <div class="glow-decoration-1"></div>
-      <div class="glow-decoration-2"></div>
-      
-      <div class="max-container q-px-md relative-position" style="z-index: 2;">
-        <div class="row items-center justify-between q-col-gutter-lg">
-          <div class="col-12 col-md-7">
-            <div class="simple-badge q-mb-md">
-              <span class="badge-dot"></span>
-              <span class="badge-text text-uppercase">{{ $t('publicPools.badge') }}</span>
-            </div>
-            
-            <h1 class="text-h3 text-weight-bold q-mb-md hero-title text-white" style="line-height: 1.2;">
-              {{ $t('publicPools.titleStart') }} <br />
-              <span style="color: #FFA726;">{{ $t('publicPools.titleEnd') }}</span>
-            </h1>
-            <p class="text-subtitle1 q-mb-xl text-grey-4" style="max-width: 580px; line-height: 1.6;">
-              {{ $t('publicPools.subtitle') }}
-            </p>
-          </div>
-          
-          <!-- Modern Search Box (Centered/Highlighted) -->
-          <div class="col-12 col-md-5">
-            <q-card class="search-box-card q-pa-lg no-shadow" style="background: rgba(255, 255, 255, 0.07); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px;">
-              <div class="text-subtitle1 text-weight-bold q-mb-sm text-white">{{ $t('publicPools.searchBoxHeader') }}</div>
-              <div class="text-caption text-grey-4 q-mb-md">{{ $t('publicPools.searchBoxDesc') }}</div>
-              
-              <q-input
-                filled
-                v-model="searchQuery"
-                :placeholder="$t('publicPools.searchPlaceholder')"
-                bg-color="white"
-                color="primary"
-                dense
-                style="border-radius: 12px; overflow: hidden;"
-                class="search-input-field"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="search" color="grey-6" />
-                </template>
-                <template v-slot:append>
-                  <q-spinner-dots v-if="loading" color="primary" size="20px" />
-                  <q-btn
-                    v-else-if="searchQuery"
-                    flat
-                    round
-                    dense
-                    icon="close"
-                    color="grey-6"
-                    @click="searchQuery = ''"
-                  />
-                </template>
-              </q-input>
-            </q-card>
-          </div>
-        </div>
-      </div>
-    </div>
+
 
     <!-- Filters & Main Content Area -->
     <div class="max-container q-px-md q-py-xl">
@@ -121,7 +62,7 @@
         <!-- Main Pools Grid Section -->
         <div class="col-12 col-md-9">
           
-          <!-- Top Toolbar: Status Filters & Sorting -->
+          <!-- Top Toolbar: Status Filters, Search, & Sorting -->
           <q-card flat class="bg-white q-pa-md q-mb-lg toolbar-card" style="border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
             <div class="row items-center justify-between q-col-gutter-sm">
               <!-- Result count & Status Pills -->
@@ -144,6 +85,36 @@
                     @click="selectedStatus = statusOpt.value"
                   />
                 </div>
+              </div>
+
+              <!-- Search Input (Middle) -->
+              <div class="col-12 col-sm-grow col-md-5 q-px-md">
+                <q-input
+                  outlined
+                  v-model="searchQuery"
+                  :placeholder="$t('publicPools.searchPlaceholder')"
+                  bg-color="grey-1"
+                  color="primary"
+                  dense
+                  style="border-radius: 8px; max-width: 400px; margin: 0 auto; width: 100%;"
+                  class="search-input-field"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="search" color="grey-6" />
+                  </template>
+                  <template v-slot:append>
+                    <q-spinner-dots v-if="loading" color="primary" size="20px" />
+                    <q-btn
+                      v-else-if="searchQuery"
+                      flat
+                      round
+                      dense
+                      icon="close"
+                      color="grey-6"
+                      @click="searchQuery = ''"
+                    />
+                  </template>
+                </q-input>
               </div>
               
               <!-- Sorting dropdown -->

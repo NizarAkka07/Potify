@@ -5,6 +5,7 @@ import com.alphateckplus.potify.pool.infrastructure.primary.pool.dto.CreatePoolR
 import com.alphateckplus.potify.pool.infrastructure.primary.pool.dto.UpdatePoolRequest;
 import com.alphateckplus.potify.pool.infrastructure.primary.pool.dto.PoolResponse;
 import com.alphateckplus.potify.pool.infrastructure.primary.pool.dto.PhaseResponse;
+import com.alphateckplus.potify.pool.infrastructure.primary.pool.dto.PoolReportResponse;
 import org.springframework.stereotype.Component;
 
 /**
@@ -160,6 +161,17 @@ public class PoolRestMapper {
                 pool.getChildren().stream().map(this::toResponse).collect(java.util.stream.Collectors.toList()) :
                 new java.util.ArrayList<>();
 
+        java.util.List<PoolReportResponse> poolReportResponses = pool.getReports() != null ? pool.getReports().stream()
+                .map(r -> new PoolReportResponse(
+                        r.getId(),
+                        r.getPoolId(),
+                        r.getUserId(),
+                        r.getUserName(),
+                        r.getReason(),
+                        r.getCreatedAt()
+                ))
+                .toList() : new java.util.ArrayList<>();
+
         return new PoolResponse(
                 pool.getId(),
                 pool.getOwnerId(),
@@ -184,7 +196,11 @@ public class PoolRestMapper {
                 pool.getDeadlineDate(),
                 pool.getCreatedAt(),
                 pool.getUpdatedAt(),
-                pool.getFees()
+                pool.getFees(),
+                pool.isReported(),
+                pool.getReportCount(),
+                pool.getReportReason(),
+                poolReportResponses
         );
     }
 }

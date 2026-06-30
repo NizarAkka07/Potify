@@ -153,6 +153,27 @@ export const poolService = {
    */
   deleteMessage(messageId) {
     return poolApi.delete(`/messages/${messageId}`)
+  },
+
+  /**
+   * Récupère la liste des cagnottes signalées.
+   */
+  getReportedPools() {
+    return poolApi.get('/pools/reported')
+  },
+
+  /**
+   * Rejette les signalements d'une cagnotte.
+   */
+  dismissPoolReport(poolId) {
+    return poolApi.post(`/pools/${poolId}/dismiss-reports`)
+  },
+
+  /**
+   * Supprime une cagnotte.
+   */
+  deletePool(poolId) {
+    return poolApi.delete(`/pools/${poolId}`)
   }
 }
 

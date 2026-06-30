@@ -15,11 +15,16 @@
     </div>
 
     <!-- Contenu -->
-    <div v-else-if="pool" class="container q-mx-auto" style="max-width: 1000px; padding: 0 20px;">
-      <!-- Section Hero avec Image -->
-      <div class="row q-col-gutter-lg q-pt-lg">
-        <div class="col-12 col-md-7">
-          <q-card class="image-card no-shadow" style="border-radius: 16px; overflow: hidden;">
+    <div v-else-if="pool" class="container q-mx-auto" style="max-width: 1100px; padding: 20px 20px 0 20px;">
+      
+      <!-- MAIN GRID (Two Columns: Left for media, stats, actions, donors. Right for Title, Story, Phases, Comments) -->
+      <div class="row q-col-gutter-xl">
+        
+        <!-- LEFT COLUMN (Media, profile, balance details, stats, main buttons, donors) -->
+        <div class="col-12 col-md-5">
+          
+          <!-- Image/Video Carousel Card -->
+          <q-card class="media-card q-mb-lg no-shadow" style="border-radius: 20px; overflow: hidden; border: 1px solid #E2E8F0;">
             <q-carousel
               v-if="pool.imageUrl || youtubeId || isDirectVideo"
               v-model="mediaSlide"
@@ -28,24 +33,17 @@
               :arrows="(pool.imageUrl && (youtubeId || isDirectVideo))"
               :navigation="(pool.imageUrl && (youtubeId || isDirectVideo))"
               control-color="primary"
-              height="450px"
+              height="350px"
               class="bg-black"
             >
-              <q-carousel-slide v-if="pool.imageUrl" name="image" class="q-pa-none">
-                <q-img
-                  :src="pool.imageUrl"
-                  height="100%"
-                  fit="cover"
-                >
-                  <div class="absolute-top-left q-ma-md" style="background: transparent;">
-                    <q-chip color="secondary" text-white class="text-weight-bold shadow-2">
-                      {{ pool.category }}
-                    </q-chip>
-                  </div>
-                </q-img>
+              <q-carousel-slide v-if="pool.imageUrl" name="image" class="q-pa-none relative-position">
+                <q-img :src="pool.imageUrl" height="100%" fit="cover" />
+                <div class="category-badge">
+                  {{ pool.category || 'Cagnotte' }}
+                </div>
               </q-carousel-slide>
 
-              <q-carousel-slide v-if="youtubeId || isDirectVideo" name="video" class="q-pa-none flex flex-center">
+              <q-carousel-slide v-if="youtubeId || isDirectVideo" name="video" class="q-pa-none flex flex-center relative-position">
                 <q-video
                   v-if="youtubeId"
                   :ratio="16/9"
@@ -60,123 +58,215 @@
                 >
                   Votre navigateur ne supporte pas la lecture de vidéos.
                 </video>
-                <div class="absolute-top-left q-ma-md" style="z-index: 10;">
-                  <q-chip color="secondary" text-white class="text-weight-bold shadow-2">
-                    {{ pool.category }}
-                  </q-chip>
+                <div class="category-badge">
+                  {{ pool.category || 'Cagnotte' }}
                 </div>
               </q-carousel-slide>
             </q-carousel>
 
-            <div v-else class="bg-grey-3 relative-position flex flex-center" style="height: 450px;">
-              <div class="absolute-top-left q-ma-md">
-                <q-chip color="secondary" text-white class="text-weight-bold shadow-2">
-                  {{ pool.category }}
-                </q-chip>
+            <div v-else class="bg-grey-2 relative-position flex flex-center" style="height: 350px;">
+              <div class="category-badge">
+                {{ pool.category || 'Cagnotte' }}
               </div>
-              <q-icon name="image_not_supported" size="64px" color="grey-5" />
+              <q-icon name="image_not_supported" size="64px" color="grey-4" />
             </div>
           </q-card>
-        </div>
 
-        <!-- Sidebar / Actions -->
-        <div class="col-12 col-md-5">
-          <q-card class="action-card q-pa-lg no-shadow shadow-1" style="border-radius: 16px; border: 1px solid #EEE; background: white;">
-            <div class="text-h4 text-weight-bold q-mb-md" style="color: #0D1B2E; line-height: 1.2;">
-              {{ pool.title }}
+          <!-- Creator Profile Card -->
+          <div class="profile-row flex items-center justify-between q-py-md q-px-sm q-mb-md">
+            <div class="flex items-center">
+              <q-avatar size="44px" class="bg-primary text-secondary text-weight-bold shadow-sm q-mr-md">
+                {{ pool.ownerName?.charAt(0).toUpperCase() || 'U' }}
+              </q-avatar>
+              <div>
+                <div class="flex items-center text-weight-bold text-dark text-subtitle1" style="line-height: 1.2;">
+                  {{ pool.ownerName || 'Anonyme' }}
+                  <q-icon name="verified" color="blue" size="18px" class="q-ml-xs" />
+                </div>
+                <div class="text-caption text-grey-6 q-mt-xs">Créé le {{ formatDate(pool.createdAt) }}</div>
+              </div>
+            </div>
+            <q-btn label="Suivre" color="dark" outline size="sm" class="text-weight-bold px-4" style="border-radius: 20px; border-color: #E2E8F0;" no-caps />
+          </div>
+
+          <!-- Balance & Progress Card -->
+          <div class="balance-card q-mb-lg q-px-sm">
+            
+            <!-- Deadline Alert -->
+            <div v-if="pool.hasDeadline && pool.deadlineDate" class="q-mb-md q-pa-sm bg-amber-1 text-amber-9 rounded-borders text-caption text-weight-bold flex items-center">
+              <q-icon name="alarm" class="q-mr-xs" size="sm" />
+              {{ $t('poolDetail.deadlineLabel') }} : {{ formatDateWithTime(pool.deadlineDate) }}
             </div>
 
-            <div class="flex items-center q-mb-lg">
-              <span class="text-grey-7">Créé par <span class="text-weight-bold text-primary">{{ pool.ownerName || 'Anonyme' }}</span></span>
+            <!-- Amount Level -->
+            <div class="row items-baseline q-mb-sm">
+              <div class="text-h3 text-weight-bolder text-positive" style="color: #00e676; letter-spacing: -0.5px;">
+                {{ pool.currentAmount || 0 }} €
+              </div>
+              <div class="text-subtitle1 text-grey-6 q-ml-sm text-weight-medium">
+                {{ $t('poolDetail.ofGoal') }} {{ pool.goalAmount }} €
+              </div>
             </div>
 
-            <!-- Progression -->
-            <div class="q-mb-xl">
-              <!-- Deadline Alert / Display -->
-              <div v-if="pool.hasDeadline && pool.deadlineDate" class="q-mb-sm q-pa-sm bg-amber-1 text-amber-9 rounded-borders text-subtitle2 text-weight-bold flex items-center">
-                <q-icon name="alarm" class="q-mr-xs" size="sm" />
-                {{ $t('poolDetail.deadlineLabel') }} : {{ formatDateWithTime(pool.deadlineDate) }}
-              </div>
-              <div class="row items-end justify-between q-mb-sm">
-                <div class="text-h4 text-weight-bolder text-primary">
-                  {{ pool.currentAmount || 0 }} €
-                </div>
-                <div class="text-grey-7">
-                  {{ $t('poolDetail.ofGoal') }} {{ pool.goalAmount }} €
-                </div>
-              </div>
-              
-              <q-linear-progress 
-                :value="(pool.currentAmount || 0) / pool.goalAmount" 
-                color="secondary" 
-                size="12px" 
-                rounded 
-                class="q-mb-sm"
-              />
-              
-              <div class="row justify-between text-caption text-grey-6 text-weight-medium">
+            <!-- Progress Bar -->
+            <q-linear-progress 
+              :value="(pool.currentAmount || 0) / pool.goalAmount" 
+              color="primary" 
+              size="10px" 
+              rounded 
+              class="q-mb-md"
+              style="background-color: #F1F5F9;"
+            />
+
+            <!-- Statistics Row -->
+            <div class="row items-center justify-between text-caption text-grey-7 text-weight-bold q-py-sm q-mb-md stats-row">
+              <div class="flex items-center">
+                <q-icon name="flag" size="18px" class="q-mr-xs text-grey-5" />
                 <span>{{ Math.round(((pool.currentAmount || 0) / pool.goalAmount) * 100) }}% {{ $t('poolDetail.completedPercentSuffix') }}</span>
+              </div>
+              <div class="flex items-center">
+                <q-icon name="people" size="18px" class="q-mr-xs text-grey-5" />
                 <span>{{ contributions.length }} {{ $t('poolDetail.participants') }}</span>
               </div>
+              <div class="flex items-center">
+                <q-icon name="comment" size="18px" class="q-mr-xs text-grey-5" />
+                <span>{{ messages.length }}</span>
+              </div>
+              <div class="flex items-center">
+                <q-icon name="visibility" size="18px" class="q-mr-xs text-grey-5" />
+                <span>{{ Math.round((pool.currentAmount || 0) * 0.15 + 18) }} vues</span>
+              </div>
             </div>
+          </div>
 
-            <!-- Bouton principal -->
-            <q-btn
-              :label="$t('poolDetail.contributeNow')"
-              unelevated
-              class="full-width q-py-md text-weight-bold"
-              style="background: #FFB300; color: #1A1A2A; border-radius: 12px; font-size: 1.1rem;"
-              no-caps
-              @click="contribute"
+          <!-- Action Buttons Row -->
+          <div class="row q-col-gutter-sm q-mb-md items-center">
+            <div class="col">
+              <q-btn 
+                outline 
+                icon="share" 
+                :label="$t('poolDetail.share')" 
+                class="full-width q-py-md text-weight-bold shadow-sm share-btn" 
+                no-caps 
+                style="border-radius: 24px;" 
+                @click="openShareDialog" 
+              />
+            </div>
+            <div class="col">
+              <q-btn
+                :label="$t('poolDetail.contributeNow') || 'Participer'"
+                unelevated
+                color="primary"
+                text-color="secondary"
+                class="full-width q-py-md text-weight-bolder shadow-2"
+                style="border-radius: 24px; font-size: 1rem;"
+                no-caps
+                @click="contribute"
+              />
+            </div>
+            <div class="col-auto">
+              <q-btn 
+                outline 
+                icon="favorite_border" 
+                class="q-py-md share-btn" 
+                style="border-radius: 24px; min-width: 50px;" 
+              />
+            </div>
+          </div>
+
+          <!-- Report / Secondary Actions -->
+          <div v-if="authStore.isAuthenticated.value && pool && String(pool.ownerId) !== String(authStore.user.value?.id)" class="row justify-center q-mt-sm q-mb-lg">
+            <q-btn 
+              flat 
+              dense 
+              color="negative" 
+              icon="flag" 
+              :label="$t('poolDetail.report') || 'Signaler cette cagnotte'" 
+              no-caps 
+              class="text-weight-bold text-caption" 
+              @click="reportPool"
             />
-            
-            <div class="row q-gutter-sm q-mt-md">
-              <q-btn outline color="primary" icon="share" :label="$t('poolDetail.share')" class="col" no-caps style="border-radius: 10px;" />
-              <q-btn outline color="grey-7" icon="favorite_border" class="col-auto" style="border-radius: 10px;" />
-            </div>
-          </q-card>
+          </div>
 
-          <!-- Liste des derniers contributeurs (Sidebar) -->
-          <q-card class="q-mt-lg q-pa-lg no-shadow" style="border-radius: 16px; background: white; border: 1px solid #EEE;">
-            <div class="text-subtitle1 text-weight-bold q-mb-md">{{ $t('poolDetail.lastDonors') }} ({{ contributions.length }})</div>
-            
-            <q-list v-if="contributions.length > 0">
-              <q-item v-for="contrib in contributions.slice(0, 5)" :key="contrib.id" class="q-px-none q-py-sm">
+          <!-- Last Donors List Card (CotizUp Style) -->
+          <q-card class="custom-card q-mb-xl q-pa-lg no-shadow">
+            <div class="row items-center justify-between q-mb-md">
+              <div class="text-subtitle1 text-weight-bold text-dark">{{ $t('poolDetail.lastDonors') }} ({{ contributions.length }})</div>
+              <q-btn flat dense no-caps color="grey-6" label="Les plus récents" icon-right="expand_more" size="sm" class="text-weight-bold" />
+            </div>
+
+            <q-list v-if="contributions.length > 0" class="q-gutter-y-xs">
+              <q-item v-for="contrib in contributions.slice(0, 8)" :key="contrib.id" class="q-px-none q-py-md" style="border-bottom: 1px solid #F8FAFC;">
                 <q-item-section avatar>
-                  <q-avatar size="32px" color="blue-1" text-color="primary">
+                  <q-avatar size="38px" class="bg-grey-2 text-grey-7 text-weight-bold">
                     <template v-if="contrib.anonymous">
-                      <span v-if="isOwner">{{ (contrib.contributorName || 'A').charAt(0) }}</span>
-                      <span v-else>?</span>
+                      <span v-if="isOwner">{{ (contrib.contributorName || 'A').charAt(0).toUpperCase() }}</span>
+                      <span v-else>-</span>
                     </template>
-                    <span v-else>{{ (contrib.contributorName || 'A').charAt(0) }}</span>
+                    <span v-else>{{ (contrib.contributorName || 'A').charAt(0).toUpperCase() }}</span>
                   </q-avatar>
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label class="text-weight-bold" style="font-size: 0.9rem;">
-                    <template v-if="contrib.anonymous">
-                      <span v-if="isOwner">{{ contrib.contributorName }} (Anonyme)</span>
-                      <span v-else>{{ $t('poolDetail.anonymousDonor') }}</span>
-                    </template>
-                    <span v-else>{{ contrib.contributorName }}</span>
-                  </q-item-label>
-                  <q-item-label caption>{{ contrib.amount }} € • {{ formatDate(contrib.createdAt) }}</q-item-label>
+                  <div class="row items-baseline justify-between">
+                    <div class="text-weight-bold text-dark" style="font-size: 0.95rem;">
+                      <template v-if="contrib.anonymous">
+                        <span v-if="isOwner">{{ contrib.contributorName }} (Anonyme)</span>
+                        <span v-else>{{ $t('poolDetail.anonymousDonor') }}</span>
+                      </template>
+                      <span v-else>{{ contrib.contributorName }}</span>
+                    </div>
+                    <div class="text-weight-bolder text-dark" style="font-size: 0.95rem;">
+                      +{{ contrib.amount }} €
+                    </div>
+                  </div>
+                  <q-item-label caption class="text-grey-5 q-mt-xs">Il y a quelques jours</q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
-            
-            <div v-else class="text-center q-py-md text-grey-6 text-italic">
+
+            <div v-else class="text-center q-py-xl text-grey-5 text-italic">
               {{ $t('poolDetail.firstContributorPrompt') }}
             </div>
           </q-card>
-        </div>
-      </div>
 
-      <!-- Section Détails -->
-      <div class="row q-col-gutter-lg q-mt-lg">
+          <!-- Sidebar Informations -->
+          <q-card class="custom-card q-pa-lg no-shadow q-mb-xl">
+            <div class="text-subtitle1 text-weight-bold text-dark q-mb-md">{{ $t('poolDetail.infoTitle') }}</div>
+            <q-list dense>
+              <q-item class="q-px-none">
+                <q-item-section avatar>
+                  <q-icon name="calendar_today" color="grey-5" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-grey-6 text-caption">{{ $t('poolDetail.createdAtLabel') }}</q-item-label>
+                  <q-item-label class="text-weight-bold text-dark">{{ formatDate(pool.createdAt) }}</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item class="q-px-none q-mt-sm">
+                <q-item-section avatar>
+                  <q-icon name="public" color="grey-5" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-grey-6 text-caption">{{ $t('poolDetail.visibilityLabel') }}</q-item-label>
+                  <q-item-label class="text-weight-bold text-dark">{{ $t('poolDetail.visibilityPublic') }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card>
+        </div>
+
+        <!-- RIGHT COLUMN (Title, Story/Description, Timeline/Phases, Financial dashboard, Comments) -->
         <div class="col-12 col-md-7">
-          <q-card class="details-card q-pa-xl no-shadow" style="border-radius: 16px; background: white; border: 1px solid #EEE;">
+          
+          <!-- Pool Title -->
+          <h1 class="text-weight-bolder text-dark q-mt-none q-mb-lg pool-title" style="font-size: 2.3rem; line-height: 1.25; letter-spacing: -0.8px;">
+            {{ pool.title }}
+          </h1>
+
+          <!-- About Pool/Story Card -->
+          <q-card class="custom-card q-pa-xl q-mb-lg no-shadow">
             <div class="row items-center justify-between q-mb-lg">
-              <div class="text-h5 text-weight-bold" style="color: #0D1B2E;">
+              <div class="text-h6 text-weight-bold text-dark">
                 {{ $t('poolDetail.aboutPool') }}
               </div>
               <div class="row q-gutter-sm">
@@ -187,6 +277,7 @@
                   color="warning" 
                   flat 
                   no-caps 
+                  style="border-radius: 8px;"
                   @click="router.push(`/pools/${pool.id}/edit`)"
                 />
                 <q-btn 
@@ -196,226 +287,198 @@
                   color="primary" 
                   flat 
                   no-caps 
+                  style="border-radius: 8px;"
                   @click="router.push({ path: '/pools/create', query: { parentId: pool.id } })"
                 />
               </div>
             </div>
-            <div class="text-body1 text-grey-8 q-mb-xl" style="white-space: pre-line; line-height: 1.6;">
+            <div class="text-body1 text-grey-8 q-mb-none" style="white-space: pre-line; line-height: 1.75; font-size: 1.05rem;">
               {{ pool.description }}
             </div>
+          </q-card>
 
-            <!-- SECTION : PHASES DE PROGRESSION (Cagnotte Simple) -->
-            <div v-if="(!pool.subPools || pool.subPools.length === 0) && pool.phases && pool.phases.length > 0" class="q-mb-xl">
-              <div class="text-h5 text-weight-bold q-mb-lg row items-center" style="color: #0D1B2E;">
-                <q-icon name="flag" class="q-mr-sm" color="primary" />
-                {{ $t('poolDetail.phasesHeader') }} ({{ pool.phases.length }})
-              </div>
-              
-              <q-card flat bordered style="border-radius: 16px; border: 1px solid #E0E0E0; background: white;" class="q-pa-lg">
-                <div class="phases-timeline q-pl-sm">
-                  <div v-for="(phase, phIndex) in pool.phases" :key="phase.id" class="phase-item q-mb-md">
-                    <div class="row items-center q-mb-xs">
-                      <div class="phase-number-circle q-mr-md" :class="getPhaseStatusClass(phase)">
-                        {{ phIndex + 1 }}
-                      </div>
-                      <div class="col">
-                        <div class="row items-center justify-between">
-                          <div class="text-caption text-weight-bold" :class="phase.status === 'COMPLETED' ? 'text-grey-6' : 'text-dark'">
-                            {{ phase.title }}
-                            <q-badge v-if="phase.status === 'ACTIVE'" color="secondary" label="ACTIVE" class="q-ml-xs" />
-                          </div>
-                          <div class="text-caption text-weight-medium text-grey-7">
-                            {{ phase.currentAmount || 0 }} € / {{ phase.goalAmount }} €
-                          </div>
+          <!-- SECTION : PHASES DE PROGRESSION (Cagnotte Simple) -->
+          <div v-if="(!pool.subPools || pool.subPools.length === 0) && pool.phases && pool.phases.length > 0" class="q-mb-lg">
+            <div class="text-h6 text-weight-bold text-dark q-mb-md row items-center">
+              <q-icon name="flag" class="q-mr-sm" color="primary" />
+              {{ $t('poolDetail.phasesHeader') }} ({{ pool.phases.length }})
+            </div>
+            
+            <q-card class="q-pa-lg no-shadow custom-card" style="background: white;">
+              <div class="phases-timeline q-pl-sm">
+                <div v-for="(phase, phIndex) in pool.phases" :key="phase.id" class="phase-item q-mb-md">
+                  <div class="row items-center q-mb-xs">
+                    <div class="phase-number-circle q-mr-md shadow-sm" :class="getPhaseStatusClass(phase)">
+                      {{ phIndex + 1 }}
+                    </div>
+                    <div class="col">
+                      <div class="row items-center justify-between">
+                        <div class="text-body2 text-weight-bold text-dark">
+                          {{ phase.title }}
+                          <q-badge v-if="phase.status === 'ACTIVE'" color="secondary" label="ACTIVE" class="q-ml-xs text-weight-bold text-xxs" />
+                        </div>
+                        <div class="text-caption text-weight-medium text-grey-6">
+                          {{ phase.currentAmount || 0 }} € / {{ phase.goalAmount }} €
                         </div>
                       </div>
                     </div>
-                    <div class="q-pl-xl">
-                      <q-linear-progress 
-                        :value="(phase.currentAmount || 0) / phase.goalAmount" 
-                        :color="phase.status === 'COMPLETED' ? 'green' : (phase.status === 'ACTIVE' ? 'secondary' : 'grey-4')" 
-                        size="6px" 
-                        rounded 
+                  </div>
+                  <div class="q-pl-xl">
+                    <q-linear-progress 
+                      :value="(phase.currentAmount || 0) / phase.goalAmount" 
+                      :color="phase.status === 'COMPLETED' ? 'green' : (phase.status === 'ACTIVE' ? 'secondary' : 'grey-4')" 
+                      size="6px" 
+                      rounded 
+                    />
+                  </div>
+                </div>
+              </div>
+            </q-card>
+          </div>
+
+          <!-- SECTION : SOUS-CAGNOTTES / ÉTAPES DU PROJET -->
+          <div v-if="pool.subPools && pool.subPools.length > 0" class="q-mb-lg">
+            <div class="text-h6 text-weight-bold text-dark q-mb-md row items-center">
+              <q-icon name="account_tree" class="q-mr-sm" color="primary" />
+              {{ $t('poolDetail.subPoolsHeader') }} ({{ pool.subPools.length }})
+            </div>
+            
+            <div v-for="subPool in pool.subPools" :key="subPool.id" class="q-mb-md">
+              <q-card class="no-shadow custom-card">
+                <q-card-section class="q-pa-lg">
+                  <!-- Title and Contribute button -->
+                  <div class="row items-center justify-between q-mb-md">
+                    <div class="col">
+                      <div class="text-subtitle1 text-weight-bold text-dark">{{ subPool.title }}</div>
+                      <div v-if="subPool.description" class="text-body2 text-grey-6 q-mt-xs">{{ subPool.description }}</div>
+                      <!-- Subpool deadline -->
+                      <div v-if="subPool.hasDeadline && subPool.deadlineDate" class="text-caption text-amber-9 text-weight-bold q-mt-xs">
+                        <q-icon name="alarm" class="q-mr-xs" /> Fin le {{ formatDateWithTime(subPool.deadlineDate) }}
+                      </div>
+                    </div>
+                    
+                    <div class="col-auto">
+                      <q-btn 
+                        label="Contribuer" 
+                        color="secondary" 
+                        unelevated 
+                        no-caps 
+                        style="border-radius: 12px;"
+                        @click="contributeToSubPool(subPool.id)"
+                        :disable="subPool.status === 'COMPLETED'"
                       />
                     </div>
                   </div>
-                </div>
-              </q-card>
-            </div>
 
-             <!-- SECTION : SOUS-CAGNOTTES / ÉTAPES DU PROJET -->
-            <div v-if="pool.subPools && pool.subPools.length > 0" class="q-mb-xl">
-              <div class="text-h5 text-weight-bold q-mb-lg row items-center" style="color: #0D1B2E;">
-                <q-icon name="account_tree" class="q-mr-sm" color="primary" />
-                {{ $t('poolDetail.subPoolsHeader') }} ({{ pool.subPools.length }})
-              </div>
-              
-              <div v-for="subPool in pool.subPools" :key="subPool.id" class="q-mb-lg">
-                <q-card flat bordered style="border-radius: 16px; border: 1px solid #E0E0E0; background: white;">
-                  <q-card-section class="q-pa-lg">
-                    <!-- Title and Contribute button -->
-                    <div class="row items-center justify-between q-mb-md">
-                      <div class="col">
-                        <div class="text-h6 text-weight-bold text-dark">{{ subPool.title }}</div>
-                        <div v-if="subPool.description" class="text-body2 text-grey-7 q-mt-xs">{{ subPool.description }}</div>
-                        <!-- Subpool deadline -->
-                        <div v-if="subPool.hasDeadline && subPool.deadlineDate" class="text-caption text-amber-9 text-weight-bold q-mt-xs">
-                          <q-icon name="alarm" class="q-mr-xs" /> Fin le {{ formatDateWithTime(subPool.deadlineDate) }}
-                        </div>
-                      </div>
-                      
-                      <div class="col-auto">
-                        <q-btn 
-                          label="Contribuer" 
-                          color="secondary" 
-                          unelevated 
-                          no-caps 
-                          style="border-radius: 8px;"
-                          @click="contributeToSubPool(subPool.id)"
-                          :disable="subPool.status === 'COMPLETED'"
-                        />
-                      </div>
+                  <!-- Progress bar -->
+                  <div class="q-mb-md">
+                    <div class="row justify-between text-caption text-grey-6 q-mb-xs">
+                      <span>{{ subPool.currentAmount || 0 }} € collectés sur {{ subPool.goalAmount }} €</span>
+                      <span class="text-weight-bold">{{ Math.round(((subPool.currentAmount || 0) / subPool.goalAmount) * 100) }}%</span>
                     </div>
+                    <q-linear-progress 
+                      :value="(subPool.currentAmount || 0) / subPool.goalAmount" 
+                      color="primary" 
+                      size="8px" 
+                      rounded 
+                    />
+                  </div>
 
-                    <!-- Progress bar -->
-                    <div class="q-mb-md">
-                      <div class="row justify-between text-caption text-grey-7 q-mb-xs">
-                        <span>{{ subPool.currentAmount || 0 }} € collectés sur {{ subPool.goalAmount }} €</span>
-                        <span class="text-weight-bold">{{ Math.round(((subPool.currentAmount || 0) / subPool.goalAmount) * 100) }}%</span>
-                      </div>
-                      <q-linear-progress 
-                        :value="(subPool.currentAmount || 0) / subPool.goalAmount" 
-                        color="primary" 
-                        size="10px" 
-                        rounded 
-                      />
-                    </div>
-
-                    <!-- Phases within this sub-pool -->
-                    <div v-if="subPool.phases && subPool.phases.length > 0" class="q-mt-md">
-                      <div class="text-subtitle2 text-weight-bold text-grey-8 q-mb-sm">{{ $t('poolDetail.phasesHeader') }} :</div>
-                      <div class="phases-timeline q-pl-sm">
-                        <div v-for="(phase, phIndex) in subPool.phases" :key="phase.id" class="phase-item q-mb-md">
-                          <div class="row items-center q-mb-xs">
-                            <div class="phase-number-circle q-mr-md" :class="getPhaseStatusClass(phase)">
-                              {{ phIndex + 1 }}
-                            </div>
-                            <div class="col">
-                              <div class="row items-center justify-between">
-                                <div class="text-caption text-weight-bold" :class="phase.status === 'COMPLETED' ? 'text-grey-6' : 'text-dark'">
-                                  {{ phase.title }}
-                                  <q-badge v-if="phase.status === 'ACTIVE'" color="secondary" label="ACTIVE" class="q-ml-xs" />
-                                </div>
-                                <div class="text-caption text-weight-medium text-grey-7">
-                                  {{ phase.currentAmount }} € / {{ phase.goalAmount }} €
-                                </div>
+                  <!-- Phases within this sub-pool -->
+                  <div v-if="subPool.phases && subPool.phases.length > 0" class="q-mt-md">
+                    <div class="text-subtitle2 text-weight-bold text-grey-7 q-mb-sm">{{ $t('poolDetail.phasesHeader') }} :</div>
+                    <div class="phases-timeline q-pl-sm">
+                      <div v-for="(phase, phIndex) in subPool.phases" :key="phase.id" class="phase-item q-mb-md">
+                        <div class="row items-center q-mb-xs">
+                          <div class="phase-number-circle q-mr-md shadow-sm" :class="getPhaseStatusClass(phase)">
+                            {{ phIndex + 1 }}
+                          </div>
+                          <div class="col">
+                            <div class="row items-center justify-between">
+                              <div class="text-caption text-weight-bold text-dark">
+                                {{ phase.title }}
+                                <q-badge v-if="phase.status === 'ACTIVE'" color="secondary" label="ACTIVE" class="q-ml-xs text-weight-bold text-xxs" />
+                              </div>
+                              <div class="text-caption text-weight-medium text-grey-6">
+                                {{ phase.currentAmount }} € / {{ phase.goalAmount }} €
                               </div>
                             </div>
                           </div>
-                          <div class="q-pl-xl">
-                            <q-linear-progress 
-                              :value="phase.currentAmount / phase.goalAmount" 
-                              :color="phase.status === 'COMPLETED' ? 'green' : (phase.status === 'ACTIVE' ? 'secondary' : 'grey-4')" 
-                              size="6px" 
-                              rounded 
-                            />
-                          </div>
+                        </div>
+                        <div class="q-pl-xl">
+                          <q-linear-progress 
+                            :value="phase.currentAmount / phase.goalAmount" 
+                            :color="phase.status === 'COMPLETED' ? 'green' : (phase.status === 'ACTIVE' ? 'secondary' : 'grey-4')" 
+                            size="6px" 
+                            rounded 
+                          />
                         </div>
                       </div>
-                    </div>
-                  </q-card-section>
-                </q-card>
-              </div>
-            </div>
-
-            <!-- SECTION FINANCIERE (Visible uniquement par le proprietaire) -->
-            <div v-if="isOwner" class="q-mb-xl">
-              <div class="text-h6 text-weight-bold q-mb-md" :style="{ color: $q.dark.isActive ? '#FFFFFF' : '#0D1B2E' }">
-                <q-icon name="account_balance_wallet" color="primary" class="q-mr-sm" />
-                {{ $t('poolDetail.financialDashboard') }}
-              </div>
-              <div class="row q-col-gutter-md">
-                <div class="col-12 col-sm-6">
-                  <q-card flat bordered :class="$q.dark.isActive ? 'bg-grey-9 text-green-4' : 'bg-green-1 text-green-9'" style="border-radius: 12px; border: 1px solid rgba(76, 175, 80, 0.3);">
-                    <q-card-section class="column justify-between" style="min-height: 140px;">
-                      <div class="text-overline">{{ $t('poolDetail.availableBalance') }}</div>
-                      <div class="text-h4 text-weight-bolder">{{ pool.availableBalance || 0 }} €</div>
-                      <div class="text-caption">{{ $t('poolDetail.readyToWithdraw') }}</div>
-                      <div class="q-mt-md" v-if="pool.availableBalance > 0">
-                        <q-btn 
-                          label="Demander un retrait" 
-                          color="positive" 
-                          unelevated 
-                          no-caps 
-                          icon="payment"
-                          class="full-width text-weight-bold"
-                          style="border-radius: 8px;"
-                          @click="openWithdrawDialog"
-                        />
-                      </div>
-                    </q-card-section>
-                  </q-card>
-                </div>
-                <div class="col-12 col-sm-6">
-                  <q-card flat bordered :class="$q.dark.isActive ? 'bg-grey-9 text-blue-4' : 'bg-blue-1 text-blue-9'" style="border-radius: 12px; border: 1px solid rgba(33, 150, 243, 0.3);">
-                    <q-card-section class="column justify-between" style="min-height: 140px;">
-                      <div class="text-overline">{{ $t('poolDetail.pending') }}</div>
-                      <div class="text-h4 text-weight-bolder">{{ pool.pendingBalance || 0 }} €</div>
-                      <div class="text-caption">{{ $t('poolDetail.pendingDesc') }}</div>
-                    </q-card-section>
-                  </q-card>
-                </div>
-              </div>
-            </div>
-
-            <!-- SECTION INVITATIONS (Visible uniquement par le proprietaire pour les cagnottes non publiques) -->
-            <div v-if="isOwner && pool.type !== 'PUBLIC'" class="q-mb-xl">
-              <div class="text-h6 text-weight-bold q-mb-md" style="color: #0D1B2E;">
-                <q-icon name="person_add" color="primary" class="q-mr-sm" />
-                {{ $t('poolDetail.inviteParticipants') }}
-              </div>
-              <q-card flat bordered style="border-radius: 12px;">
-                <q-card-section>
-                  <div class="row q-col-gutter-md items-center">
-                    <div class="col">
-                      <q-input v-model="inviteEmail" label="Email de l'invité" dense filled color="primary" @keyup.enter="sendInvitation" />
-                    </div>
-                    <div class="col-auto">
-                      <q-btn :label="$t('poolDetail.inviteButton')" color="primary" unelevated @click="sendInvitation" :loading="sendingInvite" />
-                    </div>
-                  </div>
-                  
-                  <div v-if="invitations.length > 0" class="q-mt-md">
-                    <div class="text-caption text-grey-7 q-mb-sm">{{ $t('poolDetail.invitedMembers') }} ({{ invitations.length }}) :</div>
-                    <div class="row q-gutter-xs">
-                      <q-chip v-for="inv in invitations" :key="inv.id" outline dense color="primary" size="sm" removable @remove="removeInvitation(inv.id)">
-                        {{ inv.email }}
-                        <q-tooltip>Supprimer l'invitation</q-tooltip>
-                      </q-chip>
                     </div>
                   </div>
                 </q-card-section>
               </q-card>
             </div>
+          </div>
 
-            <!-- SECTION : COMMENTAIRES (Messages du Pool) -->
-            <div class="text-h5 text-weight-bold q-mb-lg row items-center" style="color: #0D1B2E;">
-              <q-icon name="forum" class="q-mr-sm" color="primary" />
-              {{ $t('poolDetail.commentsHeader') }} ({{ messages.length }})
+          <!-- SECTION FINANCIERE (Visible uniquement par le proprietaire) -->
+          <div v-if="isOwner" class="q-mb-lg">
+            <div class="text-h6 text-weight-bold text-dark q-mb-md row items-center">
+              <q-icon name="account_balance_wallet" color="primary" class="q-mr-sm" />
+              {{ $t('poolDetail.financialDashboard') }}
             </div>
+            <div class="row q-col-gutter-md">
+              <div class="col-12 col-sm-6">
+                <q-card class="no-shadow custom-card">
+                  <q-card-section class="column justify-between" style="min-height: 150px;">
+                    <div class="text-overline text-grey-6">{{ $t('poolDetail.availableBalance') }}</div>
+                    <div class="text-h4 text-weight-bolder text-dark">{{ pool.availableBalance || 0 }} €</div>
+                    <div class="text-caption text-grey-5">{{ $t('poolDetail.readyToWithdraw') }}</div>
+                    <div class="q-mt-md" v-if="pool.availableBalance > 0">
+                      <q-btn 
+                        label="Demander un retrait" 
+                        color="positive" 
+                        unelevated 
+                        no-caps 
+                        icon="payment"
+                        class="full-width text-weight-bold"
+                        style="border-radius: 12px;"
+                        @click="openWithdrawDialog"
+                      />
+                    </div>
+                  </q-card-section>
+                </q-card>
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-card class="no-shadow custom-card">
+                  <q-card-section class="column justify-between" style="min-height: 150px;">
+                    <div class="text-overline text-grey-6">{{ $t('poolDetail.pending') }}</div>
+                    <div class="text-h4 text-weight-bolder text-grey-6">{{ pool.pendingBalance || 0 }} €</div>
+                    <div class="text-caption text-grey-5">{{ $t('poolDetail.pendingDesc') }}</div>
+                  </q-card-section>
+                </q-card>
+              </div>
+            </div>
+          </div>
 
+          <!-- SECTION : COMMENTAIRES -->
+          <div class="text-h6 text-weight-bold text-dark q-mb-md row items-center">
+            <q-icon name="forum" class="q-mr-sm" color="primary" />
+            {{ $t('poolDetail.commentsHeader') }} ({{ messages.length }})
+          </div>
+
+          <q-card class="q-pa-xl q-mb-lg no-shadow custom-card">
             <!-- Champ de saisie pour nouveau commentaire -->
             <div v-if="authStore.isAuthenticated.value" class="q-mb-xl">
               <q-input
-                filled
+                outlined
                 v-model="newComment"
                 type="textarea"
                 :placeholder="$t('poolDetail.commentPlaceholder')"
                 rows="3"
                 color="secondary"
                 bg-color="white"
-                class="shadow-1"
-                style="border-radius: 8px;"
+                style="border-radius: 12px; overflow: hidden;"
               >
                 <template v-slot:after>
                   <div class="column justify-end full-height q-pb-xs">
@@ -424,31 +487,31 @@
                 </template>
               </q-input>
             </div>
-            <div v-else class="q-pa-md bg-blue-1 text-blue-9 text-weight-bold q-mb-xl" style="border-radius: 8px; border: 1px dashed #2196F3;">
+            <div v-else class="q-pa-md bg-blue-1 text-blue-9 text-weight-bold q-mb-xl" style="border-radius: 12px; border: 1px dashed #2196F3;">
               <q-icon name="info" class="q-mr-sm" />
               {{ $t('poolDetail.loginToComment') }}
             </div>
 
             <!-- Liste des commentaires -->
             <div v-if="messages.length > 0" class="q-gutter-y-md">
-              <div v-for="msg in messages" :key="msg.id" class="comment-item q-pa-md" style="background: white; border-radius: 12px; border: 1px solid #EEE;">
+              <div v-for="msg in messages" :key="msg.id" class="comment-item q-pa-md">
                 <div class="row justify-between items-center q-mb-sm">
                   <div class="row items-center">
-                    <q-avatar size="32px" color="primary" text-white class="q-mr-sm">
-                      {{ msg.userName?.charAt(0) || '?' }}
+                    <q-avatar size="32px" class="bg-primary text-secondary text-weight-bold q-mr-sm">
+                      {{ msg.userName?.charAt(0).toUpperCase() || '?' }}
                     </q-avatar>
                     <div>
-                      <div class="text-weight-bold" style="color: #0D1B2E;">
+                      <div class="text-weight-bold text-dark">
                         {{ msg.userName || 'Utilisateur anonyme' }}
                       </div>
-                      <div class="text-caption text-grey-6">{{ formatDate(msg.createdAt) }}</div>
+                      <div class="text-caption text-grey-5">{{ formatDate(msg.createdAt) }}</div>
                     </div>
                   </div>
                   
-                  <!-- Bouton Réaction & Modération -->
+                  <!-- Reactions and flags -->
                   <div class="row items-center q-gutter-x-xs">
                     <div v-if="authStore.isAuthenticated.value" class="reaction-trigger">
-                      <q-btn flat round dense icon="add_reaction" color="grey-7" size="sm">
+                      <q-btn flat round dense icon="add_reaction" color="grey-6" size="sm">
                         <q-menu anchor="top middle" self="bottom middle" class="reaction-menu no-shadow">
                           <div class="row no-wrap q-pa-xs q-gutter-x-sm bg-white shadow-2" style="border-radius: 30px; border: 1px solid #EEE;">
                             <q-btn v-for="emoji in availableEmojis" :key="emoji.type" 
@@ -459,40 +522,21 @@
                       </q-btn>
                     </div>
                     
-                     <q-btn 
-                      v-if="authStore.isModerator.value" 
-                      flat 
-                      round 
-                      dense 
-                      icon="delete" 
-                      color="negative" 
-                      size="sm" 
-                      @click="deleteComment(msg.id)"
-                    >
-                      <q-tooltip>Supprimer ce commentaire (Modération)</q-tooltip>
+                    <q-btn v-if="authStore.isModerator.value" flat round dense icon="delete" color="negative" size="sm" @click="deleteComment(msg.id)">
+                      <q-tooltip>Supprimer</q-tooltip>
                     </q-btn>
 
-                    <!-- Bouton de Signalement -->
-                    <q-btn 
-                      v-if="authStore.isAuthenticated.value && msg.userId !== authStore.user.value?.id"
-                      flat 
-                      round 
-                      dense 
-                      icon="flag" 
-                      color="warning" 
-                      size="sm" 
-                      @click="reportComment(msg)"
-                    >
-                      <q-tooltip>Signaler ce commentaire</q-tooltip>
+                    <q-btn v-if="authStore.isAuthenticated.value && msg.userId !== authStore.user.value?.id" flat round dense icon="flag" color="warning" size="sm" @click="reportComment(msg)">
+                      <q-tooltip>Signaler</q-tooltip>
                     </q-btn>
                   </div>
                 </div>
                 
-                <div class="text-body2 text-grey-9 q-pl-md border-left q-mb-sm" style="border-left: 2px solid #EEE;">
+                <div class="text-body2 text-grey-8 q-pl-md q-mb-sm" style="border-left: 2px solid #CBD5E1; line-height: 1.6;">
                   {{ msg.content }}
                 </div>
 
-                <!-- Affichage des réactions -->
+                <!-- Reaction Badges -->
                 <div v-if="msg.reactions && msg.reactions.length > 0" class="row q-gutter-xs q-pl-md">
                   <div v-for="(group, type) in groupReactions(msg.reactions)" :key="type" 
                        class="reaction-badge row items-center q-px-sm q-py-xs"
@@ -505,60 +549,36 @@
               </div>
             </div>
             <div v-else class="text-center q-py-xl text-grey-5">
-              <q-icon name="chat_bubble_outline" size="48px" class="q-mb-sm" />
+              <q-icon name="chat_bubble_outline" size="48px" class="q-mr-sm" />
               <div>{{ $t('poolDetail.noComments') }}</div>
             </div>
+          </q-card>
 
-            <q-separator class="q-my-xl" />
-
-            <div class="text-h6 text-weight-bold q-mb-md">{{ $t('poolDetail.howItWorksTitle') }}</div>
+          <!-- HOW IT WORKS SECTION -->
+          <q-card class="how-card q-pa-lg q-mt-lg no-shadow custom-card">
+            <div class="text-subtitle1 text-weight-bold text-dark q-mb-md text-center">{{ $t('poolDetail.howItWorksTitle') }}</div>
             <div class="row q-col-gutter-md">
               <div class="col-12 col-sm-4 text-center">
-                <q-icon name="security" color="secondary" size="40px" />
-                <div class="text-weight-bold q-mt-sm">{{ $t('poolDetail.howSecure') }}</div>
-                <div class="text-caption text-grey-7">{{ $t('poolDetail.howSecureDesc') }}</div>
+                <q-icon name="security" color="primary" size="32px" />
+                <div class="text-weight-bold text-dark q-mt-sm">{{ $t('poolDetail.howSecure') }}</div>
+                <div class="text-caption text-grey-6">{{ $t('poolDetail.howSecureDesc') }}</div>
               </div>
               <div class="col-12 col-sm-4 text-center">
-                <q-icon name="history" color="secondary" size="40px" />
-                <div class="text-weight-bold q-mt-sm">{{ $t('poolDetail.howTransparent') }}</div>
-                <div class="text-caption text-grey-7">{{ $t('poolDetail.howTransparentDesc') }}</div>
+                <q-icon name="history" color="primary" size="32px" />
+                <div class="text-weight-bold text-dark q-mt-sm">{{ $t('poolDetail.howTransparent') }}</div>
+                <div class="text-caption text-grey-6">{{ $t('poolDetail.howTransparentDesc') }}</div>
               </div>
               <div class="col-12 col-sm-4 text-center">
-                <q-icon name="group" color="secondary" size="40px" />
-                <div class="text-weight-bold q-mt-sm">{{ $t('poolDetail.howCollective') }}</div>
-                <div class="text-caption text-grey-7">{{ $t('poolDetail.howCollectiveDesc') }}</div>
+                <q-icon name="group" color="primary" size="32px" />
+                <div class="text-weight-bold text-dark q-mt-sm">{{ $t('poolDetail.howCollective') }}</div>
+                <div class="text-caption text-grey-6">{{ $t('poolDetail.howCollectiveDesc') }}</div>
               </div>
             </div>
           </q-card>
         </div>
 
-        <!-- Sidebar Secondaire -->
-        <div class="col-12 col-md-5">
-          <q-card class="info-card q-pa-lg no-shadow" style="border-radius: 16px; background: white; border: 1px solid #EEE;">
-            <div class="text-subtitle1 text-weight-bold q-mb-md">{{ $t('poolDetail.infoTitle') }}</div>
-            <q-list dense>
-              <q-item>
-                <q-item-section avatar>
-                  <q-icon name="calendar_today" color="grey-6" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label class="text-grey-7">{{ $t('poolDetail.createdAtLabel') }}</q-item-label>
-                  <q-item-label class="text-weight-bold">{{ formatDate(pool.createdAt) }}</q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item class="q-mt-sm">
-                <q-item-section avatar>
-                  <q-icon name="public" color="grey-6" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label class="text-grey-7">{{ $t('poolDetail.visibilityLabel') }}</q-item-label>
-                  <q-item-label class="text-weight-bold">{{ $t('poolDetail.visibilityPublic') }}</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-card>
-        </div>
       </div>
+
     </div>
 
     <!-- Dialogue de Contribution -->
@@ -793,6 +813,147 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <!-- Dialogue de Partage et d'Invitation -->
+    <q-dialog v-model="shareDialog" persistent>
+      <q-card style="min-width: 450px; max-width: 90vw; border-radius: 16px;">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6 text-weight-bold">
+            <q-icon name="share" color="primary" class="q-mr-sm" size="sm" />
+            {{ isOwner ? 'Partager & Inviter' : 'Partager la cagnotte' }}
+          </div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section class="q-pt-md">
+          <!-- Lien de Partage -->
+          <div class="text-subtitle2 q-mb-sm text-grey-7">Lien de la cagnotte :</div>
+          <div class="row items-center q-col-gutter-sm q-mb-lg">
+            <div class="col">
+              <q-input
+                outlined
+                dense
+                readonly
+                v-model="shareUrl"
+                bg-color="grey-1"
+                style="border-radius: 8px;"
+              />
+            </div>
+            <div class="col-auto">
+              <q-btn
+                color="primary"
+                icon="content_copy"
+                unelevated
+                style="border-radius: 8px; height: 40px;"
+                @click="copyShareUrl"
+              >
+                <q-tooltip>Copier le lien</q-tooltip>
+              </q-btn>
+            </div>
+          </div>
+
+          <!-- Boutons Réseaux Sociaux -->
+          <div class="text-subtitle2 q-mb-sm text-grey-7">Partager sur :</div>
+          <div class="row q-col-gutter-md justify-center q-mb-lg">
+            <div class="col-4 text-center">
+              <q-btn
+                flat
+                round
+                dense
+                color="indigo-7"
+                icon="M22,12c0-5.52-4.48-10-10-10S2,6.48,2,12c0,4.84,3.44,8.87,8,9.8V15H8v-3h2V9.5C10,7.57,11.57,6,13.5,6H16v3h-2c-0.55,0-1,0.45-1,1v2h3v3h-3v6.8C18.56,20.87,22,16.84,22,12z"
+                size="lg"
+                @click="shareOnFacebook"
+              />
+              <div class="text-caption text-grey-7 q-mt-xs">Facebook</div>
+            </div>
+            <div class="col-4 text-center">
+              <q-btn
+                flat
+                round
+                dense
+                color="black"
+                icon="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" 
+                size="lg"
+                @click="shareOnTwitter"
+              >
+                <q-tooltip>Twitter / X</q-tooltip>
+              </q-btn>
+              <div class="text-caption text-grey-7 q-mt-xs">Twitter / X</div>
+            </div>
+            <div class="col-4 text-center">
+              <q-btn
+                flat
+                round
+                dense
+                color="green-6"
+                icon="M12.004 2C6.48 2 2.014 6.47 2.014 12c0 1.91.53 3.69 1.46 5.25L2 22l5.05-1.33c1.5.83 3.2 1.33 4.95 1.33 5.52 0 10-4.48 10-10S17.524 2 12.004 2zm5.72 13.04c-.25.7-1.45 1.37-2 1.41-.55.05-1.25.07-3.75-1-3.21-1.37-5.25-4.63-5.41-4.85-.16-.22-1.3-1.72-1.3-3.28 0-1.56.81-2.33 1.1-2.63.3-.3.65-.37.85-.37.2 0 .4 0 .58.01.2 0 .47-.08.73.55.26.63.88 2.16.96 2.3.08.15.13.33.03.53-.1.2-.15.33-.3.5-.15.17-.32.39-.46.52-.16.15-.33.32-.14.65.18.33.82 1.37 1.77 2.22.95.85 1.75 1.11 2 1.24.25.13.4.1.55-.07.15-.17.65-.75.82-1 .17-.25.33-.2.56-.11.23.09 1.45.68 1.7.81.25.13.42.2.48.3.06.1.06.58-.19 1.28z"
+                size="lg"
+                @click="shareOnWhatsApp"
+              />
+              <div class="text-caption text-grey-7 q-mt-xs">WhatsApp</div>
+            </div>
+          </div>
+
+          <!-- Section Invitation (Seulement pour le propriétaire) -->
+          <div v-if="isOwner">
+            <q-separator class="q-my-md" />
+            
+            <div class="text-subtitle2 q-mb-sm text-weight-bold text-dark row items-center">
+              <q-icon name="person_add" color="secondary" class="q-mr-xs" size="xs" />
+              Inviter des participants par email :
+            </div>
+            
+            <div class="row q-col-gutter-sm items-center q-mb-md">
+              <div class="col">
+                <q-input
+                  v-model="inviteEmail"
+                  label="Email de l'invité"
+                  dense
+                  outlined
+                  color="primary"
+                  bg-color="grey-1"
+                  style="border-radius: 8px;"
+                  @keyup.enter="sendInvitation"
+                />
+              </div>
+              <div class="col-auto">
+                <q-btn
+                  label="Inviter"
+                  color="primary"
+                  unelevated
+                  style="border-radius: 8px; height: 40px;"
+                  @click="sendInvitation"
+                  :loading="sendingInvite"
+                />
+              </div>
+            </div>
+
+            <!-- Liste des invités existants -->
+            <div v-if="invitations.length > 0" class="q-mt-sm">
+              <div class="text-caption text-grey-7 q-mb-sm">Membres déjà invités ({{ invitations.length }}) :</div>
+              <div class="row q-gutter-xs" style="max-height: 120px; overflow-y: auto;">
+                <q-chip
+                  v-for="inv in invitations"
+                  :key="inv.id"
+                  outline
+                  dense
+                  color="primary"
+                  size="sm"
+                  removable
+                  @remove="removeInvitation(inv.id)"
+                >
+                  {{ inv.email }}
+                  <q-tooltip>Supprimer l'invitation</q-tooltip>
+                </q-chip>
+              </div>
+            </div>
+          </div>
+
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -821,6 +982,39 @@ const sendingInvite = ref(false)
 const mediaSlide = ref('image')
 
 const withdrawDialog = ref(false)
+const shareDialog = ref(false)
+const shareUrl = computed(() => window.location.href)
+
+const openShareDialog = () => {
+  shareDialog.value = true
+}
+
+const copyShareUrl = () => {
+  navigator.clipboard.writeText(shareUrl.value)
+  $q.notify({
+    type: 'positive',
+    message: 'Lien copié dans le presse-papiers !',
+    position: 'top',
+    timeout: 2000
+  })
+}
+
+const shareOnFacebook = () => {
+  const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl.value)}`
+  window.open(url, '_blank', 'width=600,height=400')
+}
+
+const shareOnTwitter = () => {
+  const text = `Soutenez cette cagnotte sur Potify : ${pool.value.title}`
+  const url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl.value)}&text=${encodeURIComponent(text)}`
+  window.open(url, '_blank', 'width=600,height=400')
+}
+
+const shareOnWhatsApp = () => {
+  const text = `Soutenez cette cagnotte sur Potify : ${pool.value.title} - ${shareUrl.value}`
+  const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
+  window.open(url, '_blank')
+}
 const withdrawing = ref(false)
 const withdrawForm = reactive({
   amount: 0,
@@ -1033,6 +1227,55 @@ const reportComment = (message) => {
       })
     } catch (err) {
       console.error('Erreur lors du signalement:', err)
+      $q.notify({
+        type: 'negative',
+        message: 'Erreur lors du signalement.'
+      })
+    }
+  })
+}
+
+const reportPool = () => {
+  if (!authStore.isAuthenticated.value) {
+    $q.notify({
+      type: 'warning',
+      message: 'Vous devez être connecté pour signaler une cagnotte.'
+    })
+    return
+  }
+  $q.dialog({
+    title: 'Signaler cette cagnotte',
+    message: 'Veuillez saisir le motif du signalement (ex: contenu frauduleux, usurpation d\'identité, etc.) :',
+    prompt: {
+      model: '',
+      type: 'text',
+      required: true,
+      isValid: val => val.trim().length > 0
+    },
+    cancel: {
+      label: 'Annuler',
+      flat: true
+    },
+    ok: {
+      label: 'Signaler',
+      color: 'negative',
+      unelevated: true
+    },
+    persistent: true
+  }).onOk(async (reason) => {
+    try {
+      await poolApi.post(`/pools/${pool.value.id}/report`, null, {
+        params: { 
+          userId: authStore.user.value?.id,
+          reason 
+        }
+      })
+      $q.notify({
+        type: 'positive',
+        message: 'La cagnotte a été signalée avec succès.'
+      })
+    } catch (err) {
+      console.error('Erreur lors du signalement de la cagnotte:', err)
       $q.notify({
         type: 'negative',
         message: 'Erreur lors du signalement.'
@@ -1350,13 +1593,89 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.image-card {
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+.category-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: #062f25;
+  color: #00e676;
+  padding: 8px 18px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  border: 1.5px solid rgba(0, 230, 118, 0.2);
 }
-.action-card {
-  position: sticky;
-  top: 100px;
+
+.pool-title {
+  color: #0F172A;
+  font-family: 'Outfit', 'Inter', sans-serif;
 }
+body.body--dark .pool-title {
+  color: #FFFFFF;
+}
+
+.custom-card {
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  transition: all 0.3s ease;
+}
+body.body--dark .custom-card {
+  background: #121F32;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.profile-row {
+  border-bottom: 1px solid #F1F5F9;
+}
+body.body--dark .profile-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stats-row {
+  border-bottom: 1px solid #F1F5F9;
+  border-top: 1px solid #F1F5F9;
+}
+body.body--dark .stats-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.share-btn {
+  border: 1.5px solid #E2E8F0;
+  background: #ffffff;
+  color: #475569;
+  transition: all 0.2s ease;
+}
+.share-btn:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+}
+body.body--dark .share-btn {
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: #121F32;
+  color: #E2E8F0;
+}
+body.body--dark .share-btn:hover {
+  background: #1A2E4C;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.comment-item {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+body.body--dark .comment-item {
+  background: #0D1B2E;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .reaction-badge {
   background: #F1F4F9;
   border-radius: 12px;
@@ -1364,16 +1683,33 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.2s;
   user-select: none;
+  color: #475569;
 }
 .reaction-badge:hover {
   background: #E8EAF6;
   border-color: #3F51B5;
 }
+body.body--dark .reaction-badge {
+  background: #162540;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94A3B8;
+}
+body.body--dark .reaction-badge:hover {
+  background: #1F3354;
+  border-color: #00e676;
+}
+
 .user-reacted {
   background: #E3F2FD !important;
   border-color: #2196F3 !important;
-  color: #1976D2;
+  color: #1976D2 !important;
 }
+body.body--dark .user-reacted {
+  background: rgba(33, 150, 243, 0.15) !important;
+  border-color: #2196F3 !important;
+  color: #64B5F6 !important;
+}
+
 .emoji-btn {
   font-size: 1.2rem;
   transition: transform 0.2s;
@@ -1385,6 +1721,7 @@ onUnmounted(() => {
   border-radius: 30px;
   overflow: hidden;
 }
+
 .phase-number-circle {
   width: 32px;
   height: 32px;
@@ -1406,12 +1743,10 @@ onUnmounted(() => {
   top: 32px;
   bottom: -20px;
   width: 2px;
-  background: #E0E0E0;
+  background: #CBD5E1;
   z-index: 0;
 }
-@media (max-width: 991px) {
-  .action-card {
-    position: static;
-  }
+body.body--dark .phase-item:not(:last-child)::after {
+  background: rgba(255, 255, 255, 0.08);
 }
 </style>

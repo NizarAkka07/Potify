@@ -121,8 +121,9 @@ public class PoolBeanConfiguration {
     public PoolRepositoryPort poolRepositoryPort(
             PoolEntityRepository poolEntityRepository,
             UserEntityRepository userEntityRepository,
-            PoolPersistenceMapper poolPersistenceMapper) {
-        return new PoolJpaAdapter(poolEntityRepository, userEntityRepository, poolPersistenceMapper);
+            PoolPersistenceMapper poolPersistenceMapper,
+            com.alphateckplus.potify.data_jpa.repository.pool.PoolReportEntityRepository poolReportEntityRepository) {
+        return new PoolJpaAdapter(poolEntityRepository, userEntityRepository, poolPersistenceMapper, poolReportEntityRepository);
     }
 
 
@@ -158,6 +159,11 @@ public class PoolBeanConfiguration {
     @Bean
     public DeletePoolService deletePoolService(PoolRepositoryPort poolRepositoryPort) {
         return new DefaultDeletePoolService(poolRepositoryPort);
+    }
+
+    @Bean
+    public com.alphateckplus.potify.pool.application_service.primary.pool.report_pool.ReportPoolService reportPoolService(PoolRepositoryPort poolRepositoryPort) {
+        return new com.alphateckplus.potify.pool.application_service.primary.pool.report_pool.DefaultReportPoolService(poolRepositoryPort);
     }
 
     @Bean

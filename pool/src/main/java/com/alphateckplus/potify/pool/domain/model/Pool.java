@@ -107,6 +107,24 @@ public class Pool {
     @Builder.Default
     private BigDecimal fees = new BigDecimal("2.00");
 
+    private java.util.List<PoolReport> reports;
+
+    public boolean isReported() {
+        return reports != null && !reports.isEmpty();
+    }
+
+    public int getReportCount() {
+        return reports != null ? reports.size() : 0;
+    }
+
+    public String getReportReason() {
+        if (reports == null || reports.isEmpty()) return null;
+        return reports.stream()
+                .map(PoolReport::getReason)
+                .filter(r -> r != null && !r.isBlank())
+                .collect(java.util.stream.Collectors.joining(" | "));
+    }
+
     // --- Logique Metier ---
 
     /**

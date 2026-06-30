@@ -77,6 +77,17 @@ public class PoolPersistenceMapper {
                     .collect(Collectors.toSet());
         }
 
+        java.util.List<com.alphateckplus.potify.pool.domain.model.PoolReport> reports = entity.getReports() != null ? entity.getReports().stream()
+                .map(rep -> com.alphateckplus.potify.pool.domain.model.PoolReport.builder()
+                        .id(rep.getId())
+                        .poolId(entity.getId())
+                        .userId(rep.getUser() != null ? rep.getUser().getId() : null)
+                        .userName(rep.getUser() != null ? rep.getUser().getFullName() : null)
+                        .reason(rep.getReason())
+                        .createdAt(rep.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList()) : new java.util.ArrayList<>();
+
         return Pool.builder()
                 .id(entity.getId())
                 .ownerId(entity.getOwner() != null ? entity.getOwner().getId() : null)
@@ -110,6 +121,7 @@ public class PoolPersistenceMapper {
                         entity.getPhases().stream().map(phasePersistenceMapper::toDomain).collect(Collectors.toList()) :
                         new java.util.ArrayList<>())
                 .fees(entity.getFees())
+                .reports(reports)
                 .build();
     }
 

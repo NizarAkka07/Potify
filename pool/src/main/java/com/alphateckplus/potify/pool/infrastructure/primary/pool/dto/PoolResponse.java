@@ -33,5 +33,9 @@ public record PoolResponse(
     java.time.LocalDateTime deadlineDate,
     Instant createdAt,
     Instant updatedAt,
-    BigDecimal fees
+    BigDecimal fees,
+    Boolean reported,
+    Integer reportCount,
+    String reportReason,
+    java.util.List<PoolReportResponse> reports
 ) {}
