@@ -59,16 +59,72 @@
           </q-list>
         </q-btn-dropdown>
 
-        <q-btn
+        <!-- User Profile Dropdown -->
+        <q-btn-dropdown
           flat
-          round
-          dense
-          icon="logout"
-          class="q-ml-md"
-          @click="onLogout"
+          no-caps
+          class="text-white q-ml-md"
+          content-style="background: var(--akkodis-navy-mid); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;"
         >
-          <q-tooltip>{{ $t('nav.logout') }}</q-tooltip>
-        </q-btn>
+          <template v-slot:label>
+            <div class="row items-center no-wrap">
+              <q-avatar size="28px" class="bg-primary text-dark text-weight-bold q-mr-sm">
+                {{ userInitials }}
+              </q-avatar>
+              <div class="column items-start gt-sm text-left">
+                <span class="text-caption text-weight-bold leading-none text-white">{{ userDisplayName }}</span>
+                <span class="text-grey-4 text-caption leading-none q-mt-xs" style="font-size: 0.65rem;">
+                  {{ authStore.user.value?.email || 'Admin' }}
+                </span>
+              </div>
+            </div>
+          </template>
+
+          <q-list style="min-width: 200px; background: var(--akkodis-navy-mid); color: white;">
+            <!-- Profile Info Header -->
+            <q-item class="q-py-md">
+              <q-item-section avatar>
+                <q-avatar size="40px" class="bg-primary text-dark text-weight-bold">
+                  {{ userInitials }}
+                </q-avatar>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-weight-bold text-white">{{ userDisplayName }}</q-item-label>
+                <q-item-label caption class="text-grey-4 text-caption">{{ authStore.user.value?.email }}</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-separator dark class="q-mx-sm q-mb-sm" />
+
+            <!-- Profile Actions -->
+            <q-item clickable v-ripple to="/profile" style="border-radius: 4px;" class="q-mx-xs q-mb-xs">
+              <q-item-section avatar style="min-width: auto; padding-right: 8px;">
+                <q-icon name="person" size="sm" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Mon Profil</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable v-ripple to="/" style="border-radius: 4px;" class="q-mx-xs q-mb-xs">
+              <q-item-section avatar style="min-width: auto; padding-right: 8px;">
+                <q-icon name="home" size="sm" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Retour à l'accueil</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable v-ripple @click="onLogout" style="border-radius: 4px;" class="q-mx-xs text-negative q-mb-xs">
+              <q-item-section avatar style="min-width: auto; padding-right: 8px;">
+                <q-icon name="logout" size="sm" color="negative" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Déconnexion</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
       </q-toolbar>
     </q-header>
 
@@ -154,6 +210,15 @@ const { locale } = useI18n()
 const router = useRouter()
 const $q = useQuasar()
 const leftDrawerOpen = ref(false)
+
+const userInitials = computed(() => {
+  const name = authStore.user.value?.fullName || authStore.user.value?.username || authStore.user.value?.email || 'A'
+  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+})
+
+const userDisplayName = computed(() => {
+  return authStore.user.value?.fullName || authStore.user.value?.username || authStore.user.value?.email || 'Utilisateur'
+})
 
 function toggleDarkMode() {
   $q.dark.toggle()
