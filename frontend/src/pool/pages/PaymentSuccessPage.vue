@@ -1,63 +1,63 @@
 <template>
-  <q-page class="flex flex-center" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); min-height: 100vh; padding: 40px 20px;">
-    <q-card class="payment-card q-pa-xl text-center text-white relative-position overflow-hidden" style="max-width: 500px; width: 100%; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); box-shadow: 0 20px 50px rgba(0,0,0,0.3);">
+  <q-page class="flex flex-center" style="background: #F8F9FA; min-height: 100vh; padding: 40px 20px;">
+    <q-card class="payment-card q-pa-xl text-center relative-position overflow-hidden" style="max-width: 500px; width: 100%; border-radius: 24px; border: 1px solid rgba(0, 0, 0, 0.06); background: white; box-shadow: 0 20px 40px rgba(6, 47, 37, 0.05);">
       
-      <!-- GLOW EFFECT -->
-      <div class="absolute-top-right" style="width: 200px; height: 200px; background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, rgba(99,102,241,0) 70%); top: -50px; right: -50px;"></div>
-      <div class="absolute-bottom-left" style="width: 200px; height: 200px; background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, rgba(16,185,129,0) 70%); bottom: -50px; left: -50px;"></div>
+      <!-- DECORATIVE GLOW EFFECT -->
+      <div class="absolute-top-right" style="width: 200px; height: 200px; background: radial-gradient(circle, rgba(0,230,118,0.1) 0%, rgba(0,230,118,0) 70%); top: -50px; right: -50px;"></div>
+      <div class="absolute-bottom-left" style="width: 200px; height: 200px; background: radial-gradient(circle, rgba(6,47,37,0.05) 0%, rgba(6,47,37,0) 70%); bottom: -50px; left: -50px;"></div>
 
       <!-- STATE 1: LOADING / PROCESSING -->
       <div v-if="state === 'loading'" class="column items-center justify-center q-gutter-y-lg q-py-lg">
         <q-spinner-oval color="primary" size="80px" thickness="3" />
         <div>
-          <h2 class="text-h5 text-weight-bold q-mt-none q-mb-xs">{{ $t('paymentSuccess.loadingTitle') }}</h2>
-          <p class="text-subtitle2 text-grey-4">{{ $t('paymentSuccess.loadingDesc') }}</p>
+          <h2 class="text-h5 text-weight-bold q-mt-none q-mb-xs text-secondary">{{ $t('paymentSuccess.loadingTitle') }}</h2>
+          <p class="text-subtitle2 text-grey-6">{{ $t('paymentSuccess.loadingDesc') }}</p>
         </div>
       </div>
 
       <!-- STATE 2: SUCCESS -->
       <div v-else-if="state === 'success'" class="column items-center justify-center q-gutter-y-md">
         <!-- Success Icon with Pulsing Effect -->
-        <div class="icon-container bg-emerald-5 flex flex-center q-mb-md">
-          <q-icon name="check" color="emerald" size="56px" class="success-check" />
+        <div class="icon-container bg-primary-light flex flex-center q-mb-md">
+          <q-icon name="check" color="positive" size="56px" class="success-check" />
         </div>
         
         <div>
-          <h2 class="text-h4 text-weight-bolder text-emerald-4 q-mt-none q-mb-sm">{{ $t('paymentSuccess.successTitle') }}</h2>
-          <p class="text-subtitle1 text-grey-3 q-px-md">
+          <h2 class="text-h4 text-weight-bolder text-secondary q-mt-none q-mb-sm">{{ $t('paymentSuccess.successTitle') }}</h2>
+          <p class="text-subtitle1 text-grey-7 q-px-md">
             {{ $t('paymentSuccess.successDesc') }}
           </p>
         </div>
 
-        <q-separator dark class="full-width q-my-md" style="background: rgba(255,255,255,0.08);" />
+        <q-separator class="full-width q-my-md" style="background: rgba(0,0,0,0.06);" />
 
         <!-- Info Grid -->
         <div class="full-width q-gutter-y-sm text-left q-px-md">
           <div class="row justify-between text-body2">
-            <span class="text-grey-4">{{ $t('paymentSuccess.paymentMethod') }} :</span>
-            <span class="text-weight-bold text-white text-uppercase">{{ method }}</span>
+            <span class="text-grey-6">{{ $t('paymentSuccess.paymentMethod') }} :</span>
+            <span class="text-weight-bold text-secondary text-uppercase">{{ method }}</span>
           </div>
           <div class="row justify-between text-body2">
-            <span class="text-grey-4">{{ $t('paymentSuccess.transactionId') }} :</span>
-            <span class="text-weight-bold text-indigo-3 text-caption font-mono line-clamp-1" style="max-width: 220px;">
+            <span class="text-grey-6">{{ $t('paymentSuccess.transactionId') }} :</span>
+            <span class="text-weight-bold text-secondary text-caption font-mono line-clamp-1" style="max-width: 220px;">
               {{ transactionId }}
             </span>
           </div>
         </div>
 
-        <q-separator dark class="full-width q-my-md" style="background: rgba(255,255,255,0.08);" />
+        <q-separator class="full-width q-my-md" style="background: rgba(0,0,0,0.06);" />
 
         <div class="full-width q-mt-lg">
           <q-btn
             :label="$t('paymentSuccess.backToPoolButton')"
-            color="emerald"
+            color="secondary"
             class="full-width q-py-md text-weight-bold return-btn"
             unelevated
             no-caps
             style="border-radius: 12px; font-size: 1.05rem;"
             @click="goBack"
           />
-          <p class="text-caption text-grey-5 q-mt-md">
+          <p class="text-caption text-grey-6 q-mt-md">
             {{ $t('paymentSuccess.redirectTimer') }} {{ countdown }} {{ $t('paymentSuccess.seconds') }}...
           </p>
         </div>
@@ -65,23 +65,23 @@
 
       <!-- STATE 3: ERROR -->
       <div v-else class="column items-center justify-center q-gutter-y-md">
-        <div class="icon-container bg-rose-5 flex flex-center q-mb-md">
-          <q-icon name="error_outline" color="rose" size="56px" />
+        <div class="icon-container bg-negative-light flex flex-center q-mb-md">
+          <q-icon name="error_outline" color="negative" size="56px" />
         </div>
 
         <div>
-          <h2 class="text-h4 text-weight-bolder text-rose-4 q-mt-none q-mb-sm">{{ $t('paymentSuccess.errorTitle') }}</h2>
-          <p class="text-subtitle1 text-grey-3 q-px-md">
+          <h2 class="text-h4 text-weight-bolder text-negative q-mt-none q-mb-sm">{{ $t('paymentSuccess.errorTitle') }}</h2>
+          <p class="text-subtitle1 text-grey-7 q-px-md">
             Nous n'avons pas pu valider votre paiement. Veuillez vérifier vos informations ou réessayer ultérieurement.
           </p>
         </div>
 
-        <q-separator dark class="full-width q-my-md" style="background: rgba(255,255,255,0.08);" />
+        <q-separator class="full-width q-my-md" style="background: rgba(0,0,0,0.06);" />
 
         <div class="full-width q-mt-lg">
           <q-btn
             :label="$t('paymentSuccess.retryButton')"
-            color="rose"
+            color="negative"
             class="full-width q-py-md text-weight-bold"
             unelevated
             no-caps
@@ -177,22 +177,14 @@ onUnmounted(() => {
   position: relative;
 }
 
-.bg-emerald-5 {
-  background: rgba(16, 185, 129, 0.15);
-  border: 2px solid rgba(16, 185, 129, 0.3);
+.bg-primary-light {
+  background: rgba(0, 230, 118, 0.12);
+  border: 2px solid rgba(0, 230, 118, 0.3);
 }
 
-.text-emerald-4 {
-  color: #34d399;
-}
-
-.bg-rose-5 {
-  background: rgba(244, 63, 94, 0.15);
+.bg-negative-light {
+  background: rgba(244, 63, 94, 0.12);
   border: 2px solid rgba(244, 63, 94, 0.3);
-}
-
-.text-rose-4 {
-  color: #fb7185;
 }
 
 .font-mono {
@@ -223,12 +215,14 @@ onUnmounted(() => {
 }
 
 .return-btn {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  background: #062f25 !important;
+  color: white !important;
   transition: transform 0.2s, filter 0.2s;
 }
 
 .return-btn:hover {
   transform: translateY(-2px);
   filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(6, 47, 37, 0.15);
 }
 </style>

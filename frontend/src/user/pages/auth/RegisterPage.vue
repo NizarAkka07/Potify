@@ -3,21 +3,17 @@
   <q-page class="flex flex-center auth-page">
     <!-- Carte d'authentification avec bords arrondis et ombre subtile -->
     <q-card class="auth-card">
-      <!-- Section d'en-tête de la carte en bleu marine Akkodis -->
-      <q-card-section class="auth-header text-center q-py-xl">
-        <div class="logo-container q-mb-md">
-          <q-icon name="person_add" size="3rem" color="primary" />
-        </div>
-        <div class="text-h5 text-weight-bold text-white font-inter">{{ $t('auth.registerTitle') }}</div>
-        <div class="text-subtitle2 text-grey-4 q-mt-xs">{{ $t('auth.registerSubtitle') }}</div>
-      </q-card-section>
-
       <!-- Section du formulaire d'inscription -->
       <q-card-section class="q-pa-xl">
+        <div class="q-mb-lg">
+          <div class="text-h5 text-weight-bolder text-secondary font-inter">{{ $t('auth.registerTitle') }}</div>
+          <div class="text-caption text-grey-6 q-mt-xs">{{ $t('auth.registerSubtitle') }}</div>
+        </div>
+
         <q-form @submit="onSubmit" class="q-gutter-y-md">
           <!-- Image de Profil (Optionnelle) -->
-          <div class="row justify-center q-mb-lg">
-            <q-avatar size="100px" class="profile-avatar shadow-2 cursor-pointer hover-avatar" style="border: 3px solid white; background: #FFB300;" @click="triggerFileInput">
+          <div class="row justify-center q-mb-md">
+            <q-avatar size="100px" class="profile-avatar shadow-2 cursor-pointer hover-avatar" style="border: 3px solid white; background: #062f25;" @click="triggerFileInput">
               <q-img v-if="registerForm.avatarUrl" :src="registerForm.avatarUrl" style="width: 100%; height: 100%; object-fit: cover;" />
               <q-icon v-else name="person" size="50px" color="white" />
               <div class="avatar-overlay text-white row items-center justify-center">
@@ -41,7 +37,7 @@
             :rules="[val => !!val || $t('auth.fullNameRequired')]"
           >
             <template v-slot:prepend>
-              <q-icon name="person" color="grey-6" />
+              <q-icon name="person" color="grey-5" />
             </template>
           </q-input>
 
@@ -56,7 +52,7 @@
             :rules="[val => !!val || $t('auth.emailRequired')]"
           >
             <template v-slot:prepend>
-              <q-icon name="email" color="grey-6" />
+              <q-icon name="email" color="grey-5" />
             </template>
           </q-input>
 
@@ -74,7 +70,7 @@
             ]"
           >
             <template v-slot:prepend>
-              <q-icon name="lock" color="grey-6" />
+              <q-icon name="lock" color="grey-5" />
             </template>
           </q-input>
 
@@ -95,7 +91,7 @@
       <!-- Section de redirection pour les utilisateurs existants -->
       <q-card-section class="text-center q-py-lg register-section">
         <span class="text-grey-7">{{ $t('auth.hasAccount') }} </span>
-        <q-btn flat no-caps dense color="primary" :label="$t('auth.signIn')" to="/login" class="text-weight-bold" />
+        <q-btn flat no-caps dense color="secondary" :label="$t('auth.signIn')" to="/login" class="text-weight-bold hover-underline" />
       </q-card-section>
     </q-card>
   </q-page>
@@ -182,32 +178,19 @@ const onSubmit = async () => {
 
 <style lang="scss" scoped>
 .auth-page {
-  background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 60%),
-              radial-gradient(circle at 10% 20%, rgba(30, 27, 75, 0.03) 0%, transparent 50%),
-              var(--akkodis-bg);
+  background: #F8F9FA;
+  background-image: radial-gradient(circle at 10% 20%, rgba(0, 230, 118, 0.04) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(6, 47, 37, 0.03) 0%, transparent 45%);
 }
 
 .auth-card {
   width: 100%;
   max-width: 440px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(30, 27, 75, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  background: var(--akkodis-white);
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(6, 47, 37, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: #FFFFFF;
   overflow: hidden;
-}
-
-.auth-header {
-  background: var(--akkodis-navy);
-  color: #FFFFFF;
-  border-bottom: 3px solid var(--akkodis-yellow);
-}
-
-.logo-container {
-  display: inline-flex;
-  padding: 12px;
-  background: rgba(139, 92, 246, 0.1);
-  border-radius: 50%;
 }
 
 .font-inter {
@@ -215,20 +198,23 @@ const onSubmit = async () => {
 }
 
 .submit-btn {
-  background: var(--akkodis-yellow);
-  color: #FFFFFF;
-  border-radius: 8px;
-  padding: 8px 24px;
-  transition: transform 0.2s ease, filter 0.2s ease;
+  background: #00e676 !important;
+  color: #062f25 !important;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 10px 28px;
+  box-shadow: 0 4px 12px rgba(0, 230, 118, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 
   &:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 230, 118, 0.3);
     filter: brightness(1.05);
   }
 }
 
 .register-section {
-  background: var(--akkodis-grey-light);
+  background: #F8F9FA;
   border-top: 1px solid rgba(0, 0, 0, 0.04);
 }
 
@@ -256,5 +242,19 @@ const onSubmit = async () => {
 }
 .hidden {
   display: none !important;
+}
+
+.hover-underline:hover {
+  text-decoration: underline;
+}
+
+:deep(.q-field--outlined .q-field__control) {
+  border-radius: 12px !important;
+}
+:deep(.q-field--outlined .q-field__control::before) {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+:deep(.q-field--focused .q-field__control::after) {
+  border-width: 2px !important;
 }
 </style>
