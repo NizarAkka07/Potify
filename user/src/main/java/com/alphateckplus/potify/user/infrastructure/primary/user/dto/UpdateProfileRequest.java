@@ -10,5 +10,6 @@ import jakarta.validation.constraints.Size;
 public record UpdateProfileRequest(
     @NotBlank(message = "Le nom complet est obligatoire")
     @Size(max = 120, message = "Le nom ne doit pas depasser 120 caracteres")
-    String fullName
+    String fullName,
+    String avatarUrl
 ) {}

@@ -56,6 +56,7 @@ public class UserJpaAdapter implements UserRepositoryPort {
                 userEntity.setStatus(com.alphateckplus.potify.data_jpa.entity.user.UserStatus.valueOf(user.getStatus().name()));
             }
             userEntity.setVerificationToken(user.getVerificationToken());
+            userEntity.setAvatarUrl(user.getAvatarUrl());
             // Do not overwrite roles to prevent wiping them out
         } else {
             userEntity = userPersistenceMapper.toEntity(user);

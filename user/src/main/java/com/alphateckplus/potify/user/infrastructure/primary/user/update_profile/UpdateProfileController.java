@@ -34,6 +34,7 @@ public class UpdateProfileController {
             User.builder()
                 .id(userId)
                 .fullName(request.fullName())
+                .avatarUrl(request.avatarUrl())
                 .build()
         );
 

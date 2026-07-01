@@ -20,8 +20,9 @@ public class DefaultUpdateProfileService implements UpdateProfileService {
         User existingUser = userRepositoryPort.findById(user.getId())
                 .orElseThrow(() -> new UserNotFoundException(user.getId()));
 
-        // 2. Mise a jour uniquement du nom complet
+        // 2. Mise a jour du nom complet et de l'avatar
         existingUser.setFullName(user.getFullName());
+        existingUser.setAvatarUrl(user.getAvatarUrl());
         
         // 3. Sauvegarde
         return userRepositoryPort.save(existingUser);

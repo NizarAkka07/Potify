@@ -26,6 +26,7 @@ public class UserPersistenceMapper {
             .failedAttempts(domain.getFailedAttempts())
             .lockTime(domain.getLockTime())
             .verificationToken(domain.getVerificationToken())
+            .avatarUrl(domain.getAvatarUrl())
             .build();
     }
 
@@ -46,6 +47,7 @@ public class UserPersistenceMapper {
             .failedAttempts(entity.getFailedAttempts())
             .lockTime(entity.getLockTime())
             .verificationToken(entity.getVerificationToken())
+            .avatarUrl(entity.getAvatarUrl())
             .build();
     }
 }
