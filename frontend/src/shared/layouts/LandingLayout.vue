@@ -104,7 +104,11 @@
             </q-btn>
 
             <!-- User Menu -->
-            <q-btn flat round dense icon="person" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#166534' }">
+            <q-btn flat round dense>
+              <q-avatar size="32px" style="background: #E8F5E9;">
+                <q-img v-if="authStore.user.value?.avatarUrl" :src="authStore.user.value.avatarUrl" style="width: 100%; height: 100%; object-fit: cover;" />
+                <span v-else class="text-green-9 text-weight-bold" style="font-size: 0.95rem;">{{ authStore.user.value?.fullName?.charAt(0).toUpperCase() || 'U' }}</span>
+              </q-avatar>
               <q-tooltip>{{ $t('nav.profile') }}</q-tooltip>
               <q-menu
                 :dark="$q.dark.isActive"
@@ -112,8 +116,9 @@
                 class="q-pa-none"
               >
                 <div class="row items-center q-pa-md" :style="{ background: $q.dark.isActive ? '#162540' : '#f5f5f5', borderBottom: $q.dark.isActive ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e0e0e0' }">
-                  <q-avatar color="green-2" text-color="green-9" class="q-mr-sm" size="40px">
-                    {{ authStore.user.value?.fullName?.charAt(0).toUpperCase() || 'U' }}
+                  <q-avatar class="q-mr-sm" size="40px" style="background: #E8F5E9;">
+                    <q-img v-if="authStore.user.value?.avatarUrl" :src="authStore.user.value.avatarUrl" style="width: 100%; height: 100%; object-fit: cover;" />
+                    <span v-else class="text-green-9 text-weight-bold">{{ authStore.user.value?.fullName?.charAt(0).toUpperCase() || 'U' }}</span>
                   </q-avatar>
                   <div class="column">
                     <span class="text-weight-bold text-subtitle2" :style="{ color: $q.dark.isActive ? '#ffffff' : '#1a1a2a' }">{{ authStore.user.value?.fullName }}</span>
@@ -214,55 +219,25 @@
     <q-page-container>
       <router-view />
 
-      <!-- FOOTER – deep violet avec top-border violet -->
-      <div style="background: var(--akkodis-navy); border-top: 3px solid var(--akkodis-yellow);">
-        <div class="q-px-xl q-py-xl" style="max-width: 1200px; margin: 0 auto;">
-          <div class="row q-col-gutter-xl">
-
-            <!-- Brand -->
-            <div class="col-12 col-md-4">
-              <div class="row items-center q-mb-md">
-                <img src="~assets/logo.png" style="height: 32px; margin-right: 10px; object-fit: contain;" alt="Potify Logo" />
-                <span style="color: #FFFFFF; font-family: 'Playfair Display', serif; font-style: italic; font-weight: 700; font-size: 1.3rem; letter-spacing: -0.5px;">Potify</span>
-              </div>
-              <p style="color: rgba(255,255,255,0.6); line-height: 1.7; font-size: 0.9rem;">
-                {{ $t('home.subtitle') }}
-              </p>
+      <!-- FOOTER – deep violet compact -->
+      <div style="background: var(--akkodis-navy); border-top: 1px solid rgba(255, 255, 255, 0.08);">
+        <div class="q-px-xl q-py-md" style="max-width: 1200px; margin: 0 auto;">
+          <div class="row items-center justify-between q-col-gutter-md">
+            <!-- Left: Logo & Copyright -->
+            <div class="row items-center q-gutter-x-md">
+              <span style="color: #FFFFFF; font-family: 'Playfair Display', serif; font-style: italic; font-weight: 700; font-size: 1.1rem; letter-spacing: -0.5px;">Potify</span>
+              <span style="color: rgba(255,255,255,0.4); font-size: 0.8rem;">
+                © 2026. {{ $t('footer.rights') }}
+              </span>
             </div>
 
-            <!-- À propos -->
-            <div class="col-12 col-md-2">
-              <div class="text-weight-bold q-mb-md" style="color: var(--akkodis-yellow); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">{{ $t('footer.about') }}</div>
-              <div class="column q-gutter-y-sm">
-                <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.9rem;">{{ $t('footer.ourMission') }}</a>
-                <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.9rem;">{{ $t('footer.contact') }}</a>
-              </div>
+            <!-- Right: Links -->
+            <div class="row items-center q-gutter-x-lg text-caption">
+              <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.85rem;">{{ $t('footer.ourMission') }}</a>
+              <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.85rem;">{{ $t('footer.contact') }}</a>
+              <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.85rem;">{{ $t('footer.terms') }}</a>
+              <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.85rem;">{{ $t('footer.privacy') }}</a>
             </div>
-
-            <!-- Légal -->
-            <div class="col-12 col-md-2">
-              <div class="text-weight-bold q-mb-md" style="color: var(--akkodis-yellow); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">{{ $t('footer.legal') }}</div>
-              <div class="column q-gutter-y-sm">
-                <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.9rem;">{{ $t('footer.terms') }}</a>
-                <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.9rem;">{{ $t('footer.privacy') }}</a>
-              </div>
-            </div>
-
-            <!-- Réseaux sociaux -->
-            <div class="col-12 col-md-4 text-right">
-              <div class="text-weight-bold q-mb-md" style="color: var(--akkodis-yellow); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">{{ $t('footer.followUs') }}</div>
-              <div class="row justify-end q-gutter-sm">
-                <q-btn round flat icon="fab fa-linkedin" style="color: rgba(255,255,255,0.7);" />
-                <q-btn round flat icon="fab fa-twitter" style="color: rgba(255,255,255,0.7);" />
-                <q-btn round flat icon="fab fa-instagram" style="color: rgba(255,255,255,0.7);" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Séparateur + copyright -->
-          <q-separator style="background: rgba(255,255,255,0.1); margin: 24px 0;" />
-          <div class="text-center" style="color: rgba(255,255,255,0.4); font-size: 0.85rem;">
-            © 2026 Potify. {{ $t('footer.rights') }}
           </div>
         </div>
       </div>

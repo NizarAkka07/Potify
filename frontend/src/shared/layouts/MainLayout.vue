@@ -68,8 +68,9 @@
             class="q-pa-none"
           >
             <div class="row items-center q-pa-md" :style="{ background: $q.dark.isActive ? '#162540' : '#f5f5f5', borderBottom: $q.dark.isActive ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e0e0e0' }">
-              <q-avatar color="amber-7" text-color="dark" class="q-mr-sm" size="40px">
-                {{ authStore.user.value?.fullName?.charAt(0).toUpperCase() || 'U' }}
+              <q-avatar class="q-mr-sm" size="40px" style="background: #FFF9C4;">
+                <q-img v-if="authStore.user.value?.avatarUrl" :src="authStore.user.value.avatarUrl" style="width: 100%; height: 100%; object-fit: cover;" />
+                <span v-else class="text-amber-9 text-weight-bold">{{ authStore.user.value?.fullName?.charAt(0).toUpperCase() || 'U' }}</span>
               </q-avatar>
               <div class="column">
                 <span class="text-weight-bold text-subtitle2" :style="{ color: $q.dark.isActive ? '#ffffff' : '#1a1a2a' }">{{ authStore.user.value?.fullName }}</span>

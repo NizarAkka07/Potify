@@ -4,8 +4,9 @@
 
       <!-- Header Dashboard -->
       <div class="row items-center q-mb-xl">
-        <q-avatar size="80px" class="q-mr-lg shadow-2">
-          <img src="https://cdn.quasar.dev/img/avatar.png">
+        <q-avatar size="80px" class="q-mr-lg shadow-2" style="background: #FFB300;">
+          <img v-if="userAvatarUrl" :src="userAvatarUrl" style="width: 100%; height: 100%; object-fit: cover;">
+          <q-icon v-else name="person" size="40px" color="white" />
         </q-avatar>
         <div>
           <h1 class="text-h4 text-weight-bold q-my-none" style="color: #0D1B2E;">{{ $t('dashboard.mySpace') }}</h1>
@@ -367,7 +368,8 @@ import VueApexCharts from 'vue3-apexcharts'
 import { jsPDF } from 'jspdf'
 
 const tab = ref('pools')
-const userName = computed(() => authStore.user.value?.firstName || 'Utilisateur')
+const userName = computed(() => authStore.user.value?.fullName || authStore.user.value?.firstName || 'Utilisateur')
+const userAvatarUrl = computed(() => authStore.user.value?.avatarUrl)
 const userId = computed(() => authStore.user.value?.id)
 const userEmail = computed(() => authStore.user.value?.email || '')
 
