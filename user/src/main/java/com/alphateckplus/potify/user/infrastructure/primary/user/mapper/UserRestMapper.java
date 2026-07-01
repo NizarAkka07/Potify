@@ -20,7 +20,8 @@ public class UserRestMapper {
             user.getEmail(),
             user.getStatus(),
             user.getCreatedAt(),
-            user.getUpdatedAt()
+            user.getUpdatedAt(),
+            user.getAvatarUrl()
         );
     }
 }

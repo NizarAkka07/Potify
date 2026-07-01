@@ -35,6 +35,7 @@ public class AuthController {
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .password(request.getPassword())
+                .avatarUrl(request.getAvatarUrl())
                 .build();
         createUserService.execute(user);
         return ResponseEntity.ok().build();

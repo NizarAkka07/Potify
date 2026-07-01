@@ -47,6 +47,7 @@ public class User {
     private int failedAttempts;
     private LocalDateTime lockTime;
     private String verificationToken;
+    private String avatarUrl;
 
     /**
      * Logique metier: Verifie si le verrouillage a expire.

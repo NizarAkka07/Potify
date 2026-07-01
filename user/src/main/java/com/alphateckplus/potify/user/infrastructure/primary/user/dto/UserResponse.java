@@ -12,6 +12,7 @@ public record UserResponse(
     String email,
     UserStatus status,
     Instant createdAt,
-    Instant updatedAt
+    Instant updatedAt,
+    String avatarUrl
 ) {
 }

@@ -89,4 +89,7 @@ public class UserEntity extends BaseEntity {
 
     @Column(name = "verification_token", length = 100)
     private String verificationToken;
+
+    @Column(name = "avatar_url", length = 255)
+    private String avatarUrl;
 }
