@@ -103,8 +103,67 @@
               </q-menu>
             </q-btn>
 
-            <q-btn flat round dense icon="logout" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#166534' }" @click="onLogout">
-              <q-tooltip>{{ $t('nav.logout') }}</q-tooltip>
+            <!-- User Menu -->
+            <q-btn flat round dense icon="person" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#166534' }">
+              <q-tooltip>{{ $t('nav.profile') }}</q-tooltip>
+              <q-menu
+                :dark="$q.dark.isActive"
+                style="min-width: 250px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);"
+                class="q-pa-none"
+              >
+                <div class="row items-center q-pa-md" :style="{ background: $q.dark.isActive ? '#162540' : '#f5f5f5', borderBottom: $q.dark.isActive ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e0e0e0' }">
+                  <q-avatar color="green-2" text-color="green-9" class="q-mr-sm" size="40px">
+                    {{ authStore.user.value?.fullName?.charAt(0).toUpperCase() || 'U' }}
+                  </q-avatar>
+                  <div class="column">
+                    <span class="text-weight-bold text-subtitle2" :style="{ color: $q.dark.isActive ? '#ffffff' : '#1a1a2a' }">{{ authStore.user.value?.fullName }}</span>
+                    <span class="text-caption text-grey-6">{{ authStore.user.value?.email }}</span>
+                  </div>
+                </div>
+
+                <q-list class="q-py-xs">
+                  <q-item clickable v-close-popup to="/profile" class="q-py-md">
+                    <q-item-section avatar>
+                      <q-icon name="person" color="green" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-weight-bold">{{ $t('nav.profile') }}</q-item-label>
+                      <q-item-label caption>{{ $t('profile.accountSettings') }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+
+                  <q-item clickable v-close-popup to="/dashboard" class="q-py-md">
+                    <q-item-section avatar>
+                      <q-icon name="dashboard" color="blue" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-weight-bold">{{ $t('nav.mySpace') }}</q-item-label>
+                      <q-item-label caption>Gérer mes cagnottes & dons</q-item-label>
+                    </q-item-section>
+                  </q-item>
+
+                  <q-item v-if="authStore.hasAdminAccess.value" clickable v-close-popup to="/admin" class="q-py-md">
+                    <q-item-section avatar>
+                      <q-icon name="admin_panel_settings" color="amber" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-weight-bold">{{ $t('nav.admin') }}</q-item-label>
+                      <q-item-label caption>Administration du site</q-item-label>
+                    </q-item-section>
+                  </q-item>
+
+                  <q-separator class="q-my-xs" />
+
+                  <q-item clickable v-close-popup @click="onLogout" class="q-py-md text-red">
+                    <q-item-section avatar>
+                      <q-icon name="logout" color="negative" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-weight-bold text-negative">{{ $t('nav.logout') }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
             </q-btn>
           </template>
 
