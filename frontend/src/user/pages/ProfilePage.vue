@@ -1,27 +1,43 @@
 <template>
   <q-page class="profile-page" style="background: #F8F9FA; padding: 40px 20px;">
-    <div class="container q-mx-auto" style="max-width: 800px;">
-      <!-- En-tête de profil Premium -->
-      <q-card class="profile-header-card q-mb-lg no-shadow" style="border-radius: 20px; overflow: hidden; border: 1px solid #EEE; background: white;">
-        <div class="header-banner" style="height: 120px; background: #0D1B2E;"></div>
-        <q-card-section class="text-center" style="margin-top: -60px;">
-          <q-avatar size="120px" class="profile-avatar shadow-5" style="border: 4px solid white; background: #FFB300;">
-            <q-icon name="person" size="60px" color="white" />
-          </q-avatar>
-          <div class="text-h4 text-weight-bold q-mt-md" style="color: #0D1B2E;">{{ user.fullName }}</div>
-          <div class="text-subtitle1 text-grey-7">{{ user.email }}</div>
-          <div class="q-mt-sm">
-            <q-chip outline color="secondary" text-color="secondary" dense class="text-weight-bold">
+    <div class="container q-mx-auto" style="max-width: 1100px;">
+      <div class="row q-col-gutter-lg items-stretch">
+        <!-- Colonne gauche: Photo de profil (Avatar) -->
+        <div class="col-12 col-md-4 flex">
+          <q-card class="profile-left-card text-center no-shadow q-py-xl q-px-md full-width" style="border-radius: 20px; border: 1px solid #EEE; background: white;">
+            <div class="row justify-center q-mb-lg">
+              <q-avatar size="140px" class="profile-avatar shadow-5 cursor-pointer hover-avatar" style="border: 4px solid white; background: #FFB300;" @click="triggerFileInput">
+                <q-img v-if="form.avatarUrl" :src="form.avatarUrl" style="width: 100%; height: 100%; object-fit: cover;" />
+                <q-icon v-else name="person" size="70px" color="white" />
+                <div class="avatar-overlay text-white row items-center justify-center">
+                  <q-spinner-oval v-if="uploading" size="30px" color="white" />
+                  <q-icon v-else name="photo_camera" size="30px" />
+                </div>
+              </q-avatar>
+              <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="onFileSelected" />
+            </div>
+            <div class="text-h5 text-weight-bold q-mt-md" style="color: #0D1B2E;">{{ user.fullName }}</div>
+            <div class="text-subtitle1 text-grey-7 q-mb-md" style="word-break: break-all;">{{ user.email }}</div>
+            <q-chip outline color="secondary" text-color="secondary" dense class="text-weight-bold q-px-sm q-mb-md">
               {{ $t('profile.memberSince') }} {{ formatDate(user.createdAt) }}
             </q-chip>
-          </div>
-        </q-card-section>
-      </q-card>
 
-      <div class="row q-col-gutter-lg">
-        <!-- Paramètres du profil -->
-        <div class="col-12 col-md-8">
-          <q-card class="form-card no-shadow" style="border-radius: 20px; border: 1px solid #EEE; background: white;">
+            <q-separator class="q-my-md" style="background: rgba(0,0,0,0.05);" />
+
+            <!-- Section contributions en bas de la même carte -->
+            <div class="column items-center q-mt-lg">
+              <q-avatar color="green-1" text-color="green" size="48px" class="q-mb-xs">
+                <q-icon name="account_balance_wallet" size="24px" />
+              </q-avatar>
+              <div class="text-subtitle2 text-grey-7">{{ $t('profile.totalContributions') }}</div>
+              <div class="text-h5 text-weight-bold text-primary">0.00 €</div>
+            </div>
+          </q-card>
+        </div>
+
+        <!-- Colonne droite: Paramètres modifiables (Nom complet, email, etc.) -->
+        <div class="col-12 col-md-8 flex">
+          <q-card class="form-card no-shadow full-width" style="border-radius: 20px; border: 1px solid #EEE; background: white;">
             <q-card-section class="q-pa-xl">
               <div class="text-h5 text-weight-bold q-mb-xl" style="color: #0D1B2E;">
                 <q-icon name="settings" color="primary" class="q-mr-sm" />
@@ -56,7 +72,16 @@
                   </template>
                 </q-input>
 
-                <div class="row justify-end q-mt-xl">
+                <div class="row justify-between items-center q-mt-xl">
+                  <q-btn
+                    flat
+                    color="primary"
+                    icon="lock_reset"
+                    :label="$t('profile.changePassword')"
+                    no-caps
+                    @click="showPasswordDialog = true"
+                  />
+                  
                   <q-btn
                     :label="$t('profile.saveChanges')"
                     type="submit"
@@ -68,43 +93,6 @@
                   />
                 </div>
               </q-form>
-            </q-card-section>
-          </q-card>
-        </div>
-
-        <!-- Informations supplémentaires / Stats -->
-        <div class="col-12 col-md-4">
-          <q-card class="info-card no-shadow q-mb-md" style="border-radius: 20px; border: 1px solid #EEE; background: white;">
-            <q-card-section class="q-pa-lg text-center">
-              <q-icon name="account_balance_wallet" size="48px" color="primary" class="q-mb-sm" />
-              <div class="text-subtitle2 text-grey-7">{{ $t('profile.totalContributions') }}</div>
-              <div class="text-h5 text-weight-bold" style="color: #0D1B2E;">0.00 €</div>
-            </q-card-section>
-          </q-card>
-
-          <q-card class="info-card no-shadow" style="border-radius: 20px; border: 1px solid #EEE; background: white;">
-            <q-card-section class="q-pa-lg">
-              <div class="text-subtitle2 text-weight-bold q-mb-md">{{ $t('profile.securityHeader') }}</div>
-              <q-btn
-                flat
-                color="primary"
-                icon="lock_reset"
-                :label="$t('profile.changePassword')"
-                class="full-width"
-                no-caps
-                align="left"
-                @click="showPasswordDialog = true"
-              />
-              <q-btn
-                flat
-                color="negative"
-                icon="logout"
-                :label="$t('profile.logout')"
-                class="full-width q-mt-sm"
-                no-caps
-                align="left"
-                @click="logout"
-              />
             </q-card-section>
           </q-card>
         </div>
@@ -171,19 +159,20 @@ const { t } = useI18n()
 import { ref, onMounted, reactive } from 'vue'
 import { useQuasar } from 'quasar'
 import { getUserById, updateProfile, changePassword } from 'src/shared/services/api'
+import { poolService } from 'src/shared/services/poolService'
 import authStore from 'src/shared/stores/auth'
-import { useRouter } from 'vue-router'
-
 const $q = useQuasar()
-const router = useRouter()
 const loading = ref(false)
 const loadingPassword = ref(false)
 const showPasswordDialog = ref(false)
 const user = ref({})
+const fileInput = ref(null)
+const uploading = ref(false)
 
 const form = reactive({
   fullName: '',
-  email: ''
+  email: '',
+  avatarUrl: ''
 })
 
 const passwordForm = reactive({
@@ -191,6 +180,36 @@ const passwordForm = reactive({
   newPassword: '',
   confirmPassword: ''
 })
+
+const triggerFileInput = () => {
+  fileInput.value.click()
+}
+
+const onFileSelected = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  uploading.value = true
+  try {
+    const response = await poolService.uploadImage(file)
+    form.avatarUrl = response.data.url
+    $q.notify({
+      type: 'positive',
+      message: 'Image importée avec succès ! N\'oubliez pas de sauvegarder.',
+      position: 'top',
+      timeout: 2000
+    })
+  } catch (error) {
+    console.error('Erreur upload avatar:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Erreur lors de l\'upload de l\'image.',
+      position: 'top'
+    })
+  } finally {
+    uploading.value = false
+  }
+}
 
 const fetchUserData = async () => {
   try {
@@ -201,6 +220,7 @@ const fetchUserData = async () => {
     user.value = response.data
     form.fullName = user.value.fullName
     form.email = user.value.email
+    form.avatarUrl = user.value.avatarUrl || ''
   } catch (error) {
     console.error('Erreur chargement profil:', error)
   }
@@ -210,14 +230,19 @@ const handleUpdateProfile = async () => {
   loading.value = true
   try {
     const userId = authStore.user.value?.id
-    const response = await updateProfile(userId, { fullName: form.fullName })
+    const response = await updateProfile(userId, { 
+      fullName: form.fullName,
+      avatarUrl: form.avatarUrl
+    })
     user.value = response.data
     
-    // Mise à jour du nom complet dans le store auth
-    if (response.data.fullName !== authStore.user.value?.fullName) {
-      const updatedUser = { ...authStore.user.value, fullName: response.data.fullName }
-      authStore.setUser(updatedUser)
+    // Mise à jour du nom complet et de l'avatar dans le store auth
+    const updatedUser = { 
+      ...authStore.user.value, 
+      fullName: response.data.fullName,
+      avatarUrl: response.data.avatarUrl
     }
+    authStore.setUser(updatedUser)
 
     $q.notify({
       type: 'positive',
@@ -266,11 +291,6 @@ const handleChangePassword = async () => {
   }
 }
 
-const logout = () => {
-  authStore.logout()
-  router.push('/login')
-}
-
 const formatDate = (dateStr) => {
   if (!dateStr) return '-'
   return new Date(dateStr).toLocaleDateString('fr-FR', {
@@ -296,5 +316,30 @@ onMounted(() => {
 }
 .form-card:hover, .info-card:hover {
   box-shadow: 0 10px 30px rgba(0,0,0,0.05) !important;
+}
+.profile-avatar {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.profile-avatar:hover .avatar-overlay {
+  opacity: 1;
+}
+.avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hidden {
+  display: none !important;
 }
 </style>
