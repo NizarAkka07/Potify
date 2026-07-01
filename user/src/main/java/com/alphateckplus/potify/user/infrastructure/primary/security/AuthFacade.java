@@ -77,6 +77,9 @@ public class AuthFacade {
                 .id(user.getId())
                 .email(user.getEmail())
                 .roles(roles)
+                .fullName(user.getFullName())
+                .avatarUrl(user.getAvatarUrl())
                 .build();
+
     }
 }

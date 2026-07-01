@@ -99,7 +99,9 @@ const onSubmit = async () => {
     authStore.setUser({ 
       id: response.data.id,
       email: response.data.email, 
-      roles: response.data.roles 
+      roles: response.data.roles,
+      fullName: response.data.fullName,
+      avatarUrl: response.data.avatarUrl
     })
 
     $q.notify({

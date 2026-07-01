@@ -20,4 +20,7 @@ public class AuthResponse {
     private String id;
     private String email;
     private List<String> roles;
+    private String fullName;
+    private String avatarUrl;
 }
+

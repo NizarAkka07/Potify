@@ -15,6 +15,22 @@
       <!-- Section du formulaire d'inscription -->
       <q-card-section class="q-pa-xl">
         <q-form @submit="onSubmit" class="q-gutter-y-md">
+          <!-- Image de Profil (Optionnelle) -->
+          <div class="row justify-center q-mb-lg">
+            <q-avatar size="100px" class="profile-avatar shadow-2 cursor-pointer hover-avatar" style="border: 3px solid white; background: #FFB300;" @click="triggerFileInput">
+              <q-img v-if="registerForm.avatarUrl" :src="registerForm.avatarUrl" style="width: 100%; height: 100%; object-fit: cover;" />
+              <q-icon v-else name="person" size="50px" color="white" />
+              <div class="avatar-overlay text-white row items-center justify-center">
+                <q-spinner-oval v-if="uploading" size="24px" color="white" />
+                <q-icon v-else name="photo_camera" size="24px" />
+              </div>
+            </q-avatar>
+            <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="onFileSelected" />
+          </div>
+          <div class="text-caption text-center text-grey-6 q-mt-xs q-mb-md" style="margin-top: -10px;">
+            Photo de profil (optionnelle)
+          </div>
+
           <!-- Nom complet (Outlined) -->
           <q-input
             v-model="registerForm.fullName"
@@ -92,16 +108,50 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { api } from 'src/boot/axios'
+import { poolService } from 'src/shared/services/poolService'
 
 const $q = useQuasar()
 const router = useRouter()
 const loading = ref(false)
+const fileInput = ref(null)
+const uploading = ref(false)
 
 const registerForm = ref({
   fullName: '',
   email: '',
-  password: ''
+  password: '',
+  avatarUrl: ''
 })
+
+const triggerFileInput = () => {
+  fileInput.value.click()
+}
+
+const onFileSelected = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  uploading.value = true
+  try {
+    const response = await poolService.uploadImage(file)
+    registerForm.value.avatarUrl = response.data.url
+    $q.notify({
+      type: 'positive',
+      message: 'Photo importée avec succès !',
+      position: 'top',
+      timeout: 2000
+    })
+  } catch (error) {
+    console.error('Erreur upload avatar:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Erreur lors de l\'upload de l\'image.',
+      position: 'top'
+    })
+  } finally {
+    uploading.value = false
+  }
+}
 
 const onSubmit = async () => {
   loading.value = true
@@ -180,5 +230,31 @@ const onSubmit = async () => {
 .register-section {
   background: var(--akkodis-grey-light);
   border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.profile-avatar {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.profile-avatar:hover .avatar-overlay {
+  opacity: 1;
+}
+.avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hidden {
+  display: none !important;
 }
 </style>
