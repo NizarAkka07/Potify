@@ -24,8 +24,8 @@ public class DefaultInitiatePayPalPaymentService implements InitiatePayPalPaymen
         log.info("Initiating PayPal payment flow for pool: {}", request.getPoolId());
 
         Contribution contribution = Contribution.builder()
-                .poolId(request.getPoolId() != null ? request.getPoolId().toString() : null)
-                .userId(request.getUserId() != null ? request.getUserId().toString() : null)
+                .poolId(request.getPoolId())
+                .userId(request.getUserId())
                 .amount(request.getAmount())
                 .contributorEmail(request.getContributorEmail())
                 .contributorName(request.isAnonymous() ? "Donateur anonyme" : request.getContributorName())
