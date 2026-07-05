@@ -2,32 +2,31 @@
   <q-page class="admin-dashboard-page q-pa-xl font-inter">
     
     <!-- Tabler Header Title -->
-    <div class="row items-center justify-between q-mb-lg">
+    <div class="row items-center justify-between q-mb-xl">
       <div>
         <div class="text-overline text-grey-5 font-inter text-weight-bold" style="letter-spacing: 0.8px; line-height: 1.2;">
           Aperçu analytique
         </div>
-        <h1 class="dashboard-title q-my-none text-weight-bold text-dark font-inter" style="font-size: 1.8rem; letter-spacing: -0.5px;">
+        <h1 class="dashboard-title q-my-none text-weight-bold font-inter" style="font-size: 1.8rem; letter-spacing: -0.5px;">
           Tableau de bord
         </h1>
       </div>
       <div class="row items-center q-gutter-md">
         <q-btn
-          outline
+          flat
           no-caps
-          color="primary"
           icon="open_in_new"
           label="Visiter le site"
           to="/"
-          class="action-btn text-weight-bold bg-white text-primary"
+          class="visit-site-btn"
         />
-        <div class="role-badge">
-          <q-avatar size="24px" class="bg-blue-1 text-primary q-mr-sm">
-            <q-icon name="admin_panel_settings" size="16px" />
-          </q-avatar>
+        <div class="role-badge-container">
+          <div class="role-badge-icon">
+            <q-icon name="admin_panel_settings" size="18px" />
+          </div>
           <div class="column">
-            <span class="text-caption text-grey-5 leading-none" style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px;">RÔLE ACTUEL</span>
-            <span class="text-weight-bold text-dark font-inter leading-none q-mt-xs" style="font-size: 0.75rem;">{{ userRoleName }}</span>
+            <span class="role-badge-title">RÔLE ACTUEL</span>
+            <span class="role-badge-name">{{ userRoleName }}</span>
           </div>
         </div>
       </div>
@@ -40,101 +39,114 @@
 
     <div v-else class="q-gutter-y-lg">
       
-      <!-- 1. Six KPI Cards Row -->
-      <div class="row q-col-gutter-md">
+      <!-- 1. Five KPI Cards Grid -->
+      <div class="kpi-grid q-mb-xl">
         <!-- Metric 1: Nouveaux utilisateurs -->
-        <div class="col-6 col-sm-4 col-md-2">
-          <q-card class="tabler-kpi-card no-shadow">
-            <q-card-section class="q-pa-md">
-              <div class="row justify-between items-center q-mb-xs">
-                <span class="trend-indicator text-success text-weight-bold">
-                  {{ stats.totalUsers > 0 ? 'Actif' : '0%' }}
-                </span>
+        <q-card class="kpi-card no-shadow">
+          <q-card-section class="q-pa-lg">
+            <div class="row justify-between items-start">
+              <div>
+                <div class="kpi-label font-inter">Inscrits</div>
+                <div class="kpi-value q-mt-sm">{{ stats.totalUsers }}</div>
               </div>
-              <div class="kpi-value text-dark q-mb-xs">{{ stats.totalUsers }}</div>
-              <div class="text-caption text-grey-5 font-inter">Inscrits</div>
-            </q-card-section>
-          </q-card>
-        </div>
+              <div class="kpi-icon-wrapper bg-green-glow">
+                <q-icon name="group" size="24px" color="positive" />
+              </div>
+            </div>
+            <div class="kpi-footer q-mt-md">
+              <q-icon name="trending_up" size="16px" color="positive" class="q-mr-xs" />
+              <span class="text-weight-medium text-positive">Actif</span>
+            </div>
+          </q-card-section>
+        </q-card>
 
         <!-- Metric 2: Cagnottes créées -->
-        <div class="col-6 col-sm-4 col-md-2">
-          <q-card class="tabler-kpi-card no-shadow">
-            <q-card-section class="q-pa-md">
-              <div class="row justify-between items-center q-mb-xs">
-                <span class="trend-indicator text-grey-5 text-weight-bold">Total</span>
+        <q-card class="kpi-card no-shadow">
+          <q-card-section class="q-pa-lg">
+            <div class="row justify-between items-start">
+              <div>
+                <div class="kpi-label font-inter">Cagnottes</div>
+                <div class="kpi-value q-mt-sm">{{ stats.totalPools }}</div>
               </div>
-              <div class="kpi-value text-dark q-mb-xs">{{ stats.totalPools }}</div>
-              <div class="text-caption text-grey-5 font-inter">Cagnottes</div>
-            </q-card-section>
-          </q-card>
-        </div>
+              <div class="kpi-icon-wrapper bg-primary-glow">
+                <q-icon name="folder" size="24px" color="primary" />
+              </div>
+            </div>
+            <div class="kpi-footer q-mt-md">
+              <span class="text-weight-medium text-grey-6">Total créées</span>
+            </div>
+          </q-card-section>
+        </q-card>
 
-        <!-- Metric 3: Cagnottes Actives -->
-        <div class="col-6 col-sm-4 col-md-2">
-          <q-card class="tabler-kpi-card no-shadow">
-            <q-card-section class="q-pa-md">
-              <div class="row justify-between items-center q-mb-xs">
-                <span class="trend-indicator text-success text-weight-bold">En cours</span>
+        <!-- Metric 3: Cagnottes Terminées -->
+        <q-card class="kpi-card no-shadow">
+          <q-card-section class="q-pa-lg">
+            <div class="row justify-between items-start">
+              <div>
+                <div class="kpi-label font-inter">Terminées</div>
+                <div class="kpi-value q-mt-sm">{{ stats.completedPools }}</div>
               </div>
-              <div class="kpi-value text-dark q-mb-xs">{{ stats.activePools }}</div>
-              <div class="text-caption text-grey-5 font-inter">Actives</div>
-            </q-card-section>
-          </q-card>
-        </div>
+              <div class="kpi-icon-wrapper bg-success-glow">
+                <q-icon name="check_circle" size="24px" color="positive" />
+              </div>
+            </div>
+            <div class="kpi-footer q-mt-md">
+              <q-icon name="done_all" size="16px" color="positive" class="q-mr-xs" />
+              <span class="text-weight-medium text-positive">Finies</span>
+            </div>
+          </q-card-section>
+        </q-card>
 
-        <!-- Metric 4: Cagnottes Terminées -->
-        <div class="col-6 col-sm-4 col-md-2">
-          <q-card class="tabler-kpi-card no-shadow">
-            <q-card-section class="q-pa-md">
-              <div class="row justify-between items-center q-mb-xs">
-                <span class="trend-indicator text-success text-weight-bold">Finies</span>
+        <!-- Metric 4: Fonds collectés -->
+        <q-card class="kpi-card no-shadow">
+          <q-card-section class="q-pa-lg">
+            <div class="row justify-between items-start">
+              <div>
+                <div class="kpi-label font-inter">Collectés</div>
+                <div class="kpi-value q-mt-sm">{{ stats.totalFunds }} €</div>
               </div>
-              <div class="kpi-value text-dark q-mb-xs">{{ stats.completedPools }}</div>
-              <div class="text-caption text-grey-5 font-inter">Terminées</div>
-            </q-card-section>
-          </q-card>
-        </div>
+              <div class="kpi-icon-wrapper bg-info-glow">
+                <q-icon name="payments" size="24px" color="info" />
+              </div>
+            </div>
+            <div class="kpi-footer q-mt-md">
+              <q-icon name="arrow_upward" size="16px" color="info" class="q-mr-xs" />
+              <span class="text-weight-medium text-info">Cumulé</span>
+            </div>
+          </q-card-section>
+        </q-card>
 
-        <!-- Metric 5: Fonds collectés -->
-        <div class="col-6 col-sm-4 col-md-2">
-          <q-card class="tabler-kpi-card no-shadow">
-            <q-card-section class="q-pa-md">
-              <div class="row justify-between items-center q-mb-xs">
-                <span class="trend-indicator text-success text-weight-bold">Cumulé</span>
+        <!-- Metric 5: Taux de réussite -->
+        <q-card class="kpi-card no-shadow">
+          <q-card-section class="q-pa-lg">
+            <div class="row justify-between items-start">
+              <div>
+                <div class="kpi-label font-inter">Réussite</div>
+                <div class="kpi-value q-mt-sm">{{ stats.successRate }}%</div>
               </div>
-              <div class="kpi-value text-dark q-mb-xs">{{ stats.totalFunds }} €</div>
-              <div class="text-caption text-grey-5 font-inter">Collectés</div>
-            </q-card-section>
-          </q-card>
-        </div>
-
-        <!-- Metric 6: Taux de réussite -->
-        <div class="col-6 col-sm-4 col-md-2">
-          <q-card class="tabler-kpi-card no-shadow">
-            <q-card-section class="q-pa-md">
-              <div class="row justify-between items-center q-mb-xs">
-                <span class="trend-indicator text-primary text-weight-bold">Ratio</span>
+              <div class="kpi-icon-wrapper bg-warning-glow">
+                <q-icon name="insights" size="24px" color="warning" />
               </div>
-              <div class="kpi-value text-dark q-mb-xs">{{ stats.successRate }}%</div>
-              <div class="text-caption text-grey-5 font-inter">Réussite</div>
-            </q-card-section>
-          </q-card>
-        </div>
+            </div>
+            <div class="kpi-footer q-mt-md">
+              <q-icon name="star" size="16px" color="warning" class="q-mr-xs" />
+              <span class="text-weight-medium text-warning">Ratio</span>
+            </div>
+          </q-card-section>
+        </q-card>
       </div>
 
       <!-- 2. Chart and Side Column Grid -->
-      <div class="row q-col-gutter-lg">
+      <div class="row q-col-gutter-xl q-mb-xl">
         
         <!-- LEFT PANEL: Development line chart + table below it -->
         <div class="col-12 col-md-8">
-          <q-card class="tabler-card no-shadow">
-            <q-card-section class="card-header q-py-md q-px-lg">
-              <div class="text-subtitle1 text-weight-bold text-dark font-inter">
+          <q-card class="premium-card no-shadow">
+            <div class="card-header-premium">
+              <div class="card-header-title">
                 Activité de développement (Fonds cumulés)
               </div>
-            </q-card-section>
-            <q-separator class="separator-light" />
+            </div>
             
             <q-card-section class="q-pa-lg">
               <VueApexCharts
@@ -144,34 +156,31 @@
                 :series="chartSeries"
               />
             </q-card-section>
-            
-            <q-separator class="separator-light" />
 
-            <!-- Table of recent activities embedded in card (just like the template commits table) -->
-            <div class="tabler-table-header row items-center text-overline text-grey-5 font-inter text-weight-bold q-px-lg q-py-sm">
+            <!-- Table of recent activities -->
+            <div class="recent-act-header row items-center q-px-lg q-py-sm">
               <div class="col-4">Utilisateur</div>
               <div class="col-5">Action</div>
               <div class="col-2 text-right">Date</div>
               <div class="col-1 text-center"></div>
             </div>
-            <q-separator class="separator-light" />
             
-            <div v-for="act in recentActivities" :key="act.id" class="row items-center q-px-lg q-py-md list-row-hover border-bottom-light">
+            <div v-for="act in recentActivities" :key="act.id" class="row items-center q-px-lg q-py-md recent-act-row">
               <div class="col-4 row items-center q-gutter-x-sm">
-                <q-avatar size="28px" class="bg-grey-2 border-gray">
+                <q-avatar size="32px" class="avatar-border">
                   <q-img v-if="act.avatar" :src="act.avatar" />
                   <q-icon v-else name="person" color="grey-5" />
                 </q-avatar>
-                <span class="text-weight-bold text-dark font-inter">{{ act.userName }}</span>
+                <span class="recent-act-username">{{ act.userName }}</span>
               </div>
-              <div class="col-5 text-dark font-inter text-body2 text-truncate">
+              <div class="col-5 recent-act-desc text-truncate">
                 {{ act.description }}
               </div>
-              <div class="col-2 text-right text-grey-5 font-inter text-caption">
+              <div class="col-2 text-right recent-act-date">
                 {{ act.date }}
               </div>
               <div class="col-1 text-center">
-                <q-btn flat round color="grey-3" text-color="grey-5" icon="delete" size="sm" @click="deletePool(act.id)" />
+                <q-btn flat round class="delete-act-btn" icon="delete" size="sm" @click="deletePool(act.id)" />
               </div>
             </div>
 
@@ -183,23 +192,26 @@
 
         <!-- RIGHT PANEL: Alert + Charts + Three vertical comment indicators -->
         <div class="col-12 col-md-4">
-          <div class="q-gutter-y-lg">
-            <!-- Blue Info Banner -->
-            <div class="tabler-alert-banner q-pa-md">
-              <span class="text-body2 text-blue-9 font-inter">
-                Vous rencontrez des difficultés ? Consultez notre <strong>documentation</strong> contenant des exemples de code.
-              </span>
+          <div class="column q-gutter-y-lg">
+            <!-- Info Banner -->
+            <div class="premium-alert-banner q-pa-lg row no-wrap items-center">
+              <q-icon name="help_outline" size="28px" class="q-mr-md banner-icon" />
+              <div>
+                <div class="banner-title text-weight-bold">Besoin d'aide ?</div>
+                <div class="banner-text">
+                  Consultez notre <a href="#" class="banner-link">documentation</a> contenant des exemples de code et guides d'intégration.
+                </div>
+              </div>
             </div>
 
             <!-- Single Donut Chart Card -->
-            <q-card class="tabler-card no-shadow">
-              <q-card-section class="card-header q-py-md q-px-lg">
-                <div class="text-subtitle2 text-weight-bold text-dark font-inter">
+            <q-card class="premium-card no-shadow">
+              <div class="card-header-premium">
+                <div class="card-header-title">
                   Répartition des Cagnottes par Catégorie
                 </div>
-              </q-card-section>
-              <q-separator class="separator-light" />
-              <q-card-section class="q-pa-md">
+              </div>
+              <q-card-section class="q-pa-lg">
                 <div v-if="recentPools.length > 0" class="flex flex-center">
                   <VueApexCharts
                     type="donut"
@@ -215,39 +227,51 @@
             </q-card>
 
             <!-- Three vertical KPI widgets with lines -->
-            <div class="row q-col-gutter-md">
+            <div class="column q-gutter-y-md">
               <!-- Widget 1 -->
-              <div class="col-12 col-sm-4 col-md-12">
-                <q-card class="tabler-kpi-card no-shadow relative-position overflow-hidden q-pa-md">
-                  <div class="text-caption text-grey-5 font-inter text-uppercase text-weight-bold text-center">Nouveaux retraits</div>
-                  <div class="kpi-value text-dark q-my-xs text-center">{{ pendingWithdrawals.length }}</div>
-                  <div class="q-mt-sm" style="height: 4px; background: #f1f3f9; border-radius: 2px;">
-                    <div style="height: 100%; width: 45%; background: #467fcf; border-radius: 2px;"></div>
-                  </div>
-                </q-card>
-              </div>
+              <q-card class="widget-progress-card no-shadow q-pa-lg">
+                <div class="row justify-between items-center q-mb-xs">
+                  <span class="widget-label">Nouveaux retraits</span>
+                  <span class="widget-value text-primary">{{ pendingWithdrawals.length }}</span>
+                </div>
+                <q-linear-progress 
+                  :value="0.45" 
+                  color="primary" 
+                  track-color="transparent" 
+                  size="6px" 
+                  class="widget-progress-bar"
+                />
+              </q-card>
 
               <!-- Widget 2 -->
-              <div class="col-12 col-sm-4 col-md-12">
-                <q-card class="tabler-kpi-card no-shadow relative-position overflow-hidden q-pa-md">
-                  <div class="text-caption text-grey-5 font-inter text-uppercase text-weight-bold text-center">Objectif moyen</div>
-                  <div class="kpi-value text-dark q-my-xs text-center">{{ stats.avgGoal }} €</div>
-                  <div class="q-mt-sm" style="height: 4px; background: #f1f3f9; border-radius: 2px;">
-                    <div style="height: 100%; width: 68%; background: #5eba00; border-radius: 2px;"></div>
-                  </div>
-                </q-card>
-              </div>
+              <q-card class="widget-progress-card no-shadow q-pa-lg">
+                <div class="row justify-between items-center q-mb-xs">
+                  <span class="widget-label">Objectif moyen</span>
+                  <span class="widget-value text-warning">{{ stats.avgGoal }} €</span>
+                </div>
+                <q-linear-progress 
+                  :value="0.68" 
+                  color="warning" 
+                  track-color="transparent" 
+                  size="6px" 
+                  class="widget-progress-bar"
+                />
+              </q-card>
 
               <!-- Widget 3 -->
-              <div class="col-12 col-sm-4 col-md-12">
-                <q-card class="tabler-kpi-card no-shadow relative-position overflow-hidden q-pa-md">
-                  <div class="text-caption text-grey-5 font-inter text-uppercase text-weight-bold text-center">Membres inscrits</div>
-                  <div class="kpi-value text-dark q-my-xs text-center">{{ stats.totalUsers }}</div>
-                  <div class="q-mt-sm" style="height: 4px; background: #f1f3f9; border-radius: 2px;">
-                    <div style="height: 100%; width: 35%; background: #ffc107; border-radius: 2px;"></div>
-                  </div>
-                </q-card>
-              </div>
+              <q-card class="widget-progress-card no-shadow q-pa-lg">
+                <div class="row justify-between items-center q-mb-xs">
+                  <span class="widget-label">Membres inscrits</span>
+                  <span class="widget-value text-info">{{ stats.totalUsers }}</span>
+                </div>
+                <q-linear-progress 
+                  :value="0.35" 
+                  color="info" 
+                  track-color="transparent" 
+                  size="6px" 
+                  class="widget-progress-bar"
+                />
+              </q-card>
             </div>
           </div>
         </div>
@@ -255,76 +279,80 @@
       </div>
 
       <!-- 3. Four Mini Icon Cards Row -->
-      <div class="row q-col-gutter-md">
-        <!-- Card 1: blue -->
+      <div class="row q-col-gutter-lg q-my-md q-mb-xl">
+        <!-- Card 1: Fonds collectés -->
         <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="tabler-kpi-card no-shadow flex items-center q-pa-sm">
-            <div class="icon-block bg-blue text-white flex flex-center q-mr-md">
-              <q-icon name="euro" size="sm" />
+          <q-card class="mini-metric-card no-shadow flex items-center q-pa-md">
+            <div class="mini-icon-block bg-info-glow">
+              <q-icon name="euro" size="20px" color="info" />
             </div>
             <div>
-              <div class="text-subtitle1 text-weight-bold text-dark leading-none">{{ stats.totalFunds }} €</div>
-              <div class="text-caption text-grey-5">Fonds collectés</div>
+              <div class="mini-value font-inter">{{ stats.totalFunds }} €</div>
+              <div class="mini-label">Fonds collectés</div>
             </div>
           </q-card>
         </div>
 
-        <!-- Card 2: green -->
+        <!-- Card 2: Actives -->
         <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="tabler-kpi-card no-shadow flex items-center q-pa-sm">
-            <div class="icon-block bg-green text-white flex flex-center q-mr-md">
-              <q-icon name="check_circle" size="sm" />
+          <q-card class="mini-metric-card no-shadow flex items-center q-pa-md">
+            <div class="mini-icon-block bg-primary-glow">
+              <q-icon name="check_circle" size="20px" color="primary" />
             </div>
             <div>
-              <div class="text-subtitle1 text-weight-bold text-dark leading-none">{{ stats.activePools }} cagnottes</div>
-              <div class="text-caption text-grey-5">Actives en ce moment</div>
+              <div class="mini-value font-inter">{{ stats.activePools }} cagnottes</div>
+              <div class="mini-label">Actives en ce moment</div>
             </div>
           </q-card>
         </div>
 
-        <!-- Card 3: red -->
+        <!-- Card 3: Membres -->
         <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="tabler-kpi-card no-shadow flex items-center q-pa-sm">
-            <div class="icon-block bg-red text-white flex flex-center q-mr-md">
-              <q-icon name="people" size="sm" />
+          <q-card class="mini-metric-card no-shadow flex items-center q-pa-md">
+            <div class="mini-icon-block bg-success-glow">
+              <q-icon name="people" size="20px" color="positive" />
             </div>
             <div>
-              <div class="text-subtitle1 text-weight-bold text-dark leading-none">{{ stats.totalUsers }} membres</div>
-              <div class="text-caption text-grey-5">Inscrits sur Potify</div>
+              <div class="mini-value font-inter">{{ stats.totalUsers }} membres</div>
+              <div class="mini-label">Inscrits sur Potify</div>
             </div>
           </q-card>
         </div>
 
-        <!-- Card 4: yellow -->
+        <!-- Card 4: Journal d'audit -->
         <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="tabler-kpi-card no-shadow flex items-center q-pa-sm">
-            <div class="icon-block bg-warning text-white flex flex-center q-mr-md">
-              <q-icon name="history" size="sm" />
+          <q-card class="mini-metric-card no-shadow flex items-center q-pa-md">
+            <div class="mini-icon-block bg-warning-glow">
+              <q-icon name="history" size="20px" color="warning" />
             </div>
             <div>
-              <div class="text-subtitle1 text-weight-bold text-dark leading-none">{{ auditLogs.length }} actions</div>
-              <div class="text-caption text-grey-5">Journal d'audit actif</div>
+              <div class="mini-value font-inter">{{ auditLogs.length }} actions</div>
+              <div class="mini-label">Journal d'audit actif</div>
             </div>
           </q-card>
         </div>
       </div>
 
-      <!-- 4. Post cards with images (Puffin Bird / Nature style) -->
-      <div v-if="featuredPools.length > 0" class="row q-col-gutter-lg">
+      <!-- 4. Featured Project Cards -->
+      <div v-if="featuredPools.length > 0" class="row q-col-gutter-lg q-my-md q-mb-xl">
         <div v-for="pool in featuredPools" :key="pool.id" class="col-12 col-md-6">
-          <q-card class="tabler-card no-shadow overflow-hidden flex no-wrap items-center">
-            <q-img :src="pool.imageUrl" style="width: 150px; height: 150px; object-fit: cover;" />
-            <q-card-section class="q-pa-md flex-1">
-              <div class="text-subtitle1 text-weight-bold text-dark font-inter q-mb-xs">{{ pool.title }}</div>
-              <div class="text-caption text-grey-6 q-mb-md text-truncate" style="max-height: 48px; white-space: normal;">
-                {{ pool.description }}
-              </div>
-              <div class="row justify-between items-center">
-                <div class="row items-center q-gutter-x-sm">
-                  <q-avatar size="24px" class="bg-primary text-white text-caption">{{ pool.initials }}</q-avatar>
-                  <span class="text-caption text-grey-8 text-weight-bold">{{ pool.ownerName }}</span>
+          <q-card class="project-showcase-card no-shadow overflow-hidden flex no-wrap items-stretch">
+            <div class="project-image-wrapper">
+              <q-img :src="pool.imageUrl" class="project-image" />
+            </div>
+            <q-card-section class="q-pa-lg flex-1 column justify-between">
+              <div>
+                <div class="project-title font-inter">{{ pool.title }}</div>
+                <div class="project-desc">
+                  {{ pool.description }}
                 </div>
-                <q-btn flat round dense color="red-4" icon="favorite" size="sm" />
+              </div>
+              <div class="row justify-between items-center q-mt-md">
+                <div class="row items-center q-gutter-x-sm">
+                  <q-avatar size="28px" class="bg-primary text-white text-weight-bold text-caption">{{ pool.initials }}</q-avatar>
+                  <span class="project-owner">{{ pool.ownerName }}</span>
+                </div>
+                <q-btn flat round dense color="negative" icon="favorite" size="sm" class="project-fav-btn" />
               </div>
             </q-card-section>
           </q-card>
@@ -332,13 +360,12 @@
       </div>
 
       <!-- 5. Large Detailed Engagement & User Table -->
-      <q-card class="tabler-card no-shadow">
-        <div class="card-header q-py-md q-px-lg row items-center justify-between">
-          <div class="text-subtitle1 text-weight-bold text-dark font-inter">
+      <q-card class="premium-card no-shadow q-mb-xl">
+        <div class="card-header-premium row items-center justify-between">
+          <div class="card-header-title">
             Membres actifs & Engagement des projets
           </div>
         </div>
-        <q-separator class="separator-light" />
         
         <q-table
           flat
@@ -347,11 +374,11 @@
           row-key="id"
           hide-pagination
           no-data-label="Aucun projet ou utilisateur actif."
-          class="tabler-table font-inter text-dark"
+          class="font-inter"
         >
           <template v-slot:header="props">
-            <q-tr :props="props" class="tabler-table-header-row">
-              <q-th v-for="col in props.cols" :key="col.name" :props="props" class="text-weight-bold text-grey-6 text-uppercase">
+            <q-tr :props="props">
+              <q-th v-for="col in props.cols" :key="col.name" :props="props">
                 {{ col.label }}
               </q-th>
               <q-th class="text-center">Action</q-th>
@@ -363,13 +390,13 @@
               <!-- Column 1: UTILISATEUR -->
               <q-td>
                 <div class="row items-center q-gutter-x-sm">
-                  <q-avatar size="32px" class="bg-grey-2 border-gray">
+                  <q-avatar size="32px" class="avatar-border">
                     <q-img v-if="props.row.imageUrl" :src="props.row.imageUrl" />
                     <q-icon v-else name="person" color="grey-5" />
                   </q-avatar>
                   <div>
-                    <div class="text-weight-bold text-dark">{{ props.row.ownerName }}</div>
-                    <div class="text-caption text-grey-5" style="font-size: 0.75rem;">
+                    <div class="text-weight-bold" style="color: var(--text-main)">{{ props.row.ownerName }}</div>
+                    <div class="text-caption" style="color: var(--text-muted); font-size: 0.75rem;">
                       Inscrit le : {{ props.row.registrationDate }}
                     </div>
                   </div>
@@ -379,29 +406,29 @@
               <!-- Column 2: USAGE (Progression) -->
               <q-td>
                 <div class="q-gutter-y-xs" style="min-width: 140px;">
-                  <div class="row justify-between text-caption font-inter text-dark">
+                  <div class="row justify-between text-caption font-inter" style="color: var(--text-main)">
                     <span class="text-weight-bold">{{ props.row.progressPercent }}%</span>
-                    <span class="text-grey-5">{{ props.row.currentAmount }} / {{ props.row.goalAmount }} €</span>
+                    <span style="color: var(--text-muted)">{{ props.row.currentAmount }} / {{ props.row.goalAmount }} €</span>
                   </div>
                   <q-linear-progress 
                     :value="(props.row.currentAmount || 0) / props.row.goalAmount" 
                     color="primary" 
-                    track-color="grey-2"
-                    size="4px"
-                    style="border-radius: 2px;"
+                    track-color="transparent"
+                    size="6px"
+                    style="border-radius: 3px; background: var(--border-light) !important;"
                   />
                 </div>
               </q-td>
 
               <!-- Column 3: PAIEMENT -->
               <q-td class="text-center">
-                <q-chip dense color="grey-2" text-color="grey-8" class="text-weight-bold text-caption font-inter">
+                <q-chip dense color="transparent" style="border: 1px solid var(--card-border); color: var(--text-main)" class="text-weight-bold text-caption font-inter">
                   {{ props.row.paymentType }}
                 </q-chip>
               </q-td>
 
               <!-- Column 4: ACTIVITÉ -->
-              <q-td class="text-grey-6 text-caption">
+              <q-td style="color: var(--text-muted)" class="text-caption">
                 {{ props.row.lastUpdate }}
               </q-td>
 
@@ -413,9 +440,9 @@
                   :value="props.row.progressPercent"
                   size="28px"
                   :thickness="0.25"
-                  color="green"
-                  track-color="grey-2"
-                  class="text-weight-bold text-green"
+                  color="positive"
+                  track-color="transparent"
+                  style="border-radius: 50%; background: var(--border-light); font-weight: 700; color: var(--positive)"
                 >
                   {{ props.row.progressPercent }}%
                 </q-circular-progress>
@@ -425,9 +452,9 @@
               <q-td class="text-center">
                 <q-btn flat round dense color="grey-6" icon="more_vert" size="sm">
                   <q-menu auto-close>
-                    <q-list style="min-width: 120px;">
+                    <q-list style="min-width: 120px; background: var(--card-bg); border: 1px solid var(--card-border);">
                       <q-item clickable v-ripple @click="$router.push(`/pools/${props.row.id}`)">
-                        <q-item-section>Voir le projet</q-item-section>
+                        <q-item-section style="color: var(--text-main)">Voir le projet</q-item-section>
                       </q-item>
                       <q-item clickable v-ripple @click="deletePool(props.row.id)" class="text-negative">
                         <q-item-section>Supprimer</q-item-section>
@@ -442,18 +469,17 @@
       </q-card>
 
       <!-- 6. Detailed Withdrawal requests table -->
-      <div v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPaymentAdmin.value" class="row q-col-gutter-lg">
+      <div v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPaymentAdmin.value" class="row q-col-gutter-lg q-mb-xl">
         <div class="col-12">
-          <q-card class="tabler-card no-shadow">
-            <div class="card-header q-py-md q-px-lg row items-center justify-between">
-              <div class="text-subtitle1 text-weight-bold text-dark font-inter">
+          <q-card class="premium-card no-shadow">
+            <div class="card-header-premium row items-center justify-between">
+              <div class="card-header-title">
                 Demandes de retrait en attente
               </div>
-              <q-chip color="orange-1" text-color="orange-8" size="sm" class="text-weight-bold rounded-chip">
+              <q-chip color="transparent" style="border: 1px solid var(--card-border); color: var(--text-main)" size="sm" class="text-weight-bold">
                 Rôle Paiements
               </q-chip>
             </div>
-            <q-separator class="separator-light" />
 
             <q-table
               flat
@@ -462,18 +488,18 @@
               row-key="id"
               :loading="loadingWithdrawals"
               no-data-label="Aucune demande de retrait en attente."
-              class="tabler-table font-inter text-dark"
+              class="font-inter"
             >
               <template v-slot:header="props">
-                <q-tr :props="props" class="tabler-table-header-row">
-                  <q-th v-for="col in props.cols" :key="col.name" :props="props" class="text-weight-bold text-grey-6 text-uppercase">
+                <q-tr :props="props">
+                  <q-th v-for="col in props.cols" :key="col.name" :props="props">
                     {{ col.label }}
                   </q-th>
                 </q-tr>
               </template>
 
               <template v-slot:body-cell-amount="props">
-                <q-td :props="props" class="text-weight-bold text-dark text-subtitle2">
+                <q-td :props="props" class="text-weight-bold text-subtitle2" style="color: var(--text-main)">
                   {{ props.row.amount }} €
                 </q-td>
               </template>
@@ -485,7 +511,7 @@
               </template>
 
               <template v-slot:body-cell-net="props">
-                <q-td :props="props" class="text-weight-bolder text-success text-subtitle2">
+                <q-td :props="props" class="text-weight-bolder text-positive text-subtitle2">
                   {{ (props.row.amount - props.row.fees).toFixed(2) }} €
                 </q-td>
               </template>
@@ -500,7 +526,7 @@
                     size="sm"
                     no-caps
                     icon="check"
-                    class="text-weight-bolder no-shadow"
+                    class="text-weight-bolder"
                     :loading="confirmingWithdrawalId === props.row.id"
                     @click="confirmWithdrawalRequest(props.row.id)"
                   />
@@ -512,18 +538,17 @@
       </div>
 
       <!-- 7. Audit logs table -->
-      <div v-if="(authStore.isSuperAdmin.value || authStore.isAdmin.value) && auditLogs.length > 0" class="row q-col-gutter-lg">
+      <div v-if="(authStore.isSuperAdmin.value || authStore.isAdmin.value) && auditLogs.length > 0" class="row q-col-gutter-lg q-mb-xl">
         <div class="col-12">
-          <q-card class="tabler-card no-shadow">
-            <div class="card-header q-py-md q-px-lg row items-center justify-between">
-              <div class="text-subtitle1 text-weight-bold text-dark font-inter">
+          <q-card class="premium-card no-shadow">
+            <div class="card-header-premium row items-center justify-between">
+              <div class="card-header-title">
                 Journal d'Audit - Actions Critiques de la Plateforme
               </div>
-              <q-chip color="purple-1" text-color="purple-8" size="sm" class="text-weight-bold rounded-chip">
+              <q-chip color="transparent" style="border: 1px solid var(--card-border); color: var(--text-main)" size="sm" class="text-weight-bold">
                 Rôle Super Admin
               </q-chip>
             </div>
-            <q-separator class="separator-light" />
 
             <q-table
               flat
@@ -531,11 +556,11 @@
               :columns="auditColumns"
               row-key="id"
               :rows-per-page-options="[5, 10, 20]"
-              class="tabler-table font-inter text-dark"
+              class="font-inter"
             >
               <template v-slot:header="props">
-                <q-tr :props="props" class="tabler-table-header-row">
-                  <q-th v-for="col in props.cols" :key="col.name" :props="props" class="text-weight-bold text-grey-6 text-uppercase">
+                <q-tr :props="props">
+                  <q-th v-for="col in props.cols" :key="col.name" :props="props">
                     {{ col.label }}
                   </q-th>
                 </q-tr>
@@ -544,10 +569,10 @@
               <template v-slot:body-cell-status="props">
                 <q-td :props="props" class="text-center">
                   <q-chip 
-                    :color="props.row.status === 'SUCCESS' ? 'green-1' : 'red-1'" 
-                    :text-color="props.row.status === 'SUCCESS' ? 'green-7' : 'red-7'" 
+                    color="transparent" 
+                    :style="props.row.status === 'SUCCESS' ? 'border: 1px solid var(--positive); color: var(--positive)' : 'border: 1px solid var(--negative); color: var(--negative)'"
                     size="sm" 
-                    class="text-weight-bolder text-uppercase rounded-chip"
+                    class="text-weight-bolder text-uppercase"
                   >
                     {{ props.row.status }}
                   </q-chip>
@@ -567,25 +592,24 @@
       </div>
 
       <!-- 8. Bottom Widgets Row -->
-      <div class="row q-col-gutter-lg">
+      <div class="row q-col-gutter-xl">
         
         <!-- Left: IP Stats -->
         <div class="col-12 col-md-4">
-          <q-card class="tabler-card no-shadow">
-            <q-card-section class="card-header q-py-md q-px-lg">
-              <div class="text-subtitle2 text-weight-bold text-dark font-inter">
+          <q-card class="premium-card no-shadow">
+            <div class="card-header-premium">
+              <div class="card-header-title">
                 Adresses IP Actives (Audit)
               </div>
-            </q-card-section>
-            <q-separator class="separator-light" />
+            </div>
             <q-list v-if="ipDistribution.length > 0" class="q-pa-sm">
               <q-item v-for="ipObj in ipDistribution" :key="ipObj.ip">
                 <q-item-section>
-                  <q-item-label class="text-weight-bold text-dark">{{ ipObj.ip }}</q-item-label>
-                  <q-item-label caption>Audit trace</q-item-label>
+                  <q-item-label class="text-weight-bold" style="color: var(--text-main)">{{ ipObj.ip }}</q-item-label>
+                  <q-item-label caption style="color: var(--text-muted)">Audit trace</q-item-label>
                 </q-item-section>
                 <q-item-section side>
-                  <q-chip size="sm" color="grey-2" text-color="grey-8">{{ ipObj.count }} actions</q-chip>
+                  <q-chip size="sm" color="transparent" style="border: 1px solid var(--card-border); color: var(--text-main)">{{ ipObj.count }} actions</q-chip>
                 </q-item-section>
               </q-item>
             </q-list>
@@ -597,25 +621,24 @@
 
         <!-- Middle: Progression goals -->
         <div class="col-12 col-md-4">
-          <q-card class="tabler-card no-shadow">
-            <q-card-section class="card-header q-py-md q-px-lg">
-              <div class="text-subtitle2 text-weight-bold text-dark font-inter">
+          <q-card class="premium-card no-shadow">
+            <div class="card-header-premium">
+              <div class="card-header-title">
                 Progression des Cagnottes
               </div>
-            </q-card-section>
-            <q-separator class="separator-light" />
+            </div>
             <q-card-section v-if="recentPoolsComputed.length > 0" class="q-pa-md q-gutter-y-md">
               <div v-for="p in recentPoolsComputed.slice(0, 3)" :key="p.id">
-                <div class="row justify-between text-caption font-inter text-dark q-mb-xs">
+                <div class="row justify-between text-caption font-inter q-mb-xs" style="color: var(--text-main)">
                   <span class="text-weight-bold text-truncate" style="max-width: 180px;">{{ p.title }}</span>
                   <span>{{ p.progressPercent }}%</span>
                 </div>
                 <q-linear-progress 
                   :value="(p.currentAmount || 0) / p.goalAmount" 
                   color="primary" 
-                  track-color="grey-2"
+                  track-color="transparent"
                   size="6px"
-                  style="border-radius: 4px;"
+                  style="border-radius: 4px; background: var(--border-light) !important;"
                 />
               </div>
             </q-card-section>
@@ -627,23 +650,22 @@
 
         <!-- Right: Administrators -->
         <div class="col-12 col-md-4">
-          <q-card class="tabler-card no-shadow">
-            <q-card-section class="card-header q-py-md q-px-lg">
-              <div class="text-subtitle2 text-weight-bold text-dark font-inter">
+          <q-card class="premium-card no-shadow">
+            <div class="card-header-premium">
+              <div class="card-header-title">
                 Membres Administrateurs
               </div>
-            </q-card-section>
-            <q-separator class="separator-light" />
+            </div>
             <q-list v-if="adminsList.length > 0" class="q-pa-sm">
               <q-item v-for="admin in adminsList" :key="admin.email">
                 <q-item-section avatar>
-                  <q-avatar size="28px" color="primary" text-color="white">
+                  <q-avatar size="32px" color="primary" text-color="white" class="text-weight-bold">
                     {{ admin.email[0].toUpperCase() }}
                   </q-avatar>
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label class="text-weight-bold text-dark font-inter">{{ admin.email }}</q-item-label>
-                  <q-item-label caption>{{ admin.role }}</q-item-label>
+                  <q-item-label class="text-weight-bold font-inter" style="color: var(--text-main)">{{ admin.email }}</q-item-label>
+                  <q-item-label caption style="color: var(--text-muted)">{{ admin.role }}</q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
@@ -883,43 +905,52 @@ const chartData = computed(() => {
 
 const chartSeries = computed(() => chartData.value.series)
 
-const chartOptions = computed(() => ({
-  chart: {
-    type: 'area',
-    height: 240,
-    sparkline: { enabled: false },
-    toolbar: { show: false },
-    fontFamily: 'Inter, sans-serif'
-  },
-  colors: ['#467fcf'], // Tabler classic Blue
-  fill: {
-    type: 'gradient',
-    gradient: {
-      shadeIntensity: 1,
-      opacityFrom: 0.35,
-      opacityTo: 0.02,
-      stops: [0, 100]
+const chartOptions = computed(() => {
+  const isDark = $q.dark.isActive
+  const labelColor = isDark ? '#8ea39f' : '#627571'
+  const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(9, 31, 26, 0.06)'
+  
+  return {
+    chart: {
+      type: 'area',
+      height: 240,
+      sparkline: { enabled: false },
+      toolbar: { show: false },
+      fontFamily: 'Inter, sans-serif'
+    },
+    colors: ['#00e676'], // Brand Neon Green
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.45,
+        opacityTo: 0.02,
+        stops: [0, 100]
+      }
+    },
+    stroke: {
+      curve: 'smooth',
+      width: 3
+    },
+    xaxis: {
+      categories: chartData.value.categories,
+      labels: { style: { colors: labelColor, fontSize: '11px', fontWeight: 500 } },
+      axisBorder: { show: false },
+      axisTicks: { show: false }
+    },
+    yaxis: {
+      labels: { style: { colors: labelColor, fontSize: '11px', fontWeight: 500 } }
+    },
+    grid: {
+      borderColor: gridColor,
+      strokeDashArray: 5
+    },
+    dataLabels: { enabled: false },
+    tooltip: {
+      theme: isDark ? 'dark' : 'light'
     }
-  },
-  stroke: {
-    curve: 'smooth',
-    width: 2
-  },
-  xaxis: {
-    categories: chartData.value.categories,
-    labels: { style: { colors: '#9aa0ac', fontSize: '11px' } },
-    axisBorder: { show: false },
-    axisTicks: { show: false }
-  },
-  yaxis: {
-    labels: { style: { colors: '#9aa0ac', fontSize: '11px' } }
-  },
-  grid: {
-    borderColor: '#f1f3f9',
-    strokeDashArray: 4
-  },
-  dataLabels: { enabled: false }
-}))
+  }
+})
 
 // Tabler Donut Chart Category Configuration
 const categoryChartData = computed(() => {
@@ -933,35 +964,73 @@ const categoryChartData = computed(() => {
 
 const categoryChartSeries = computed(() => Object.values(categoryChartData.value))
 
-const categoryChartOptions = computed(() => ({
-  chart: {
-    type: 'donut',
-    fontFamily: 'Inter, sans-serif'
-  },
-  labels: Object.keys(categoryChartData.value),
-  colors: ['#5eba00', '#467fcf', '#fa5c7c', '#ffc107', '#39cbd0'], // Tabler palette
-  legend: {
-    show: true,
-    position: 'bottom',
-    horizontalAlign: 'center',
-    fontSize: '11px',
-    markers: {
-      radius: 12
-    }
-  },
-  plotOptions: {
-    pie: {
-      donut: {
-        size: '70%',
-        labels: {
-          show: false
+const categoryChartOptions = computed(() => {
+  const isDark = $q.dark.isActive
+  const labelColor = isDark ? '#f1f5f4' : '#091f1a'
+  const legendColor = isDark ? '#8ea39f' : '#627571'
+  
+  return {
+    chart: {
+      type: 'donut',
+      fontFamily: 'Inter, sans-serif'
+    },
+    labels: Object.keys(categoryChartData.value),
+    colors: ['#00e676', '#10b981', '#facc15', '#06b6d4', '#062f25'], // Brand colors
+    legend: {
+      show: true,
+      position: 'bottom',
+      horizontalAlign: 'center',
+      fontSize: '11px',
+      labels: {
+        colors: legendColor
+      },
+      markers: {
+        radius: 12
+      }
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '72%',
+          labels: {
+            show: true,
+            name: {
+              show: true,
+              fontSize: '13px',
+              fontFamily: 'Inter, sans-serif',
+              color: legendColor
+            },
+            value: {
+              show: true,
+              fontSize: '18px',
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: '700',
+              color: labelColor,
+              formatter: (val) => val
+            },
+            total: {
+              show: true,
+              label: 'Total',
+              color: legendColor,
+              formatter: (w) => {
+                return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
+              }
+            }
+          }
         }
       }
+    },
+    stroke: {
+      show: true,
+      width: 2,
+      colors: [isDark ? '#091f1a' : '#ffffff']
+    },
+    dataLabels: { enabled: false },
+    tooltip: {
+      theme: isDark ? 'dark' : 'light'
     }
-  },
-  dataLabels: { enabled: false }
-}))
-
+  }
+})
 
 const loadWithdrawals = async () => {
   loadingWithdrawals.value = true
@@ -1096,11 +1165,40 @@ onMounted(() => {
 
 <style scoped>
 .admin-dashboard-page {
-  background: #f4f6fa;
+  --bg-dashboard: #f4f7f6;
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 230, 118, 0.08);
+  --card-shadow: 0 8px 24px -4px rgba(9, 31, 26, 0.04), 0 1px 2px rgba(9, 31, 26, 0.02);
+  --card-shadow-hover: 0 20px 32px -8px rgba(9, 31, 26, 0.08), 0 1px 4px rgba(9, 31, 26, 0.03);
+  --text-main: #091f1a;
+  --text-muted: #627571;
+  --border-light: rgba(9, 31, 26, 0.06);
+  --table-header-bg: #edf2f0;
+  --glow-green: rgba(16, 185, 129, 0.15);
+  --glow-primary: rgba(0, 230, 118, 0.15);
+  --glow-info: rgba(6, 182, 212, 0.15);
+  --glow-warning: rgba(250, 204, 21, 0.15);
+  
+  background: var(--bg-dashboard);
+  color: var(--text-main);
   min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
 }
+
 body.body--dark .admin-dashboard-page {
-  background: #0d1424;
+  --bg-dashboard: #05100d;
+  --card-bg: #091f1a;
+  --card-border: rgba(0, 230, 118, 0.15);
+  --card-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+  --card-shadow-hover: 0 20px 32px -8px rgba(0, 0, 0, 0.5);
+  --text-main: #f1f5f4;
+  --text-muted: #8ea39f;
+  --border-light: rgba(255, 255, 255, 0.08);
+  --table-header-bg: #061713;
+  --glow-green: rgba(16, 185, 129, 0.18);
+  --glow-primary: rgba(0, 230, 118, 0.18);
+  --glow-info: rgba(6, 182, 212, 0.18);
+  --glow-warning: rgba(250, 204, 21, 0.18);
 }
 
 .font-inter {
@@ -1108,182 +1206,408 @@ body.body--dark .admin-dashboard-page {
 }
 
 .dashboard-title {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #354052;
-  font-size: 1.75rem;
-  font-weight: 400;
+  color: var(--text-main);
+  font-size: 1.8rem;
   letter-spacing: -0.5px;
 }
-body.body--dark .dashboard-title {
-  color: #f1f3f9;
-}
 
-/* Tabler KPI Cards */
-.tabler-kpi-card {
-  background: #ffffff;
-  border: 1px solid rgba(101, 109, 119, 0.16);
-  border-radius: 3px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  transition: border-color 0.2s ease;
+/* Visit Site Button & Role Badge */
+.visit-site-btn {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-main);
+  font-weight: 700;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  padding: 8px 16px;
+  transition: all 0.3s ease;
 }
-body.body--dark .tabler-kpi-card {
-  background: #182235;
-  border-color: rgba(255, 255, 255, 0.08);
+.visit-site-btn:hover {
+  background: var(--glow-primary);
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-2px);
 }
-
-.kpi-value {
-  font-family: 'Inter', sans-serif;
-  font-size: 1.75rem;
-  font-weight: 500;
-  color: #2c3e50;
-  line-height: 1.2;
-}
-body.body--dark .kpi-value {
-  color: #ffffff;
-}
-
-.trend-indicator {
-  font-size: 0.8rem;
+.role-badge-container {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  border-radius: 12px;
   display: flex;
   align-items: center;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
 }
-.text-success {
-  color: #2fb344 !important;
+.role-badge-container:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
 }
-.text-danger {
-  color: #d63939 !important;
+.role-badge-icon {
+  background: var(--glow-primary);
+  color: var(--primary);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
 }
-
-/* Tabler Card Containers */
-.tabler-card {
-  background: #ffffff;
-  border: 1px solid rgba(101, 109, 119, 0.16);
-  border-radius: 3px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+.role-badge-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  line-height: 1;
 }
-body.body--dark .tabler-card {
-  background: #182235;
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-.card-header {
-  min-height: 48px;
-}
-
-.separator-light {
-  background: rgba(101, 109, 119, 0.12);
-}
-body.body--dark .separator-light {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* Alert Banner */
-.tabler-alert-banner {
-  background-color: #f1f3f9;
-  border: 1px solid rgba(101, 109, 119, 0.16);
-  border-radius: 3px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-body.body--dark .tabler-alert-banner {
-  background-color: rgba(32, 107, 196, 0.05);
-  border-color: rgba(255, 255, 255, 0.08);
+.role-badge-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-top: 2px;
+  line-height: 1;
 }
 
-.text-blue-9 {
-  color: #495057;
+/* KPI Responsive Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1.25rem;
 }
-body.body--dark .text-blue-9 {
-  color: #a3d1ff;
+@media (max-width: 1200px) {
+  .kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
-
-.border-gray {
-  border: 1px solid rgba(101, 109, 119, 0.16);
+@media (max-width: 768px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
-
-.rounded-chip {
-  border-radius: 4px;
-}
-
-/* Mini metric icon blocks */
-.icon-block {
-  width: 42px;
-  height: 42px;
-  border-radius: 3px;
-}
-
-/* Custom list layout */
-.tabler-table-header {
-  background: #fcfcfc;
-  border-bottom: 1px solid rgba(101, 109, 119, 0.16);
-}
-body.body--dark .tabler-table-header {
-  background: #141c2c;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+@media (max-width: 480px) {
+  .kpi-grid {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
 }
 
-.list-row-hover {
-  transition: background-color 0.15s ease;
+/* KPI Cards */
+.kpi-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.list-row-hover:hover {
-  background-color: #f8f9fa;
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow-hover);
+  border-color: rgba(0, 230, 118, 0.2);
 }
-body.body--dark .list-row-hover:hover {
-  background-color: #1e293b;
-}
-
-.border-bottom-light {
-  border-bottom: 1px solid rgba(101, 109, 119, 0.08);
-}
-body.body--dark .border-bottom-light {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-.text-truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Table styles */
-.tabler-table {
-  background: transparent;
-}
-.tabler-table-header-row th {
-  font-size: 0.75rem;
+.kpi-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid rgba(101, 109, 119, 0.16);
-  background: #fcfcfc;
 }
-body.body--dark .tabler-table-header-row th {
-  background: #141c2c;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+.kpi-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
 }
-
-.role-badge {
-  background: #ffffff;
-  border: 1px solid rgba(101, 109, 119, 0.16);
-  border-radius: 4px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+.kpi-icon-wrapper {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
-  padding: 6px 12px;
+  justify-content: center;
+  transition: transform 0.3s ease;
 }
-body.body--dark .role-badge {
-  background: #182235;
-  border-color: rgba(255, 255, 255, 0.12);
-}
-body.body--dark .role-badge .text-dark {
-  color: #f1f3f9 !important;
+.kpi-card:hover .kpi-icon-wrapper {
+  transform: scale(1.1) rotate(5deg);
 }
 
-.action-btn {
-  border: 1px solid rgba(101, 109, 119, 0.16);
-  border-radius: 4px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+/* Glow Backgrounds for Icon Wrappers */
+.bg-green-glow { background: var(--glow-green); }
+.bg-primary-glow { background: var(--glow-primary); }
+.bg-success-glow { background: var(--glow-green); }
+.bg-info-glow { background: var(--glow-info); }
+.bg-warning-glow { background: var(--glow-warning); }
+
+.kpi-footer {
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
 }
-body.body--dark .action-btn {
-  background: #182235 !important;
-  border-color: rgba(255, 255, 255, 0.12);
+
+/* Premium Card & Tables */
+.premium-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.premium-card:hover {
+  border-color: rgba(0, 230, 118, 0.25);
+  box-shadow: var(--card-shadow-hover);
+}
+.card-header-premium {
+  padding: 20px 24px;
+}
+.card-header-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.3px;
+}
+
+/* Quasar Table Overrides */
+.premium-card :deep(.q-table__container) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+.premium-card :deep(.q-table) {
+  background: transparent !important;
+  color: var(--text-main) !important;
+}
+.premium-card :deep(.q-table th) {
+  background: var(--table-header-bg) !important;
+  color: var(--text-muted) !important;
+  font-weight: 700 !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.5px !important;
+  padding: 14px 20px !important;
+  border-bottom: 1px solid var(--border-light) !important;
+}
+.premium-card :deep(.q-table td) {
+  padding: 16px 20px !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  font-size: 0.85rem !important;
+  color: var(--text-main) !important;
+}
+.premium-card :deep(.q-table tr:hover) {
+  background: rgba(0, 230, 118, 0.03) !important;
+}
+body.body--dark .premium-card :deep(.q-table tr:hover) {
+  background: rgba(0, 230, 118, 0.05) !important;
+}
+.premium-card :deep(.q-table__middle) {
+  border-radius: 0 !important;
+}
+
+/* Recent Activities Custom List */
+.recent-act-header {
+  background: var(--table-header-bg);
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-light);
+}
+.recent-act-row {
+  border-bottom: 1px solid var(--border-light);
+  transition: all 0.2s ease;
+}
+.recent-act-row:hover {
+  background: rgba(0, 230, 118, 0.03);
+}
+body.body--dark .recent-act-row:hover {
+  background: rgba(0, 230, 118, 0.05);
+}
+.recent-act-username {
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 0.85rem;
+}
+.recent-act-desc {
+  font-size: 0.85rem;
+  color: var(--text-main);
+}
+.recent-act-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.delete-act-btn {
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+.delete-act-btn:hover {
+  color: var(--negative);
+  background: var(--glow-warning);
+}
+.avatar-border {
+  border: 1px solid var(--card-border);
+}
+
+/* Help / Alert Banner */
+.premium-alert-banner {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(0, 230, 118, 0.05) 100%);
+  border: 1px solid rgba(6, 182, 212, 0.15);
+  border-radius: 16px;
+  color: var(--text-main);
+  box-shadow: var(--card-shadow);
+}
+.banner-icon {
+  color: var(--info);
+}
+.banner-title {
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+.banner-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.banner-link {
+  color: var(--info);
+  text-decoration: none;
+  font-weight: 700;
+  transition: opacity 0.2s;
+}
+.banner-link:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+/* Sidebar Widgets with lines */
+.widget-progress-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+}
+.widget-progress-card:hover {
+  transform: translateX(4px);
+  box-shadow: var(--card-shadow-hover);
+}
+.widget-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+.widget-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.widget-progress-bar {
+  border-radius: 3px;
+  background: var(--border-light) !important;
+}
+
+/* Mini metric icon cards */
+.mini-metric-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+}
+.mini-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+}
+.mini-icon-block {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+.mini-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+.mini-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Featured projects */
+.project-showcase-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+}
+.project-showcase-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow-hover);
+}
+.project-image-wrapper {
+  width: 160px;
+  position: relative;
+  overflow: hidden;
+}
+.project-image {
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.project-showcase-card:hover .project-image {
+  transform: scale(1.05);
+}
+.project-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+.project-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+.project-owner {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+.project-fav-btn {
+  background: var(--glow-info);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+.project-fav-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Bottom elements lists overrides */
+.premium-card :deep(.q-list) {
+  background: transparent !important;
+}
+.premium-card :deep(.q-item) {
+  border-bottom: 1px solid var(--border-light);
+  padding: 14px 20px;
+  transition: all 0.2s ease;
+}
+.premium-card :deep(.q-item:last-child) {
+  border-bottom: none;
+}
+.premium-card :deep(.q-item:hover) {
+  background: rgba(0, 230, 118, 0.03);
+}
+body.body--dark .premium-card :deep(.q-item:hover) {
+  background: rgba(0, 230, 118, 0.05);
 }
 </style>

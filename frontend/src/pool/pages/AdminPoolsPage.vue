@@ -1,14 +1,6 @@
 <template>
   <q-page padding style="background: #F8F9FA;">
-    <div class="row items-center justify-between q-mb-xl q-pa-md bg-white shadow-2" style="border-radius: 12px; border-left: 6px solid #FF5E62;">
-      <div>
-        <div class="text-h4 text-weight-bold text-dark" v-if="!canManagePools">Modération des messages</div>
-        <div class="text-h4 text-weight-bold text-dark" v-else>{{ $t('adminPools.title') }}</div>
-        <div class="text-subtitle2 text-grey-7" v-if="!canManagePools">Visualisez et modérez les messages et commentaires de chaque cagnotte.</div>
-        <div class="text-subtitle2 text-grey-7" v-else>{{ $t('adminPools.subtitle') }}</div>
-      </div>
-      <q-btn v-if="canManagePools" color="orange-9" icon="add" :label="$t('home.createButton')" to="/pools/create" no-caps />
-    </div>
+
 
     <!-- Tab system for Moderator -->
     <div v-if="authStore.isModerator.value" class="q-mb-md">

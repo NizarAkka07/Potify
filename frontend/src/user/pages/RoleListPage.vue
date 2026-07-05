@@ -1,25 +1,18 @@
 <template>
   <q-page padding style="background: #F8F9FA;">
-    <!-- Welcome Header -->
-    <div class="row items-center justify-between q-mb-xl q-pa-lg text-white" style="background: linear-gradient(135deg, #0D1B2E 0%, #1A2E40 100%); border-radius: 16px; border-left: 6px solid #FFB300;">
-      <div>
-        <div class="text-h4 text-weight-bold">{{ $t('roleList.title') }}</div>
-        <div class="text-subtitle1 text-grey-4 q-mt-xs">Gérez la sécurité et les accès en glissant-déposant les permissions disponibles sur les rôles.</div>
-      </div>
-      <div class="row q-gutter-sm">
-        <q-btn color="amber-8" text-color="dark" icon="add" :label="$t('roleList.newRoleButton')" @click="openRoleDialog()" no-caps class="text-weight-bold" />
-        <q-btn outline color="white" icon="vpn_key" :label="$t('roleList.newPermissionButton')" @click="openPermissionDialog()" no-caps />
-      </div>
-    </div>
+
 
     <div class="row q-col-gutter-lg">
       <!-- Left Column: Available Permissions -->
       <div class="col-12 col-md-4">
         <q-card class="shadow-2" style="border-radius: 12px; height: 100%;">
           <q-card-section class="q-pb-none">
-            <div class="text-subtitle1 text-weight-bold text-dark q-mb-md">
-              <q-icon name="vpn_key" color="primary" class="q-mr-sm" size="sm" />
-              {{ $t('roleList.availablePermissions') }}
+            <div class="row items-center justify-between q-mb-md">
+              <div class="text-subtitle1 text-weight-bold text-dark">
+                <q-icon name="vpn_key" color="primary" class="q-mr-sm" size="sm" />
+                {{ $t('roleList.availablePermissions') }}
+              </div>
+              <q-btn dense color="primary" icon="add" :label="$t('roleList.newPermissionButton')" no-caps size="sm" class="q-px-sm" @click="openPermissionDialog()" />
             </div>
             <q-input outlined dense v-model="searchQuery" :placeholder="$t('roleList.searchPlaceholder')" color="secondary" class="q-mb-md">
               <template v-slot:append>
@@ -68,9 +61,12 @@
 
       <!-- Right Column: Active Roles List -->
       <div class="col-12 col-md-8">
-        <div class="text-subtitle1 text-weight-bold text-dark q-mb-md">
-          <q-icon name="security" color="primary" class="q-mr-sm" size="sm" />
-          {{ $t('roleList.activeRoles') }}
+        <div class="row items-center justify-between q-mb-md">
+          <div class="text-subtitle1 text-weight-bold text-dark">
+            <q-icon name="security" color="primary" class="q-mr-sm" size="sm" />
+            {{ $t('roleList.activeRoles') }}
+          </div>
+          <q-btn dense color="amber-8" text-color="dark" icon="add" :label="$t('roleList.newRoleButton')" no-caps size="sm" class="q-px-sm text-weight-bold" @click="openRoleDialog()" />
         </div>
 
         <div v-if="loadingRoles" class="flex flex-center q-py-xl">
