@@ -55,6 +55,7 @@ public class DefaultCreatePoolService implements CreatePoolService {
         }
 
         Pool savedPool = poolRepositoryPort.save(pool);
+        // Initialiser le portefeuille financier pour la cagnotte publiée directement
         walletRepositoryPort.save(Wallet.createEmpty(savedPool.getId()));
 
         if (pool.getChildren() != null && !pool.getChildren().isEmpty()) {
@@ -82,6 +83,7 @@ public class DefaultCreatePoolService implements CreatePoolService {
                 subPool.setUpdatedAt(Instant.now());
 
                 Pool savedSubPool = poolRepositoryPort.save(subPool);
+                // Initialiser le portefeuille financier pour la sous-cagnotte
                 walletRepositoryPort.save(Wallet.createEmpty(savedSubPool.getId()));
             }
         }

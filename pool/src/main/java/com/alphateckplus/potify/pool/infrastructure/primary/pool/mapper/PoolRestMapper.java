@@ -123,9 +123,8 @@ public class PoolRestMapper {
     public PoolResponse toResponse(Pool pool) {
         if (pool == null) return null;
         
-        String finalImageUrl = null;
-        // Si on a du contenu en DB, on génère l'URL vers notre nouvel endpoint
-        if (pool.getImageContent() != null && pool.getImageContent().length > 0) {
+        String finalImageUrl = pool.getImageUrl();
+        if (finalImageUrl == null && pool.getImageContent() != null && pool.getImageContent().length > 0) {
             finalImageUrl = "http://localhost:8082/api/pools/" + pool.getId() + "/image";
         }
 

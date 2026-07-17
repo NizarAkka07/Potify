@@ -41,7 +41,7 @@ public class PoolPersistenceMapper {
                 .category(domain.getCategory())
                 .goalAmount(domain.getGoalAmount())
                 .currentAmount(domain.getCurrentAmount())
-                .status(domain.getStatus() != null ? CagnotteStatus.valueOf(domain.getStatus().name()) : CagnotteStatus.BROUILLON)
+                .status(domain.getStatus() != null ? CagnotteStatus.valueOf(domain.getStatus().name()) : CagnotteStatus.PUBLIEE)
                 .type(domain.getType() != null ? domain.getType().name() : "PUBLIC")
                 .invitedUserIds(invitedIds)
                 .imageContent(domain.getImageContent())
@@ -49,6 +49,7 @@ public class PoolPersistenceMapper {
                 .videoContent(domain.getVideoContent())
                 .videoContentType(domain.getVideoContentType())
                 .videoUrl(domain.getVideoUrl())
+                .imageUrl(domain.getImageUrl())
                 .hasDeadline(domain.getHasDeadline() != null ? domain.getHasDeadline() : false)
                 .deadlineDate(domain.getDeadlineDate())
                 .fees(domain.getFees())
@@ -98,7 +99,7 @@ public class PoolPersistenceMapper {
                 .category(entity.getCategory())
                 .goalAmount(entity.getGoalAmount())
                 .currentAmount(entity.getCurrentAmount())
-                .status(entity.getStatus() != null ? PoolStatus.valueOf(entity.getStatus().name()) : PoolStatus.PUBLIEE)
+                .status(mapStatusToDomain(entity.getStatus()))
                 .type(entity.getType() != null ? PoolType.valueOf(entity.getType()) : PoolType.PUBLIC)
                 .invitedUserIds(invitedIds)
                 .imageContent(entity.getImageContent())
@@ -106,6 +107,7 @@ public class PoolPersistenceMapper {
                 .videoContent(entity.getVideoContent())
                 .videoContentType(entity.getVideoContentType())
                 .videoUrl(entity.getVideoUrl())
+                .imageUrl(entity.getImageUrl())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .wallet(walletPersistenceMapper.toDomain(entity.getWallet()))
@@ -135,7 +137,7 @@ public class PoolPersistenceMapper {
                 .title(entity.getTitle())
                 .currentAmount(entity.getCurrentAmount())
                 .goalAmount(entity.getGoalAmount())
-                .status(entity.getStatus() != null ? PoolStatus.valueOf(entity.getStatus().name()) : PoolStatus.PUBLIEE)
+                .status(mapStatusToDomain(entity.getStatus()))
                 .hasDeadline(entity.getHasDeadline() != null ? entity.getHasDeadline() : false)
                 .deadlineDate(entity.getDeadlineDate())
                 .phases(entity.getPhases() != null ?
@@ -143,5 +145,20 @@ public class PoolPersistenceMapper {
                         new java.util.ArrayList<>())
                 .fees(entity.getFees())
                 .build();
+    }
+
+    private PoolStatus mapStatusToDomain(CagnotteStatus status) {
+        if (status == null) return PoolStatus.PUBLIEE;
+        try {
+            return PoolStatus.valueOf(status.name());
+        } catch (IllegalArgumentException e) {
+            if (status == CagnotteStatus.BROUILLON || status == CagnotteStatus.EN_REVUE) {
+                return PoolStatus.PUBLIEE;
+            }
+            if (status == CagnotteStatus.COMPLETED) {
+                return PoolStatus.CLOTUREE;
+            }
+            return PoolStatus.PUBLIEE;
+        }
     }
 }

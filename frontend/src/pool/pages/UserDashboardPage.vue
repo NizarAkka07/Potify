@@ -788,23 +788,19 @@ const formatNotificationDate = (isoString) => {
 const getStatusColor = (status) => {
   switch (status) {
     case 'PUBLIEE': return 'green-7'
-    case 'EN_REVUE': return 'amber-7'
-    case 'CLOTUREE': case 'COMPLETED': return 'grey-7'
     case 'SUSPENDUE': return 'red-7'
-    case 'BROUILLON': return 'orange-7'
-    default: return 'orange-7'
+    case 'CLOTUREE': return 'grey-7'
+    case 'ARCHIVEE': return 'blue-grey-6'
+    default: return 'grey-6'
   }
 }
 
 const getStatusText = (status) => {
   switch (status) {
-    case 'BROUILLON': return 'Brouillon'
-    case 'EN_REVUE': return 'En revue'
     case 'PUBLIEE': return 'Publiée'
     case 'SUSPENDUE': return 'Suspendue'
     case 'CLOTUREE': return 'Clôturée'
     case 'ARCHIVEE': return 'Archivée'
-    case 'COMPLETED': return 'Terminée'
     default: return status
   }
 }

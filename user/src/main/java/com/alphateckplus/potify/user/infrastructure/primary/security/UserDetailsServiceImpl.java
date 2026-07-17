@@ -45,9 +45,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail()) // L'email sert d'identifiant
                 .password(user.getPassword()) // Mot de passe encodé
-                // Transformation des rôles du domaine en GrantedAuthority Spring Security
+                // Transformation des rôles et de leurs permissions du domaine en GrantedAuthority Spring Security
                 .authorities(userRepositoryPort.findRolesByUserId(user.getId()).stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName())) // Préfixe ROLE_ standard
+                        .flatMap(role -> {
+                            java.util.List<org.springframework.security.core.GrantedAuthority> auths = new java.util.ArrayList<>();
+                            auths.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+                            role.getPermissions().forEach(perm -> auths.add(new SimpleGrantedAuthority(perm.getCode())));
+                            return auths.stream();
+                        })
                         .collect(Collectors.toList()))
                 .disabled(!user.isEnabled()) // État d'activation du compte
                 .accountLocked(!user.isAccountNonLocked()) // État de verrouillage

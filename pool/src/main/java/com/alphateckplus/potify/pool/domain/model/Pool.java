@@ -82,6 +82,9 @@ public class Pool {
     /** URL d'une vidéo de présentation (YouTube, Vimeo, etc.). */
     private String videoUrl;
 
+    /** URL d'une image de présentation hébergée sur Cloudinary. */
+    private String imageUrl;
+
     /** Portefeuille financier de la cagnotte. */
     private Wallet wallet;
 
@@ -193,24 +196,7 @@ public class Pool {
         return userId != null && userId.equals(ownerId) || isInvited;
     }
 
-    /**
-     * Verifie si la cagnotte peut passer en revue.
-     */
-    public boolean canBeSubmitted() {
-        return PoolStatus.BROUILLON.equals(this.status) 
-                && title != null && !title.isBlank()
-                && goalAmount != null && goalAmount.compareTo(BigDecimal.ZERO) > 0;
-    }
 
-    /**
-     * Transitionne la cagnotte vers l'etat EN_REVUE.
-     */
-    public void submitForReview() {
-        if (!canBeSubmitted()) {
-            throw new IllegalStateException("La cagnotte n'est pas prete pour la revue.");
-        }
-        this.status = PoolStatus.EN_REVUE;
-    }
 
     public void addContributionAmount(BigDecimal amount) {
         if (this.parentId != null) {
@@ -229,18 +215,13 @@ public class Pool {
             return;
         }
         BigDecimal tempAmount = this.currentAmount != null ? this.currentAmount : BigDecimal.ZERO;
-        boolean allCompleted = true;
         for (Phase phase : phases) {
             if (tempAmount.compareTo(phase.getGoalAmount()) >= 0) {
                 phase.setStatus(PhaseStatus.COMPLETED);
                 tempAmount = tempAmount.subtract(phase.getGoalAmount());
             } else {
                 phase.setStatus(PhaseStatus.ACTIVE);
-                allCompleted = false;
             }
-        }
-        if (allCompleted) {
-            this.status = PoolStatus.COMPLETED;
         }
     }
 

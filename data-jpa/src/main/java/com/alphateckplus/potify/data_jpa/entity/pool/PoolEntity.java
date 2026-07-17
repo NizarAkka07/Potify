@@ -111,6 +111,9 @@ public class PoolEntity extends BaseEntity {
     @Column(name = "video_url", length = 500)
     private String videoUrl;
 
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
     @Column(name = "fees", nullable = false, precision = 19, scale = 2)
     @lombok.Builder.Default
     private BigDecimal fees = new BigDecimal("2.00");

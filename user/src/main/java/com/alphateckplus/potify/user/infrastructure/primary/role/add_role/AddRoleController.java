@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +25,7 @@ public class AddRoleController {
     private final CreateRoleService createRoleService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN_DASHBOARD')")
     public ResponseEntity<RoleResponse> createRole(@Valid @RequestBody CreateRoleRequest request) {
         RoleRestMapper mapper = new RoleRestMapper();
         var createdRole = createRoleService.execute(mapper.toDomain(request));

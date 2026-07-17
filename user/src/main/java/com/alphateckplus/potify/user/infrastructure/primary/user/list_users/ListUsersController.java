@@ -6,6 +6,7 @@ import com.alphateckplus.potify.user.infrastructure.primary.user.mapper.UserRest
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +23,7 @@ public class ListUsersController {
     private final UserRestMapper userRestMapper;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('USER_READ')")
     public ResponseEntity<List<UserResponse>> listUsers() {
         List<UserResponse> users = listUsersService.execute()
             .stream()

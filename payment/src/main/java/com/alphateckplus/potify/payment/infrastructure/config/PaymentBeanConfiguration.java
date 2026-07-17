@@ -81,10 +81,17 @@ public class PaymentBeanConfiguration {
     }
 
     @Bean
+    public com.alphateckplus.potify.payment.application_service.secondary.payment.UserCheckPort userCheckPort(
+            com.alphateckplus.potify.data_jpa.repository.user.UserEntityRepository userEntityRepository) {
+        return new com.alphateckplus.potify.payment.infrastructure.secondary.payment.UserCheckAdapter(userEntityRepository);
+    }
+
+    @Bean
     public WithdrawService withdrawService(
             PaymentRepositoryPort repositoryPort,
-            com.alphateckplus.potify.payment.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
-        return new DefaultWithdrawService(repositoryPort, notificationEventPublisherPort);
+            com.alphateckplus.potify.payment.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort,
+            com.alphateckplus.potify.payment.application_service.secondary.payment.UserCheckPort userCheckPort) {
+        return new DefaultWithdrawService(repositoryPort, notificationEventPublisherPort, userCheckPort);
     }
 
     @Bean

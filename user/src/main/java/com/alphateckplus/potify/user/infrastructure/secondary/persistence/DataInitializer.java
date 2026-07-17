@@ -61,13 +61,29 @@ public class DataInitializer implements CommandLineRunner {
         PermissionEntity validatePoolsPerm = getOrCreatePermission("VALIDATE_POOLS", "Valider et gérer les cagnottes");
         PermissionEntity moderateContentPerm = getOrCreatePermission("MODERATE_CONTENT", "Modérer les messages et commentaires");
         PermissionEntity managePaymentsPerm = getOrCreatePermission("MANAGE_PAYMENTS", "Gérer les transactions et confirmer les retraits");
+        PermissionEntity userReadPerm = getOrCreatePermission("USER_READ", "Lire les détails des utilisateurs");
+        PermissionEntity userWritePerm = getOrCreatePermission("USER_WRITE", "Créer et modifier des utilisateurs");
+        PermissionEntity adminDashboardPerm = getOrCreatePermission("ADMIN_DASHBOARD", "Accès au tableau de bord administrateur");
+        PermissionEntity poolModeratePerm = getOrCreatePermission("POOL_MODERATE", "Modérer le contenu des cagnottes");
+        PermissionEntity paymentReadPerm = getOrCreatePermission("PAYMENT_READ", "Voir les transactions financières");
+        PermissionEntity paymentConfirmPerm = getOrCreatePermission("PAYMENT_CONFIRM", "Confirmer les retraits d'argent");
 
         // 2. Initialiser les rôles si ils n'existent pas
-        RoleEntity superAdminRole = getOrCreateRole("SUPER_ADMIN", "Super administrateur du système", Set.of(allPerm));
-        RoleEntity adminRole = getOrCreateRole("ADMIN", "Administrateur général", Set.of(manageUsersPerm, manageRolesPerm, validatePoolsPerm, moderateContentPerm, managePaymentsPerm));
-        RoleEntity poolAdminRole = getOrCreateRole("ADMIN_POOL", "Administrateur des cagnottes", Set.of(validatePoolsPerm));
-        RoleEntity paymentAdminRole = getOrCreateRole("ADMIN_PAYMENT", "Administrateur des paiements", Set.of(managePaymentsPerm));
-        RoleEntity moderatorRole = getOrCreateRole("MODERATEUR", "Modérateur de contenu", Set.of(moderateContentPerm));
+        Set<PermissionEntity> superAdminPerms = Set.of(
+            allPerm, manageUsersPerm, manageRolesPerm, validatePoolsPerm, moderateContentPerm, managePaymentsPerm,
+            userReadPerm, userWritePerm, adminDashboardPerm, poolModeratePerm, paymentReadPerm, paymentConfirmPerm
+        );
+        RoleEntity superAdminRole = getOrCreateRole("SUPER_ADMIN", "Super administrateur du système", superAdminPerms);
+        
+        Set<PermissionEntity> adminPerms = Set.of(
+            manageUsersPerm, manageRolesPerm, validatePoolsPerm, moderateContentPerm, managePaymentsPerm,
+            userReadPerm, userWritePerm, adminDashboardPerm, poolModeratePerm, paymentReadPerm, paymentConfirmPerm
+        );
+        RoleEntity adminRole = getOrCreateRole("ADMIN", "Administrateur général", adminPerms);
+        
+        RoleEntity poolAdminRole = getOrCreateRole("ADMIN_POOL", "Administrateur des cagnottes", Set.of(validatePoolsPerm, poolModeratePerm));
+        RoleEntity paymentAdminRole = getOrCreateRole("ADMIN_PAYMENT", "Administrateur des paiements", Set.of(managePaymentsPerm, paymentReadPerm, paymentConfirmPerm));
+        RoleEntity moderatorRole = getOrCreateRole("MODERATEUR", "Modérateur de contenu", Set.of(moderateContentPerm, poolModeratePerm));
         RoleEntity userRole = getOrCreateRole("USER", "Utilisateur standard", Set.of());
 
         // 3. Initialiser les comptes de test s'ils n'existent pas
@@ -92,14 +108,17 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private RoleEntity getOrCreateRole(String name, String description, Set<PermissionEntity> permissions) {
-        return roleRepository.findByName(name)
-                .orElseGet(() -> roleRepository.save(
-                        RoleEntity.builder()
-                                .name(name)
-                                .description(description)
-                                .permissions(permissions)
-                                .build()
-                ));
+        RoleEntity role = roleRepository.findByName(name).orElse(null);
+        if (role == null) {
+            role = RoleEntity.builder()
+                    .name(name)
+                    .description(description)
+                    .permissions(new HashSet<>(permissions))
+                    .build();
+        } else {
+            role.setPermissions(new HashSet<>(permissions));
+        }
+        return roleRepository.save(role);
     }
 
     private void createTestUserIfAbsent(String email, String password, String fullName, RoleEntity role) {
@@ -111,7 +130,7 @@ public class DataInitializer implements CommandLineRunner {
                     .status(UserStatus.ACTIVE)
                     .enabled(true)
                     .accountNonLocked(true)
-                    .roles(Set.of(role))
+                    .roles(new HashSet<>(Set.of(role)))
                     .build();
             userRepository.save(user);
             System.out.println(">>> [Initialisation] Utilisateur de test créé : " + email + " / " + password + " (" + role.getName() + ")");

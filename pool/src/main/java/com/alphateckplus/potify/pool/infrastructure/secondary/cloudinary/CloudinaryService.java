@@ -27,14 +27,22 @@ public class CloudinaryService {
     }
 
     public String uploadVideo(MultipartFile file) throws IOException {
-        Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+        return uploadVideo(file.getBytes());
+    }
+
+    public String uploadVideo(byte[] videoBytes) throws IOException {
+        Map<?, ?> uploadResult = cloudinary.uploader().upload(videoBytes, ObjectUtils.asMap(
                 "resource_type", "video"
         ));
         return (String) uploadResult.get("secure_url");
     }
 
     public String uploadImage(MultipartFile file) throws IOException {
-        Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+        return uploadImage(file.getBytes());
+    }
+
+    public String uploadImage(byte[] imageBytes) throws IOException {
+        Map<?, ?> uploadResult = cloudinary.uploader().upload(imageBytes, ObjectUtils.asMap(
                 "resource_type", "image"
         ));
         return (String) uploadResult.get("secure_url");

@@ -6,12 +6,6 @@ package com.alphateckplus.potify.pool.domain.model;
  * <p>Ces statuts definissent le cycle de vie d'une cagnotte et les actions autorisees.
  */
 public enum PoolStatus {
-    /** La cagnotte est en cours de creation par l'utilisateur. */
-    BROUILLON,
-
-    /** La cagnotte a ete soumise pour validation administrative. */
-    EN_REVUE,
-
     /** La cagnotte est validee et visible publiquement ou par les invites. */
     PUBLIEE,
 
@@ -22,8 +16,5 @@ public enum PoolStatus {
     CLOTUREE,
 
     /** La cagnotte est archivee et n'est plus visible dans les listes actives. */
-    ARCHIVEE,
-
-    /** La sous-cagnotte a completé toutes ses phases. */
-    COMPLETED
+    ARCHIVEE
 }

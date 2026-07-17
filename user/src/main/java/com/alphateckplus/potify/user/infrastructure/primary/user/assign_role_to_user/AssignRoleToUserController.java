@@ -5,6 +5,7 @@ import com.alphateckplus.potify.user.domain.model.User;
 import com.alphateckplus.potify.user.domain.model.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ public class AssignRoleToUserController {
     private final AssignRoleToUserService assignRoleToUserService;
 
     @PostMapping("/{userId}/roles/{roleId}")
+    @PreAuthorize("hasAuthority('ADMIN_DASHBOARD')")
     public ResponseEntity<Void> assignRoleToUser(
         @PathVariable String userId,
         @PathVariable String roleId

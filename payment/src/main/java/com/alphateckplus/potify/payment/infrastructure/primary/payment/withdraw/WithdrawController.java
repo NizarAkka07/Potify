@@ -6,6 +6,7 @@ import com.alphateckplus.potify.payment.application_service.primary.payment.with
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +26,7 @@ public class WithdrawController {
     }
 
     @PostMapping("/api/payments/withdraw")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> handle(@RequestBody WithdrawRequest request) {
         try {
             useCase.execute(request);
@@ -39,6 +41,7 @@ public class WithdrawController {
     }
 
     @PostMapping("/api/payments/withdraw/{transactionId}/confirm")
+    @PreAuthorize("hasAuthority('PAYMENT_CONFIRM')")
     public ResponseEntity<?> confirm(@PathVariable String transactionId) {
         try {
             confirmUseCase.execute(transactionId);

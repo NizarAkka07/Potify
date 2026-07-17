@@ -2,6 +2,7 @@ package com.alphateckplus.potify.payment.application_service.primary.payment.wit
 
 import com.alphateckplus.potify.payment.application_service.secondary.notification.NotificationEventPublisherPort;
 import com.alphateckplus.potify.payment.application_service.secondary.payment.PaymentRepositoryPort;
+import com.alphateckplus.potify.payment.application_service.secondary.payment.UserCheckPort;
 import com.alphateckplus.potify.payment.domain.model.Transaction;
 import com.alphateckplus.potify.payment.domain.model.TransactionStatus;
 import com.alphateckplus.potify.payment.domain.model.TransactionType;
@@ -17,6 +18,7 @@ public class DefaultWithdrawService implements WithdrawService {
 
     private final PaymentRepositoryPort repositoryPort;
     private final NotificationEventPublisherPort notificationEventPublisherPort;
+    private final UserCheckPort userCheckPort;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -27,10 +29,22 @@ public class DefaultWithdrawService implements WithdrawService {
             throw new IllegalArgumentException("Le montant du retrait doit être supérieur à 0");
         }
 
-        // Validate that user is owner
+        // Validate that user is owner using stateless SecurityContext
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new org.springframework.security.access.AccessDeniedException("Non autorisé : Utilisateur non authentifié");
+        }
+        
+        String currentUserEmail = auth.getName();
+        String authenticatedUserId = userCheckPort.getIdByEmail(currentUserEmail);
         String ownerId = repositoryPort.getPoolOwnerId(request.getPoolId());
-        if (!ownerId.equals(request.getUserId())) {
-            throw new IllegalAccessException("Seul le propriétaire de la cagnotte peut effectuer un retrait");
+        
+        boolean isOwner = ownerId != null && ownerId.equals(authenticatedUserId);
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+
+        if (!isOwner && !isAdmin) {
+            throw new org.springframework.security.access.AccessDeniedException("Seul le propriétaire de la cagnotte peut effectuer un retrait");
         }
 
         // No fees applied on withdrawal anymore, as they are deducted on deposit

@@ -47,7 +47,7 @@ public class NotificationJpaAdapter implements NotificationRepositoryPort {
                 .channel(entity.getChannel().name())
                 .title(entity.getTitle())
                 .content(entity.getContent())
-                .status(entity.getStatus().name())
+                .status(entity.getStatus() != null ? entity.getStatus().name() : "ACTIVE")
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

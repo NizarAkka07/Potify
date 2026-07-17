@@ -34,3 +34,9 @@ paypal:
   client-secret: ${PAYPAL_CLIENT_SECRET:EJrTmR7jth77I_jgnqDeDfeZN5lnuZ8ylaifZLCvEsh4NGkW3SCN3Nr4J40N04I2i8jYy1kZ0nuKlL7w}
   mode: ${PAYPAL_MODE:sandbox}
   api-url: ${PAYPAL_API_URL:https://api-m.sandbox.paypal.com} # URL de l'API de test PayPal
+
+application:
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      expiration: 86400000

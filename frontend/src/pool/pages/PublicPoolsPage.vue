@@ -307,7 +307,7 @@
                           class="q-px-md text-weight-bold contribute-btn" 
                           style="border-radius: 8px; background: #FFA726 !important; color: #1A1A2A !important;"
                           @click.stop="goToPoolDetailForDonation(pool.id)"
-                          :disable="pool.status === 'COMPLETED' || pool.status === 'CLOTUREE'"
+                          :disable="pool.status === 'CLOTUREE'"
                         />
                       </div>
                     </div>
@@ -431,10 +431,9 @@ const getCategoryGradient = (category) => {
 const getStatusLabel = (status) => {
   switch (status) {
     case 'PUBLIEE': return t('publicPools.statusActive')
-    case 'COMPLETED': return t('publicPools.statusCompleted')
     case 'CLOTUREE': return t('publicPools.statusClosed')
-    case 'EN_REVUE': return t('publicPools.statusReview')
-    case 'BROUILLON': return t('publicPools.statusDraft')
+    case 'SUSPENDUE': return 'Suspendue'
+    case 'ARCHIVEE': return 'Archivée'
     default: return status || t('publicPools.statusActive')
   }
 }
@@ -442,9 +441,9 @@ const getStatusLabel = (status) => {
 const getStatusClass = (status) => {
   switch (status) {
     case 'PUBLIEE': return 'badge-active'
-    case 'COMPLETED': return 'badge-completed'
     case 'CLOTUREE': return 'badge-closed'
-    case 'EN_REVUE': return 'badge-review'
+    case 'SUSPENDUE': return 'badge-suspended'
+    case 'ARCHIVEE': return 'badge-archived'
     default: return 'badge-default'
   }
 }
@@ -517,7 +516,7 @@ const filteredPools = computed(() => {
   if (selectedStatus.value === 'active') {
     result = result.filter(p => p.status === 'PUBLIEE')
   } else if (selectedStatus.value === 'completed') {
-    result = result.filter(p => p.status === 'COMPLETED' || p.status === 'CLOTUREE')
+    result = result.filter(p => p.status === 'CLOTUREE')
   }
   
   // Exclude sub-pools from public view

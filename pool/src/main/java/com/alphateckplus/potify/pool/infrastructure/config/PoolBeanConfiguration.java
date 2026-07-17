@@ -38,6 +38,7 @@ import com.alphateckplus.potify.data_jpa.repository.user.UserEntityRepository;
 import com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationPort;
 import com.alphateckplus.potify.pool.infrastructure.secondary.notification.EmailNotificationAdapter;
 import com.alphateckplus.potify.pool.application_service.secondary.pool.UserCheckPort;
+import com.alphateckplus.potify.pool.application_service.primary.pool.workflow.*;
 import com.alphateckplus.potify.pool.infrastructure.secondary.pool.UserCheckAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -144,8 +145,8 @@ public class PoolBeanConfiguration {
     }
 
     @Bean
-    public UpdatePoolService updatePoolService(PoolRepositoryPort poolRepositoryPort) {
-        return new DefaultUpdatePoolService(poolRepositoryPort);
+    public UpdatePoolService updatePoolService(PoolRepositoryPort poolRepositoryPort, UserCheckPort userCheckPort) {
+        return new DefaultUpdatePoolService(poolRepositoryPort, userCheckPort);
     }
 
     @Bean
@@ -201,5 +202,43 @@ public class PoolBeanConfiguration {
     public com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort(
             org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate) {
         return new com.alphateckplus.potify.pool.infrastructure.secondary.notification.KafkaNotificationEventPublisherAdapter(kafkaTemplate);
+    }
+
+    @Bean
+    public PublishPoolService publishPoolService(
+            PoolRepositoryPort poolRepositoryPort,
+            UserCheckPort userCheckPort,
+            com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
+        return new DefaultPublishPoolService(poolRepositoryPort, userCheckPort, notificationEventPublisherPort);
+    }
+
+    @Bean
+    public ApprovePoolService approvePoolService(
+            PoolRepositoryPort poolRepositoryPort,
+            WalletRepositoryPort walletRepositoryPort,
+            com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
+        return new DefaultApprovePoolService(poolRepositoryPort, walletRepositoryPort, notificationEventPublisherPort);
+    }
+
+    @Bean
+    public RejectPoolService rejectPoolService(
+            PoolRepositoryPort poolRepositoryPort,
+            com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
+        return new DefaultRejectPoolService(poolRepositoryPort, notificationEventPublisherPort);
+    }
+
+    @Bean
+    public SuspendPoolService suspendPoolService(
+            PoolRepositoryPort poolRepositoryPort,
+            com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
+        return new DefaultSuspendPoolService(poolRepositoryPort, notificationEventPublisherPort);
+    }
+
+    @Bean
+    public ClosePoolService closePoolService(
+            PoolRepositoryPort poolRepositoryPort,
+            UserCheckPort userCheckPort,
+            com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
+        return new DefaultClosePoolService(poolRepositoryPort, userCheckPort, notificationEventPublisherPort);
     }
 }

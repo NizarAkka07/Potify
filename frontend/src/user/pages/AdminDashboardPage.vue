@@ -1105,8 +1105,8 @@ const loadStats = async () => {
     poolsList.forEach(p => {
       totalAmount += p.currentAmount || 0
       totalGoal += p.goalAmount || 0
-      if (p.status === 'ACTIVE') active++
-      if (p.status === 'COMPLETED') completed++
+      if (p.status === 'PUBLIEE') active++
+      if (p.status === 'CLOTUREE') completed++
     })
 
     stats.activePools = active

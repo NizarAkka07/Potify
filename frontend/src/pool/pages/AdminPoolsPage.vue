@@ -1,18 +1,16 @@
 <template>
-  <q-page padding style="background: #F8F9FA;">
-
+  <q-page padding class="admin-pools-page font-inter">
 
     <!-- Tab system for Moderator -->
     <div v-if="authStore.isModerator.value" class="q-mb-md">
       <q-tabs
         v-model="activeTab"
         dense
-        class="text-grey-7 bg-white q-pa-xs shadow-1"
+        class="premium-tabs q-pa-xs no-shadow"
         active-color="primary"
         indicator-color="primary"
         align="left"
         narrow-indicator
-        style="border-radius: 8px;"
       >
         <q-tab name="pools" label="Cagnottes" icon="account_balance_wallet" no-caps />
         <q-tab name="reports" label="Messages Signalés" icon="report_problem" no-caps />
@@ -22,7 +20,7 @@
 
     <div v-if="activeTab === 'pools'">
       <!-- Filters & Search -->
-      <q-card class="q-pa-md q-mb-lg shadow-2" style="border-radius: 12px;">
+      <q-card class="premium-card q-pa-md q-mb-lg no-shadow">
         <div class="row q-col-gutter-md items-center">
           <div class="col-12 col-md-6">
             <q-input outlined dense v-model="filter.search" :label="$t('adminPools.searchPlaceholder')" color="secondary">
@@ -48,120 +46,121 @@
       </q-card>
 
       <!-- Table or Grid list -->
-      <q-table
-        :rows="filteredPools"
-        :columns="columns"
-        row-key="id"
-        :loading="loading"
-        flat
-        bordered
-        style="border-radius: 12px; background: white;"
-        :pagination="{ rowsPerPage: 10 }"
-      >
-        <!-- Custom image cell -->
-        <template v-slot:body-cell-image="props">
-          <q-td :props="props">
-            <q-avatar rounded size="40px">
-              <q-img v-if="props.row.imageUrl" :src="props.row.imageUrl" />
-              <q-icon v-else name="account_balance" color="grey-5" />
-            </q-avatar>
-          </q-td>
-        </template>
+      <q-card class="premium-card no-shadow">
+        <q-table
+          :rows="filteredPools"
+          :columns="columns"
+          row-key="id"
+          :loading="loading"
+          flat
+          :pagination="{ rowsPerPage: 10 }"
+          class="transparent-table"
+        >
+          <!-- Custom image cell -->
+          <template v-slot:body-cell-image="props">
+            <q-td :props="props">
+              <q-avatar rounded size="40px">
+                <q-img v-if="props.row.imageUrl" :src="props.row.imageUrl" />
+                <q-icon v-else name="account_balance" color="grey-5" />
+              </q-avatar>
+            </q-td>
+          </template>
 
-        <!-- Custom progress cell -->
-        <template v-slot:body-cell-progress="props">
-          <q-td :props="props">
-            <div class="row items-center q-col-gutter-xs">
-              <div class="col">
-                <q-linear-progress :value="(props.row.currentAmount || 0) / props.row.goalAmount" color="primary" size="8px" rounded />
+          <!-- Custom progress cell -->
+          <template v-slot:body-cell-progress="props">
+            <q-td :props="props">
+              <div class="row items-center q-col-gutter-xs">
+                <div class="col">
+                  <q-linear-progress :value="(props.row.currentAmount || 0) / props.row.goalAmount" color="primary" size="8px" rounded />
+                </div>
+                <div class="col-auto text-caption text-weight-bold">
+                  {{ Math.round(((props.row.currentAmount || 0) / props.row.goalAmount) * 100) }}%
+                </div>
               </div>
-              <div class="col-auto text-caption text-weight-bold">
-                {{ Math.round(((props.row.currentAmount || 0) / props.row.goalAmount) * 100) }}%
-              </div>
-            </div>
-            <div class="text-caption text-grey-6">{{ props.row.currentAmount || 0 }} € / {{ props.row.goalAmount }} €</div>
-          </q-td>
-        </template>
+              <div class="text-caption text-grey-6">{{ props.row.currentAmount || 0 }} € / {{ props.row.goalAmount }} €</div>
+            </q-td>
+          </template>
 
-        <!-- Custom status cell -->
-        <template v-slot:body-cell-status="props">
-          <q-td :props="props" class="text-center">
-            <q-chip 
-              :color="getStatusColor(props.row.status)" 
-              :text-color="getStatusTextColor(props.row.status)" 
-              size="sm" 
-              class="text-weight-bold"
-            >
-              {{ props.row.status }}
-            </q-chip>
-          </q-td>
-        </template>
+          <!-- Custom status cell -->
+          <template v-slot:body-cell-status="props">
+            <q-td :props="props" class="text-center">
+              <q-chip 
+                :color="getStatusColor(props.row.status)" 
+                :text-color="getStatusTextColor(props.row.status)" 
+                size="sm" 
+                class="text-weight-bold"
+              >
+                {{ props.row.status }}
+              </q-chip>
+            </q-td>
+          </template>
 
-        <!-- Custom fees cell -->
-        <template v-slot:body-cell-fees="props">
-          <q-td :props="props" class="text-center">
-            <q-btn v-if="canManagePools" flat dense no-caps color="primary" icon-right="edit" class="text-weight-bold" @click="editPoolFees(props.row)">
-              {{ props.row.fees !== undefined && props.row.fees !== null ? props.row.fees : '2.00' }} %
-              <q-tooltip>Modifier le taux de frais</q-tooltip>
-            </q-btn>
-            <span v-else class="text-weight-bold text-grey-8">
-              {{ props.row.fees !== undefined && props.row.fees !== null ? props.row.fees : '2.00' }} %
-            </span>
-          </q-td>
-        </template>
+          <!-- Custom fees cell -->
+          <template v-slot:body-cell-fees="props">
+            <q-td :props="props" class="text-center">
+              <q-btn v-if="canManagePools" flat dense no-caps color="primary" icon-right="edit" class="text-weight-bold" @click="editPoolFees(props.row)">
+                {{ props.row.fees !== undefined && props.row.fees !== null ? props.row.fees : '2.00' }} %
+                <q-tooltip>Modifier le taux de frais</q-tooltip>
+              </q-btn>
+              <span v-else class="text-weight-bold text-grey-8">
+                {{ props.row.fees !== undefined && props.row.fees !== null ? props.row.fees : '2.00' }} %
+              </span>
+            </q-td>
+          </template>
 
-        <!-- Custom Actions cell -->
-        <template v-slot:body-cell-actions="props">
-          <q-td :props="props" class="text-center q-gutter-xs">
-            <q-btn flat round color="primary" icon="visibility" size="sm" :to="`/pools/${props.row.id}`">
-              <q-tooltip>{{ $t('adminPools.viewPageTooltip') }}</q-tooltip>
-            </q-btn>
-            <q-btn v-if="canManagePools" flat round color="warning" icon="edit" size="sm" :to="`/pools/${props.row.id}/edit`">
-              <q-tooltip>{{ $t('adminPools.editTooltip') }}</q-tooltip>
-            </q-btn>
-            <q-btn 
-              flat 
-              round 
-              color="secondary" 
-              icon="check_circle" 
-              size="sm" 
-              v-if="canManagePools && props.row.status === 'ACTIVE'"
-              @click="changeStatus(props.row, 'COMPLETED')"
-            >
-              <q-tooltip>{{ $t('adminPools.markCompletedTooltip') }}</q-tooltip>
-            </q-btn>
-            <q-btn 
-              flat 
-              round 
-              color="negative" 
-              icon="pause" 
-              size="sm" 
-              v-if="canManagePools && props.row.status === 'ACTIVE'"
-              @click="changeStatus(props.row, 'SUSPENDED')"
-            >
-              <q-tooltip>{{ $t('adminPools.suspendTooltip') }}</q-tooltip>
-            </q-btn>
-            <q-btn 
-              flat 
-              round 
-              color="green" 
-              icon="play_arrow" 
-              size="sm" 
-              v-if="canManagePools && props.row.status === 'SUSPENDED'"
-              @click="changeStatus(props.row, 'ACTIVE')"
-            >
-              <q-tooltip>{{ $t('adminPools.reactivateTooltip') }}</q-tooltip>
-            </q-btn>
-          </q-td>
-        </template>
-      </q-table>
+          <!-- Custom Actions cell -->
+          <template v-slot:body-cell-actions="props">
+            <q-td :props="props" class="text-center q-gutter-xs">
+              <q-btn flat round color="primary" icon="visibility" size="sm" :to="`/pools/${props.row.id}`">
+                <q-tooltip>{{ $t('adminPools.viewPageTooltip') }}</q-tooltip>
+              </q-btn>
+              <q-btn v-if="canManagePools" flat round color="warning" icon="edit" size="sm" :to="`/pools/${props.row.id}/edit`">
+                <q-tooltip>{{ $t('adminPools.editTooltip') }}</q-tooltip>
+              </q-btn>
+              <q-btn 
+                flat 
+                round 
+                color="secondary" 
+                icon="check_circle" 
+                size="sm" 
+                v-if="canManagePools && props.row.status === 'ACTIVE'"
+                @click="changeStatus(props.row, 'COMPLETED')"
+              >
+                <q-tooltip>{{ $t('adminPools.markCompletedTooltip') }}</q-tooltip>
+              </q-btn>
+              <q-btn 
+                flat 
+                round 
+                color="negative" 
+                icon="pause" 
+                size="sm" 
+                v-if="canManagePools && props.row.status === 'ACTIVE'"
+                @click="changeStatus(props.row, 'SUSPENDED')"
+              >
+                <q-tooltip>{{ $t('adminPools.suspendTooltip') }}</q-tooltip>
+              </q-btn>
+              <q-btn 
+                flat 
+                round 
+                color="green" 
+                icon="play_arrow" 
+                size="sm" 
+                v-if="canManagePools && props.row.status === 'SUSPENDED'"
+                @click="changeStatus(props.row, 'ACTIVE')"
+              >
+                <q-tooltip>{{ $t('adminPools.reactivateTooltip') }}</q-tooltip>
+              </q-btn>
+            </q-td>
+          </template>
+        </q-table>
+      </q-card>
     </div>
 
     <!-- Reported messages view -->
     <div v-if="authStore.isModerator.value && activeTab === 'reports'">
-      <q-card class="q-pa-md shadow-2" style="border-radius: 12px; background: white;">
+      <q-card class="premium-card no-shadow q-pa-md">
         <div class="row items-center justify-between q-mb-md">
-          <div class="text-h6 text-weight-bold text-dark">Commentaires signalés par les utilisateurs</div>
+          <div class="text-h6 text-weight-bold card-header-title">Commentaires signalés par les utilisateurs</div>
           <q-btn flat dense round icon="refresh" color="primary" @click="loadReportedMessages">
             <q-tooltip>Actualiser</q-tooltip>
           </q-btn>
@@ -173,15 +172,14 @@
           row-key="id"
           :loading="loadingReports"
           flat
-          bordered
-          style="border-radius: 12px;"
+          class="transparent-table"
           :pagination="{ rowsPerPage: 10 }"
           no-data-label="Aucun message signalé pour le moment"
         >
           <!-- Custom content body cell -->
           <template v-slot:body-cell-content="props">
             <q-td :props="props">
-              <div class="text-weight-medium text-dark" style="white-space: normal; max-width: 400px; word-break: break-all;">
+              <div class="text-weight-medium table-text" style="white-space: normal; max-width: 400px; word-break: break-all;">
                 {{ props.row.content }}
               </div>
             </q-td>
@@ -216,9 +214,9 @@
 
     <!-- Reported pools view -->
     <div v-if="authStore.isModerator.value && activeTab === 'poolReports'">
-      <q-card class="q-pa-md shadow-2" style="border-radius: 12px; background: white;">
+      <q-card class="premium-card no-shadow q-pa-md">
         <div class="row items-center justify-between q-mb-md">
-          <div class="text-h6 text-weight-bold text-dark">Cagnottes signalées par les utilisateurs</div>
+          <div class="text-h6 text-weight-bold card-header-title">Cagnottes signalées par les utilisateurs</div>
           <q-btn flat dense round icon="refresh" color="primary" @click="loadReportedPools">
             <q-tooltip>Actualiser</q-tooltip>
           </q-btn>
@@ -230,8 +228,7 @@
           row-key="id"
           :loading="loadingPoolReports"
           flat
-          bordered
-          style="border-radius: 12px;"
+          class="transparent-table"
           :pagination="{ rowsPerPage: 10 }"
           no-data-label="Aucune cagnotte signalée pour le moment"
         >
@@ -273,18 +270,18 @@
 
     <!-- Dialog Détails des Signalements -->
     <q-dialog v-model="detailsDialog">
-      <q-card style="border-radius: 16px; min-width: 450px;">
+      <q-card class="premium-dialog-card" style="min-width: 450px;">
         <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6 text-weight-bold text-dark">Détails des Signalements</div>
+          <div class="text-h6 text-weight-bold dialog-title">Détails des Signalements</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
 
         <q-card-section class="q-pa-md">
-          <div class="q-mb-md bg-grey-1 q-pa-sm rounded-borders" style="border-left: 4px solid var(--q-warning);">
-            <div class="text-weight-bold text-grey-8">Message signalé :</div>
-            <div class="text-italic text-grey-9 q-mt-xs">"{{ selectedMessageForDetails?.content }}"</div>
-            <div class="text-caption text-grey-6 q-mt-xs">Auteur : {{ selectedMessageForDetails?.userName }}</div>
+          <div class="q-mb-md reported-summary-box q-pa-sm rounded-borders">
+            <div class="text-weight-bold text-muted-title">Message signalé :</div>
+            <div class="text-italic text-content q-mt-xs">"{{ selectedMessageForDetails?.content }}"</div>
+            <div class="text-caption text-sub q-mt-xs">Auteur : {{ selectedMessageForDetails?.userName }}</div>
           </div>
 
           <div class="text-subtitle2 q-mb-xs text-weight-medium">Historique des signalements ({{ selectedMessageForDetails?.reports?.length || 0 }}) :</div>
@@ -294,7 +291,7 @@
                 <q-item-label class="text-weight-medium text-primary">
                   {{ rep.userName || 'Utilisateur inconnu' }}
                 </q-item-label>
-                <q-item-label caption class="text-grey-8">
+                <q-item-label caption class="text-content">
                   Motif : {{ rep.reason }}
                 </q-item-label>
               </q-item-section>
@@ -320,18 +317,18 @@
 
     <!-- Dialog Détails des Signalements de Cagnotte -->
     <q-dialog v-model="poolDetailsDialog">
-      <q-card style="border-radius: 16px; min-width: 450px;">
+      <q-card class="premium-dialog-card" style="min-width: 450px;">
         <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6 text-weight-bold text-dark">Détails des Signalements de Cagnotte</div>
+          <div class="text-h6 text-weight-bold dialog-title">Détails des Signalements de Cagnotte</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
 
         <q-card-section class="q-pa-md">
-          <div class="q-mb-md bg-grey-1 q-pa-sm rounded-borders" style="border-left: 4px solid var(--q-warning);">
-            <div class="text-weight-bold text-grey-8">Cagnotte signalée :</div>
-            <div class="text-weight-medium text-grey-9 q-mt-xs">{{ selectedPoolForDetails?.title }}</div>
-            <div class="text-caption text-grey-6 q-mt-xs">Créateur : {{ selectedPoolForDetails?.ownerName }}</div>
+          <div class="q-mb-md reported-summary-box q-pa-sm rounded-borders">
+            <div class="text-weight-bold text-muted-title">Cagnotte signalée :</div>
+            <div class="text-weight-medium text-content q-mt-xs">{{ selectedPoolForDetails?.title }}</div>
+            <div class="text-caption text-sub q-mt-xs">Créateur : {{ selectedPoolForDetails?.ownerName }}</div>
           </div>
 
           <div class="text-subtitle2 q-mb-xs text-weight-medium">Historique des signalements ({{ selectedPoolForDetails?.reports?.length || 0 }}) :</div>
@@ -341,7 +338,7 @@
                 <q-item-label class="text-weight-medium text-primary">
                   {{ rep.userName || 'Utilisateur inconnu' }}
                 </q-item-label>
-                <q-item-label caption class="text-grey-8">
+                <q-item-label caption class="text-content">
                   Motif : {{ rep.reason }}
                 </q-item-label>
               </q-item-section>
@@ -717,4 +714,134 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.admin-pools-page {
+  --bg-dashboard: #f4f7f6;
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 230, 118, 0.08);
+  --card-shadow: 0 8px 24px -4px rgba(9, 31, 26, 0.04), 0 1px 2px rgba(9, 31, 26, 0.02);
+  --card-shadow-hover: 0 20px 32px -8px rgba(9, 31, 26, 0.08), 0 1px 4px rgba(9, 31, 26, 0.03);
+  --text-main: #091f1a;
+  --text-muted: #627571;
+  --border-light: rgba(9, 31, 26, 0.06);
+  --table-header-bg: #edf2f0;
+
+  background: var(--bg-dashboard);
+  color: var(--text-main);
+  min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+body.body--dark .admin-pools-page {
+  --bg-dashboard: #05100d;
+  --card-bg: #091f1a;
+  --card-border: rgba(0, 230, 118, 0.15);
+  --card-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+  --card-shadow-hover: 0 20px 32px -8px rgba(0, 0, 0, 0.5);
+  --text-main: #f1f5f4;
+  --text-muted: #8ea39f;
+  --border-light: rgba(255, 255, 255, 0.08);
+  --table-header-bg: #061713;
+}
+
+.font-inter {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.premium-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--card-shadow) !important;
+  color: var(--text-main) !important;
+  transition: all 0.3s ease;
+}
+
+.premium-card:hover {
+  box-shadow: var(--card-shadow-hover) !important;
+}
+
+.premium-tabs {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: 12px !important;
+  color: var(--text-muted) !important;
+}
+
+.card-header-title {
+  color: var(--text-main) !important;
+  font-weight: 700;
+}
+
+/* Table styling overrides */
+.transparent-table {
+  background: transparent !important;
+}
+
+.transparent-table :deep(.q-table__container) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.transparent-table :deep(.q-table) {
+  background: transparent !important;
+  color: var(--text-main) !important;
+}
+
+.transparent-table :deep(thead tr) {
+  background-color: var(--table-header-bg) !important;
+}
+
+.transparent-table :deep(thead th) {
+  color: var(--text-muted) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-light) !important;
+}
+
+.transparent-table :deep(tbody td) {
+  border-bottom: 1px solid var(--border-light) !important;
+  color: var(--text-main) !important;
+}
+
+.transparent-table :deep(tbody tr:hover) {
+  background: rgba(0, 230, 118, 0.03) !important;
+}
+
+body.body--dark .transparent-table :deep(tbody tr:hover) {
+  background: rgba(0, 230, 118, 0.05) !important;
+}
+
+/* Dialog Styles */
+.premium-dialog-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: 20px !important;
+  color: var(--text-main) !important;
+}
+
+.dialog-title {
+  color: var(--text-main) !important;
+}
+
+.reported-summary-box {
+  background: rgba(250, 204, 21, 0.06) !important;
+  border: 1px solid rgba(250, 204, 21, 0.15) !important;
+  border-left: 4px solid var(--q-warning) !important;
+}
+
+.text-muted-title {
+  color: var(--text-muted) !important;
+}
+
+.text-content {
+  color: var(--text-main) !important;
+}
+
+.text-sub {
+  color: var(--text-muted) !important;
+  font-size: 0.75rem;
+}
 </style>
