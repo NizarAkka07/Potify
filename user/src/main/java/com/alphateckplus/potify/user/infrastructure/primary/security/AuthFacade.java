@@ -27,6 +27,7 @@ public class AuthFacade {
     private final UserRepositoryPort userRepositoryPort;
     private final JwtUtils jwtUtils;
     private final UserDetailsService userDetailsService;
+    private final com.alphateckplus.potify.user.application_service.primary.user.refresh_token.RefreshTokenService refreshTokenService;
 
     @Transactional
     public AuthResponse authenticate(LoginRequest request) {
@@ -68,8 +69,8 @@ public class AuthFacade {
                 .map(grantedAuthority -> grantedAuthority.getAuthority())
                 .toList();
 
-        // TODO: Implémenter la génération du Refresh Token en base
-        String refreshToken = "mock-refresh-token"; 
+        // Génération du Refresh Token réel en base
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId()); 
 
         return AuthResponse.builder()
                 .accessToken(jwtToken)
