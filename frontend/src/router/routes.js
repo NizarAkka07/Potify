@@ -15,6 +15,10 @@ const routes = [
       { path: 'register', component: () => import('src/user/pages/auth/RegisterPage.vue') },
       // Verification d'email
       { path: 'verify-email', component: () => import('src/user/pages/auth/VerifyEmailPage.vue') },
+      // Mot de passe oublié
+      { path: 'forgot-password', component: () => import('src/user/pages/auth/ForgotPasswordPage.vue') },
+      // Réinitialisation du mot de passe
+      { path: 'reset-password', component: () => import('src/user/pages/auth/ResetPasswordPage.vue') },
       // Creation de cagnotte
       { path: 'pools/create', component: () => import('src/pool/pages/CreatePoolPage.vue') },
       // Liste des cagnottes publiques

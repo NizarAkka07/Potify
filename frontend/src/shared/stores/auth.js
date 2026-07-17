@@ -2,12 +2,14 @@ import { reactive, computed } from 'vue'
 
 const state = reactive({
   user: JSON.parse(localStorage.getItem('user')) || null,
-  token: localStorage.getItem('token') || null
+  token: localStorage.getItem('token') || null,
+  refreshToken: localStorage.getItem('refreshToken') || null
 })
 
 const authStore = {
   user: computed(() => state.user),
   token: computed(() => state.token),
+  refreshToken: computed(() => state.refreshToken),
   isAuthenticated: computed(() => !!state.token),
   isAdmin: computed(() => state.user?.roles?.includes('ROLE_ADMIN') || state.user?.roles?.includes('ROLE_SUPER_ADMIN')),
   isSuperAdmin: computed(() => state.user?.roles?.includes('ROLE_SUPER_ADMIN')),
@@ -37,9 +39,20 @@ const authStore = {
     }
   },
 
+  setRefreshToken(refreshToken) {
+    state.refreshToken = refreshToken
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken)
+    } else {
+      localStorage.removeItem('refreshToken')
+    }
+  },
+
   logout() {
     this.setUser(null)
     this.setToken(null)
+    this.setRefreshToken(null)
+    localStorage.removeItem('refreshToken')
   }
 }
 

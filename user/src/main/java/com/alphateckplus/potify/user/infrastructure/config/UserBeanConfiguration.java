@@ -45,6 +45,8 @@ import com.alphateckplus.potify.user.application_service.primary.user.verify_ema
 import com.alphateckplus.potify.user.application_service.primary.user.change_password.DefaultChangePasswordService;
 import com.alphateckplus.potify.user.application_service.primary.user.change_password.ChangePasswordService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import com.alphateckplus.potify.user.infrastructure.primary.security.JwtUtils;
 import com.alphateckplus.potify.user.application_service.secondary.user.PasswordHashingPort;
 import com.alphateckplus.potify.user.infrastructure.secondary.user.SpringPasswordHashingAdapter;
 import com.alphateckplus.potify.user.application_service.secondary.permission.PermissionRepositoryPort;
@@ -61,6 +63,7 @@ import com.alphateckplus.potify.user.infrastructure.secondary.notification.Email
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * Configuration explicite des beans du microservice user.
@@ -70,6 +73,9 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class UserBeanConfiguration {
+
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private long refreshTokenExpirationMs;
 
     @Bean
     public PermissionPersistenceMapper permissionPersistenceMapper() {
@@ -273,5 +279,59 @@ public class UserBeanConfiguration {
     @Bean
     public ChangePasswordService changePasswordService(UserRepositoryPort userRepositoryPort, PasswordHashingPort passwordHashingPort) {
         return new DefaultChangePasswordService(userRepositoryPort, passwordHashingPort);
+    }
+
+    @Bean
+    public com.alphateckplus.potify.user.application_service.secondary.user.SecurityTokenRepositoryPort securityTokenRepositoryPort(
+        com.alphateckplus.potify.data_jpa.repository.user.SecurityTokenEntityRepository securityTokenEntityRepository,
+        UserEntityRepository userEntityRepository
+    ) {
+        return new com.alphateckplus.potify.user.infrastructure.secondary.user.SecurityTokenJpaAdapter(
+            securityTokenEntityRepository, userEntityRepository
+        );
+    }
+
+    @Bean
+    public com.alphateckplus.potify.user.application_service.primary.user.forgot_password.ForgotPasswordService forgotPasswordService(
+        UserRepositoryPort userRepositoryPort,
+        com.alphateckplus.potify.user.application_service.secondary.user.SecurityTokenRepositoryPort securityTokenRepositoryPort,
+        NotificationPort notificationPort
+    ) {
+        return new com.alphateckplus.potify.user.application_service.primary.user.forgot_password.DefaultForgotPasswordService(
+            userRepositoryPort, securityTokenRepositoryPort, notificationPort
+        );
+    }
+
+    @Bean
+    public com.alphateckplus.potify.user.application_service.primary.user.reset_password.ResetPasswordService resetPasswordService(
+        com.alphateckplus.potify.user.application_service.secondary.user.SecurityTokenRepositoryPort securityTokenRepositoryPort,
+        UserRepositoryPort userRepositoryPort,
+        PasswordHashingPort passwordHashingPort
+    ) {
+        return new com.alphateckplus.potify.user.application_service.primary.user.reset_password.DefaultResetPasswordService(
+            securityTokenRepositoryPort, userRepositoryPort, passwordHashingPort
+        );
+    }
+
+    @Bean
+    public com.alphateckplus.potify.user.application_service.secondary.user.RefreshTokenRepositoryPort refreshTokenRepositoryPort(
+        com.alphateckplus.potify.data_jpa.repository.user.RefreshTokenEntityRepository refreshTokenEntityRepository,
+        UserEntityRepository userEntityRepository
+    ) {
+        return new com.alphateckplus.potify.user.infrastructure.secondary.user.RefreshTokenJpaAdapter(
+            refreshTokenEntityRepository, userEntityRepository
+        );
+    }
+
+    @Bean
+    public com.alphateckplus.potify.user.application_service.primary.user.refresh_token.RefreshTokenService refreshTokenService(
+        com.alphateckplus.potify.user.application_service.secondary.user.RefreshTokenRepositoryPort refreshTokenRepositoryPort,
+        UserRepositoryPort userRepositoryPort,
+        JwtUtils jwtUtils,
+        UserDetailsService userDetailsService
+    ) {
+        return new com.alphateckplus.potify.user.application_service.primary.user.refresh_token.DefaultRefreshTokenService(
+            refreshTokenRepositoryPort, userRepositoryPort, jwtUtils, userDetailsService, refreshTokenExpirationMs
+        );
     }
 }

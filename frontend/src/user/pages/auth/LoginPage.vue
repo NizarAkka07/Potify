@@ -43,8 +43,13 @@
             </template>
           </q-input>
 
+          <!-- Lien mot de passe oublié -->
+          <div class="row justify-end">
+            <q-btn flat no-caps dense color="grey-7" label="Mot de passe oublié ?" to="/forgot-password" class="forgot-btn text-caption" />
+          </div>
+
           <!-- Actions : Bouton de connexion -->
-          <div class="row justify-end q-mt-lg">
+          <div class="row justify-end q-mt-md">
             <q-btn
               unelevated
               no-caps
@@ -88,9 +93,10 @@ const onSubmit = async () => {
   loading.value = true
   try {
     const response = await api.post('/auth/signin', loginForm.value)
-    const { accessToken } = response.data
+    const { accessToken, refreshToken } = response.data
 
     authStore.setToken(accessToken)
+    authStore.setRefreshToken(refreshToken)
     authStore.setUser({ 
       id: response.data.id,
       email: response.data.email, 
