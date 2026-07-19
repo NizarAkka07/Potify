@@ -47,6 +47,11 @@ import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolGene
 import com.alphateckplus.potify.pool.infrastructure.secondary.ai.MistralPoolGenerationAdapter;
 import com.alphateckplus.potify.pool.application_service.primary.pool.generate_pool_structure.GeneratePoolStructureService;
 import com.alphateckplus.potify.pool.application_service.primary.pool.generate_pool_structure.DefaultGeneratePoolStructureService;
+import com.alphateckplus.potify.pool.application_service.primary.pool.update_timeline.PoolUpdateService;
+import com.alphateckplus.potify.pool.application_service.primary.pool.update_timeline.DefaultPoolUpdateService;
+import com.alphateckplus.potify.pool.application_service.secondary.pool.PoolUpdateRepositoryPort;
+import com.alphateckplus.potify.pool.infrastructure.secondary.pool.mapper.PoolUpdatePersistenceMapper;
+import com.alphateckplus.potify.pool.infrastructure.secondary.pool.repository.PoolUpdateJpaAdapter;
 
 /**
  * Configuration explicite des beans du microservice pool.
@@ -240,5 +245,27 @@ public class PoolBeanConfiguration {
             UserCheckPort userCheckPort,
             com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
         return new DefaultClosePoolService(poolRepositoryPort, userCheckPort, notificationEventPublisherPort);
+    }
+
+    @Bean
+    public PoolUpdatePersistenceMapper poolUpdatePersistenceMapper() {
+        return new PoolUpdatePersistenceMapper();
+    }
+
+    @Bean
+    public PoolUpdateRepositoryPort poolUpdateRepositoryPort(
+            com.alphateckplus.potify.data_jpa.repository.pool.PoolUpdateEntityRepository poolUpdateEntityRepository,
+            PoolEntityRepository poolEntityRepository,
+            PoolUpdatePersistenceMapper poolUpdatePersistenceMapper,
+            com.alphateckplus.potify.data_jpa.repository.payment.ContributionEntityRepository contributionEntityRepository) {
+        return new PoolUpdateJpaAdapter(poolUpdateEntityRepository, poolEntityRepository, poolUpdatePersistenceMapper, contributionEntityRepository);
+    }
+
+    @Bean
+    public PoolUpdateService poolUpdateService(
+            PoolUpdateRepositoryPort poolUpdateRepositoryPort,
+            PoolRepositoryPort poolRepositoryPort,
+            com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
+        return new DefaultPoolUpdateService(poolUpdateRepositoryPort, poolRepositoryPort, notificationEventPublisherPort);
     }
 }

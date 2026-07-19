@@ -188,6 +188,25 @@ export const poolService = {
    */
   deletePool(poolId) {
     return poolApi.delete(`/pools/${poolId}`)
+  },
+
+  /**
+   * Récupère la liste des actualités / mises à jour d'une cagnotte.
+   * @param {string} poolId
+   * @returns {Promise}
+   */
+  getPoolUpdates(poolId) {
+    return poolApi.get(`/pools/${poolId}/updates`)
+  },
+
+  /**
+   * Publie une nouvelle actualité sur une cagnotte.
+   * @param {string} poolId
+   * @param {Object} data - { title, content, imageUrl, videoUrl }
+   * @returns {Promise}
+   */
+  createPoolUpdate(poolId, data) {
+    return poolApi.post(`/pools/${poolId}/updates`, data)
   }
 }
 

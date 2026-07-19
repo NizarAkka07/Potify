@@ -251,6 +251,67 @@
             </div>
           </q-card>
 
+          <!-- SECTION : ACTUALITES & TIMELINE DE CONFIANCE -->
+          <q-card class="custom-card q-pa-lg q-mb-lg no-shadow">
+            <div class="row items-center justify-between q-mb-md">
+              <div class="row items-center">
+                <q-icon name="campaign" class="q-mr-sm" color="primary" size="24px" />
+                <div class="text-subtitle1 text-weight-bold text-dark">
+                  Actualités du projet ({{ updates.length }})
+                </div>
+              </div>
+              <q-btn 
+                v-if="isOwner" 
+                label="Publier une actualité" 
+                icon="add_alert" 
+                color="positive" 
+                unelevated 
+                no-caps 
+                style="border-radius: 12px;"
+                @click="openPublishUpdateDialog"
+              />
+            </div>
+
+            <!-- Liste des actualités -->
+            <div v-if="updates.length > 0" class="updates-timeline q-pl-sm">
+              <div v-for="update in updates" :key="update.id" class="update-timeline-item q-mb-xl" style="position: relative;">
+                <div class="row items-start">
+                  <!-- L'icône de l'actualité -->
+                  <div class="update-icon-circle q-mr-md shadow-sm bg-positive text-white flex flex-center" style="width: 40px; height: 40px; border-radius: 50%; z-index: 1;">
+                    <q-icon name="announcement" size="20px" />
+                  </div>
+                  
+                  <div class="col">
+                    <div class="text-weight-bold text-dark text-subtitle1 q-mb-xs">
+                      {{ update.title }}
+                    </div>
+                    <div class="text-caption text-grey-5 q-mb-md">
+                      Publié le {{ formatDateWithTime(update.createdAt) }}
+                    </div>
+                    <div class="text-body2 text-grey-8 q-mb-md" style="white-space: pre-line; line-height: 1.6;">
+                      {{ update.content }}
+                    </div>
+
+                    <!-- Images / Vidéos de l'actualité -->
+                    <div v-if="update.imageUrl" class="q-mb-md" style="max-width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0;">
+                      <q-img :src="update.imageUrl" max-height="350px" fit="contain" class="bg-grey-1" />
+                    </div>
+
+                    <div v-if="update.videoUrl" class="q-mb-md" style="max-width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0;">
+                      <q-video :src="update.videoUrl" :ratio="16/9" style="max-height: 350px;" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-else class="text-center q-py-xl text-grey-5">
+              <q-icon name="notifications_none" size="48px" class="q-mb-sm text-grey-4" />
+              <div>Aucune actualité publiée pour le moment.</div>
+              <div class="text-caption text-grey-5 q-mt-xs">Suivez cette cagnotte pour rester informé des derniers développements.</div>
+            </div>
+          </q-card>
+
           <!-- Last Donors List Card (CotizUp Style) -->
           <q-card class="custom-card q-pa-lg q-mb-lg no-shadow">
             <div class="row items-center justify-between q-mb-md">
@@ -931,6 +992,150 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <!-- Dialogue de Publication d'Actualité -->
+    <q-dialog v-model="publishUpdateDialog" persistent transition-show="scale" transition-hide="scale">
+      <q-card style="min-width: 550px; max-width: 90vw; border-radius: 24px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);" :dark="$q.dark.isActive">
+        <q-card-section class="row items-center q-pb-none q-pa-lg">
+          <div class="row items-center">
+            <q-avatar color="primary-light" text-color="primary" size="40px" class="q-mr-md" style="background: rgba(0, 230, 118, 0.1); color: #00e676;">
+              <q-icon name="campaign" size="24px" />
+            </q-avatar>
+            <div>
+              <div class="text-h6 text-weight-bolder text-dark" style="font-family: 'Outfit', sans-serif;">Publier une actualité</div>
+              <div class="text-caption text-grey-5">Timeline de confiance & notification</div>
+            </div>
+          </div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup color="grey-6" />
+        </q-card-section>
+
+        <q-card-section class="q-px-lg q-pb-lg">
+          <q-separator class="q-mb-md" style="opacity: 0.5;" />
+          
+          <div class="text-caption text-grey-6 q-mb-lg">
+            Partagez avec vos contributeurs les dernières nouvelles (achat de matériel, photos d'avancement, etc.). Ils recevront immédiatement une notification par email/SSE.
+          </div>
+          
+          <div class="q-gutter-y-md">
+            <!-- Champ Titre -->
+            <div>
+              <div class="text-subtitle2 text-weight-bold text-dark q-mb-xs">Titre de l'actualité *</div>
+              <q-input
+                outlined
+                v-model="updateForm.title"
+                placeholder="Ex: Le fauteuil roulant a été commandé !"
+                color="secondary"
+                dense
+                style="border-radius: 12px;"
+                :rules="[val => !!val || 'Le titre est obligatoire']"
+                hide-bottom-space
+              >
+                <template v-slot:prepend>
+                  <q-icon name="title" color="grey-5" />
+                </template>
+              </q-input>
+            </div>
+
+            <!-- Champ Contenu -->
+            <div>
+              <div class="text-subtitle2 text-weight-bold text-dark q-mb-xs">Contenu de la mise à jour *</div>
+              <q-input
+                outlined
+                v-model="updateForm.content"
+                type="textarea"
+                placeholder="Décrivez en détail ce qui s'est passé, les étapes franchies..."
+                color="secondary"
+                rows="4"
+                style="border-radius: 12px;"
+                :rules="[val => !!val || 'Le contenu est obligatoire']"
+                hide-bottom-space
+              >
+                <template v-slot:prepend>
+                  <q-icon name="edit_note" color="grey-5" class="q-mt-sm" />
+                </template>
+              </q-input>
+            </div>
+
+            <!-- Uploader d'Image Cloudinary -->
+            <div>
+              <div class="text-subtitle2 text-weight-bold text-dark q-mb-xs">Image d'illustration (optionnel)</div>
+              <div 
+                class="upload-box flex flex-center cursor-pointer relative-position text-center q-pa-md" 
+                style="border: 2px dashed #CBD5E1; border-radius: 16px; height: 180px; overflow: hidden; background: #F8FAFC; transition: all 0.3s;"
+                @click="triggerImageUpload"
+                v-ripple
+              >
+                <template v-if="uploadingImage">
+                  <div class="column items-center">
+                    <q-spinner-oval color="primary" size="40px" />
+                    <div class="text-caption text-grey-6 q-mt-sm">Téléchargement vers Cloudinary...</div>
+                  </div>
+                </template>
+                <template v-else-if="updateForm.imageUrl">
+                  <q-img :src="updateForm.imageUrl" height="100%" width="100%" fit="cover" />
+                  <div class="absolute-top-right q-pa-sm">
+                    <q-btn round color="negative" icon="delete" size="sm" @click.stop="removeUploadedImage" />
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="column items-center">
+                    <q-icon name="add_a_photo" size="36px" color="primary" class="q-mb-sm" />
+                    <div class="text-subtitle2 text-weight-bold text-dark">Cliquez pour importer une photo</div>
+                    <div class="text-caption text-grey-5">Elle sera directement sauvegardée sur Cloudinary</div>
+                  </div>
+                </template>
+              </div>
+              <input type="file" ref="imageFileInput" class="hidden" accept="image/*" @change="onImageSelected" />
+            </div>
+
+            <!-- Champ Vidéo -->
+            <div>
+              <div class="text-subtitle2 text-weight-bold text-dark q-mb-xs">URL d'une vidéo YouTube/Vimeo (optionnel)</div>
+              <q-input
+                outlined
+                v-model="updateForm.videoUrl"
+                placeholder="https://www.youtube.com/watch?v=..."
+                color="secondary"
+                dense
+                style="border-radius: 12px;"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="play_circle_outline" color="grey-5" />
+                </template>
+              </q-input>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="row justify-end q-mt-xl q-col-gutter-sm">
+              <div class="col-auto">
+                <q-btn 
+                  label="Annuler" 
+                  flat 
+                  v-close-popup 
+                  color="grey-7" 
+                  no-caps
+                  class="q-px-lg text-weight-bold"
+                  style="border-radius: 12px;" 
+                />
+              </div>
+              <div class="col-auto">
+                <q-btn 
+                  label="Publier l'actualité" 
+                  color="positive" 
+                  unelevated 
+                  :loading="publishingUpdate"
+                  @click="submitPublishUpdate"
+                  no-caps
+                  class="q-px-xl text-weight-bold"
+                  style="border-radius: 12px;"
+                />
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -957,6 +1162,18 @@ const invitations = ref([])
 const inviteEmail = ref('')
 const sendingInvite = ref(false)
 const mediaSlide = ref('image')
+
+const updates = ref([])
+const publishUpdateDialog = ref(false)
+const publishingUpdate = ref(false)
+const imageFileInput = ref(null)
+const uploadingImage = ref(false)
+const updateForm = reactive({
+  title: '',
+  content: '',
+  imageUrl: '',
+  videoUrl: ''
+})
 
 const withdrawDialog = ref(false)
 const shareDialog = ref(false)
@@ -1557,8 +1774,103 @@ const submitWithdrawal = async () => {
   }
 }
 
+const triggerImageUpload = () => {
+  if (imageFileInput.value) {
+    imageFileInput.value.click()
+  }
+}
+
+const onImageSelected = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  uploadingImage.value = true
+  try {
+    const response = await poolService.uploadImage(file)
+    updateForm.imageUrl = response.data.url
+    $q.notify({
+      type: 'positive',
+      message: 'Photo importée avec succès !',
+      position: 'bottom',
+      timeout: 2000
+    })
+  } catch (error) {
+    console.error('Erreur upload actualité:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Erreur lors du téléchargement de la photo.',
+      position: 'bottom'
+    })
+  } finally {
+    uploadingImage.value = false
+  }
+}
+
+const removeUploadedImage = () => {
+  updateForm.imageUrl = ''
+  if (imageFileInput.value) {
+    imageFileInput.value.value = ''
+  }
+}
+
+const openPublishUpdateDialog = () => {
+  updateForm.title = ''
+  updateForm.content = ''
+  updateForm.imageUrl = ''
+  updateForm.videoUrl = ''
+  publishUpdateDialog.value = true
+}
+
+const fetchUpdates = async () => {
+  try {
+    const id = route.params.id
+    const response = await poolService.getPoolUpdates(id)
+    updates.value = response.data
+  } catch (err) {
+    console.error('Erreur chargement updates:', err)
+  }
+}
+
+const submitPublishUpdate = async () => {
+  if (!updateForm.title.trim() || !updateForm.content.trim()) {
+    $q.notify({
+      type: 'warning',
+      message: 'Le titre et le contenu sont obligatoires.'
+    })
+    return
+  }
+
+  publishingUpdate.value = true
+  try {
+    const id = route.params.id
+    await poolService.createPoolUpdate(id, {
+      title: updateForm.title,
+      content: updateForm.content,
+      imageUrl: updateForm.imageUrl || null,
+      videoUrl: updateForm.videoUrl || null
+    })
+    
+    $q.notify({
+      type: 'positive',
+      message: 'Actualité publiée avec succès et envoyée aux contributeurs !'
+    })
+    
+    publishUpdateDialog.value = false
+    await fetchUpdates()
+  } catch (err) {
+    console.error('Erreur publication actualité:', err)
+    $q.notify({
+      type: 'negative',
+      message: err.response?.data?.message || 'Erreur lors de la publication de l\'actualité.'
+    })
+  } finally {
+    publishingUpdate.value = false
+  }
+}
+
 onMounted(async () => {
   await fetchPool()
+  await fetchUpdates()
   setupMessageSSE()
 })
 
@@ -1751,5 +2063,32 @@ body.body--dark .financial-box {
 }
 body.body--dark .border-top-divider {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.update-timeline-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 40px;
+  bottom: -32px;
+  width: 2px;
+  background: #E2E8F0;
+  z-index: 0;
+}
+body.body--dark .update-timeline-item:not(:last-child)::after {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.upload-box:hover {
+  border-color: #00e676 !important;
+  background: #F1FDF5 !important;
+}
+body.body--dark .upload-box {
+  background: #0D1B2E !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+body.body--dark .upload-box:hover {
+  border-color: #00e676 !important;
+  background: rgba(0, 230, 118, 0.05) !important;
 }
 </style>

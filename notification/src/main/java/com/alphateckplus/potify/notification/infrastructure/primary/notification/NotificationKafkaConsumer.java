@@ -34,20 +34,22 @@ public class NotificationKafkaConsumer {
             String content = (String) payload.get("content");
             String channel = (String) payload.get("channel");
 
-            Notification notification = Notification.builder()
-                    .userId(userId)
-                    .type(type)
-                    .title(title)
-                    .content(content)
-                    .channel(channel != null ? channel : "NOTIF_APP")
-                    .status("ACTIVE")
-                    .build();
+            String directEmail = (String) payload.get("email");
 
-            createNotificationService.execute(notification);
-            log.info("Successfully processed and saved notification for user: {}", userId);
-
-            // Envoi de l'email à l'utilisateur
             if (userId != null) {
+                Notification notification = Notification.builder()
+                        .userId(userId)
+                        .type(type)
+                        .title(title)
+                        .content(content)
+                        .channel(channel != null ? channel : "NOTIF_APP")
+                        .status("ACTIVE")
+                        .build();
+
+                createNotificationService.execute(notification);
+                log.info("Successfully processed and saved notification for user: {}", userId);
+
+                // Envoi de l'email à l'utilisateur
                 userEntityRepository.findById(userId).ifPresentOrElse(user -> {
                     String email = user.getEmail();
                     if (email != null && !email.isBlank()) {
@@ -56,6 +58,11 @@ public class NotificationKafkaConsumer {
                         log.warn("L'utilisateur {} n'a pas d'email configuré.", userId);
                     }
                 }, () -> log.warn("Utilisateur {} introuvable pour envoi de notification.", userId));
+            } else if (directEmail != null && !directEmail.isBlank()) {
+                log.info("Sending notification directly to guest email: {}", directEmail);
+                sendEmail(directEmail, title, content);
+            } else {
+                log.warn("Notification event has neither userId nor direct email, skipping.");
             }
         } catch (Exception e) {
             log.error("Failed to process notification event: {}", payload, e);
