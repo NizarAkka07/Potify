@@ -40,7 +40,7 @@ public class DefaultClosePoolService implements ClosePoolService {
 
         boolean isOwner = pool.getOwnerId() != null && pool.getOwnerId().equals(authenticatedUserId);
         boolean isAdmin = auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN_POOL") || a.getAuthority().equals("ROLE_SUPER_ADMIN"));
 
         if (!isOwner && !isAdmin) {
             throw new AccessDeniedException("Non autorisé : Seul le propriétaire ou un administrateur peut clôturer la cagnotte");

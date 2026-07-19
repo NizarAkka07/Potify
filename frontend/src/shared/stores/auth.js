@@ -11,13 +11,13 @@ const authStore = {
   token: computed(() => state.token),
   refreshToken: computed(() => state.refreshToken),
   isAuthenticated: computed(() => !!state.token),
-  isAdmin: computed(() => state.user?.roles?.includes('ROLE_ADMIN') || state.user?.roles?.includes('ROLE_SUPER_ADMIN')),
+  isAdmin: computed(() => state.user?.roles?.includes('ROLE_SUPER_ADMIN')),
   isSuperAdmin: computed(() => state.user?.roles?.includes('ROLE_SUPER_ADMIN')),
-  isModerator: computed(() => state.user?.roles?.includes('ROLE_MODERATEUR') || state.user?.roles?.includes('ROLE_SUPER_ADMIN') || state.user?.roles?.includes('ROLE_ADMIN')),
-  isPoolAdmin: computed(() => state.user?.roles?.includes('ROLE_ADMIN_POOL') || state.user?.roles?.includes('ROLE_SUPER_ADMIN') || state.user?.roles?.includes('ROLE_ADMIN')),
-  isPaymentAdmin: computed(() => state.user?.roles?.includes('ROLE_ADMIN_PAYMENT') || state.user?.roles?.includes('ROLE_SUPER_ADMIN') || state.user?.roles?.includes('ROLE_ADMIN')),
+  isModerator: computed(() => state.user?.roles?.includes('ROLE_MODERATEUR') || state.user?.roles?.includes('ROLE_SUPER_ADMIN')),
+  isPoolAdmin: computed(() => state.user?.roles?.includes('ROLE_ADMIN_POOL') || state.user?.roles?.includes('ROLE_SUPER_ADMIN')),
+  isPaymentAdmin: computed(() => state.user?.roles?.includes('ROLE_ADMIN_PAYMENT') || state.user?.roles?.includes('ROLE_SUPER_ADMIN')),
   hasAdminAccess: computed(() => {
-    const adminRoles = ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN', 'ROLE_MODERATEUR', 'ROLE_ADMIN_POOL', 'ROLE_ADMIN_PAYMENT']
+    const adminRoles = ['ROLE_SUPER_ADMIN', 'ROLE_MODERATEUR', 'ROLE_ADMIN_POOL', 'ROLE_ADMIN_PAYMENT']
     return state.user?.roles?.some(role => adminRoles.includes(role))
   }),
 

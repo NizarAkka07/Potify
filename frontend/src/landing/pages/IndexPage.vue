@@ -860,7 +860,7 @@ const categories = [
 const fetchPools = async () => {
   try {
     const response = await poolApi.get('/pools')
-    const list = (response.data || []).filter(p => !p.parentId).slice(0, 3)
+    const list = (response.data || []).filter(p => !p.parentId && p.status !== 'SUSPENDUE' && p.status !== 'SUSPENDED' && p.status !== 'ARCHIVEE').slice(0, 3)
     pools.value = list.map((p, idx) => {
       // Map icons based on category
       let icon = '✨'

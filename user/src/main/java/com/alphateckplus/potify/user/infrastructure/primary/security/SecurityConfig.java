@@ -57,7 +57,7 @@ public class SecurityConfig {
                                 )
                                 .permitAll()
                                 .requestMatchers("/api/v1/users/**").authenticated() // Autorise l'accès au profil pour tous les connectés
-                                .requestMatchers("/api/v1/access/**").hasRole("ADMIN") // Garde l'admin pour les rôles/permissions
+                                .requestMatchers("/api/v1/access/**").hasRole("SUPER_ADMIN") // Garde le super_admin pour les rôles/permissions
                                 .anyRequest()
                                 .authenticated()
                 )

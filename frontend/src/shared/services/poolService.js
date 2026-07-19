@@ -135,6 +135,20 @@ export const poolService = {
   },
 
   /**
+   * Suspendre une cagnotte (Modération).
+   */
+  suspendPool(poolId, reason = 'Signalement de contenu non conforme') {
+    return poolApi.post(`/pools/${poolId}/suspend`, { reason })
+  },
+
+  /**
+   * Approuver/publier une cagnotte (Modération/Administration).
+   */
+  approvePool(poolId) {
+    return poolApi.post(`/pools/${poolId}/approve`)
+  },
+
+  /**
    * Récupère la liste des commentaires signalés (Modération).
    */
   getReportedMessages() {

@@ -178,7 +178,7 @@ const fetchPoolDetails = async () => {
 
     // Check ownership
     const currentUserId = authStore.user.value?.id
-    const isAdmin = authStore.isAdmin.value
+    const isAdmin = authStore.isPoolAdmin.value || authStore.isSuperAdmin.value
     
     if (pool.ownerId && currentUserId && String(pool.ownerId) !== String(currentUserId) && !isAdmin) {
       $q.notify({

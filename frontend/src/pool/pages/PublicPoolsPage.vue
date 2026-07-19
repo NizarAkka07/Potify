@@ -458,7 +458,7 @@ const getProgressColor = (pool) => {
 
 const getCategoryCount = (cat) => {
   if (!pools.value) return 0
-  const activePools = pools.value.filter(p => !p.parentId)
+  const activePools = pools.value.filter(p => !p.parentId && p.status !== 'SUSPENDUE' && p.status !== 'SUSPENDED' && p.status !== 'ARCHIVEE')
   if (cat === 'Toutes') return activePools.length
   return activePools.filter(p => p.category === cat).length
 }
@@ -505,7 +505,7 @@ watch(searchQuery, () => {
 })
 
 const filteredPools = computed(() => {
-  let result = pools.value || []
+  let result = (pools.value || []).filter(p => p.status !== 'SUSPENDUE' && p.status !== 'SUSPENDED' && p.status !== 'ARCHIVEE')
   
   // Category filter
   if (selectedCategory.value !== 'Toutes') {

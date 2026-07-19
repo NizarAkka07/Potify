@@ -41,7 +41,7 @@ public class DefaultWithdrawService implements WithdrawService {
         
         boolean isOwner = ownerId != null && ownerId.equals(authenticatedUserId);
         boolean isAdmin = auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN_PAYMENT") || a.getAuthority().equals("ROLE_SUPER_ADMIN"));
 
         if (!isOwner && !isAdmin) {
             throw new org.springframework.security.access.AccessDeniedException("Seul le propriétaire de la cagnotte peut effectuer un retrait");

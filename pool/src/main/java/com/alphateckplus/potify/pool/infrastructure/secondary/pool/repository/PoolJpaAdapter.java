@@ -72,6 +72,8 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     @Transactional(readOnly = true)
     public List<Pool> findPublicPools() {
         return poolEntityRepository.findByTypeAndParentIsNull("PUBLIC").stream()
+                .filter(p -> p.getStatus() != com.alphateckplus.potify.data_jpa.entity.pool.CagnotteStatus.SUSPENDUE &&
+                             p.getStatus() != com.alphateckplus.potify.data_jpa.entity.pool.CagnotteStatus.ARCHIVEE)
                 .map(poolPersistenceMapper::toDomain)
                 .toList();
     }
@@ -80,6 +82,8 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
     @Transactional(readOnly = true)
     public List<Pool> searchPublicPools(String query) {
         return poolEntityRepository.findByTypeAndTitleContainingIgnoreCaseAndParentIsNull("PUBLIC", query).stream()
+                .filter(p -> p.getStatus() != com.alphateckplus.potify.data_jpa.entity.pool.CagnotteStatus.SUSPENDUE &&
+                             p.getStatus() != com.alphateckplus.potify.data_jpa.entity.pool.CagnotteStatus.ARCHIVEE)
                 .map(poolPersistenceMapper::toDomain)
                 .toList();
     }
@@ -134,16 +138,21 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
 
     @Override
     public void clearReports(String poolId) {
-        PoolEntity pool = poolEntityRepository.findById(poolId)
-                .orElseThrow(() -> new IllegalArgumentException("Cagnotte non trouvee"));
-        pool.getReports().clear();
-        poolEntityRepository.save(pool);
+        poolReportEntityRepository.deleteByPoolId(poolId);
+        poolEntityRepository.findById(poolId).ifPresent(pool -> {
+            if (pool.getReports() != null) {
+                pool.getReports().clear();
+                poolEntityRepository.save(pool);
+            }
+        });
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Pool> findReportedPools() {
         return poolEntityRepository.findReportedPools().stream()
+                .filter(p -> p.getStatus() != com.alphateckplus.potify.data_jpa.entity.pool.CagnotteStatus.SUSPENDUE &&
+                             p.getStatus() != com.alphateckplus.potify.data_jpa.entity.pool.CagnotteStatus.ARCHIVEE)
                 .map(poolPersistenceMapper::toDomain)
                 .toList();
     }

@@ -25,7 +25,7 @@ public class AddRoleController {
     private final CreateRoleService createRoleService;
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ADMIN_DASHBOARD')")
+    @PreAuthorize("hasAuthority('ADMIN_DASHBOARD') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<RoleResponse> createRole(@Valid @RequestBody CreateRoleRequest request) {
         RoleRestMapper mapper = new RoleRestMapper();
         var createdRole = createRoleService.execute(mapper.toDomain(request));

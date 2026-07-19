@@ -35,7 +35,7 @@ public class DefaultUpdatePoolService implements UpdatePoolService {
         
         boolean isOwner = currentUserEmail != null && currentUserEmail.equalsIgnoreCase(ownerEmail);
         boolean isAdmin = auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN_POOL") || a.getAuthority().equals("ROLE_SUPER_ADMIN"));
                 
         if (!isOwner && !isAdmin) {
             throw new org.springframework.security.access.AccessDeniedException("Non autorisé : Vous n'êtes pas le propriétaire de cette cagnotte");
@@ -44,7 +44,12 @@ public class DefaultUpdatePoolService implements UpdatePoolService {
         if (poolToUpdate.getTitle() != null) pool.setTitle(poolToUpdate.getTitle());
         if (poolToUpdate.getDescription() != null) pool.setDescription(poolToUpdate.getDescription());
         if (poolToUpdate.getGoalAmount() != null) pool.setGoalAmount(poolToUpdate.getGoalAmount());
-        if (poolToUpdate.getStatus() != null) pool.setStatus(poolToUpdate.getStatus());
+        if (poolToUpdate.getStatus() != null) {
+            pool.setStatus(poolToUpdate.getStatus());
+            if (poolToUpdate.getStatus() == com.alphateckplus.potify.pool.domain.model.PoolStatus.PUBLIEE) {
+                poolRepositoryPort.clearReports(pool.getId());
+            }
+        }
         if (poolToUpdate.getVideoContent() != null) pool.setVideoContent(poolToUpdate.getVideoContent());
         if (poolToUpdate.getVideoContentType() != null) pool.setVideoContentType(poolToUpdate.getVideoContentType());
         if (poolToUpdate.getVideoUrl() != null) pool.setVideoUrl(poolToUpdate.getVideoUrl());

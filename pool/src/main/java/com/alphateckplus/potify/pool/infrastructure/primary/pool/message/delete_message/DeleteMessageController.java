@@ -20,7 +20,7 @@ public class DeleteMessageController {
     private final MessageService messageService;
 
     @DeleteMapping("/{messageId}")
-    @PreAuthorize("hasAuthority('POOL_MODERATE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_SUPER_ADMIN') or hasAuthority('ROLE_MODERATEUR') or hasAuthority('ROLE_ADMIN_POOL')")
+    @PreAuthorize("hasAuthority('MESSAGE_DELETE') or hasRole('SUPER_ADMIN')")
     @Operation(summary = "Supprimer un commentaire (Modération)")
     public ResponseEntity<Void> deleteMessage(@PathVariable String messageId) {
         messageService.deleteMessage(messageId);

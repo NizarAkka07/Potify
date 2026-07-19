@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface PoolReportEntityRepository extends JpaRepository<PoolReportEntity, String> {
     Optional<PoolReportEntity> findByPoolIdAndUserId(String poolId, String userId);
+    void deleteByPoolId(String poolId);
 }

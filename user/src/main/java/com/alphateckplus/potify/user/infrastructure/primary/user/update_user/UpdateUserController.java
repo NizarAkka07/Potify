@@ -27,7 +27,7 @@ public class UpdateUserController {
     private final UserRestMapper userRestMapper;
 
     @PutMapping("/{userId}")
-    @PreAuthorize("hasAuthority('USER_WRITE')")
+    @PreAuthorize("hasAuthority('USER_WRITE') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<UserResponse> updateUser(
         @PathVariable String userId,
         @Valid @RequestBody UpdateUserRequest request

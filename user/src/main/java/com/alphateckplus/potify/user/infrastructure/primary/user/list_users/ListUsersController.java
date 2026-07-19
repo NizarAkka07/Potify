@@ -23,7 +23,7 @@ public class ListUsersController {
     private final UserRestMapper userRestMapper;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('USER_READ')")
+    @PreAuthorize("hasAuthority('USER_READ') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<List<UserResponse>> listUsers() {
         List<UserResponse> users = listUsersService.execute()
             .stream()

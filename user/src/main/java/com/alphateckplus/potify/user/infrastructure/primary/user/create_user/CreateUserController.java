@@ -27,7 +27,7 @@ public class CreateUserController {
     private final UserRestMapper userRestMapper;
 
     @PostMapping
-    @PreAuthorize("hasAuthority('USER_WRITE')")
+    @PreAuthorize("hasAuthority('USER_WRITE') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
         var createdUser = createUserService.execute(User.builder()
             .fullName(request.fullName())

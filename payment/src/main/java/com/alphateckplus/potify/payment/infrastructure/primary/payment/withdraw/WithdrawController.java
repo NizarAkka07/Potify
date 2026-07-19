@@ -41,7 +41,7 @@ public class WithdrawController {
     }
 
     @PostMapping("/api/payments/withdraw/{transactionId}/confirm")
-    @PreAuthorize("hasAuthority('PAYMENT_CONFIRM')")
+    @PreAuthorize("hasAuthority('PAYMENT_CONFIRM') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> confirm(@PathVariable String transactionId) {
         try {
             confirmUseCase.execute(transactionId);

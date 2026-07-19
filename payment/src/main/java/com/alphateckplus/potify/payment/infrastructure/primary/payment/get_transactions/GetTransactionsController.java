@@ -19,7 +19,7 @@ public class GetTransactionsController {
     private final GetTransactionsService useCase;
 
     @GetMapping("/api/payments/transactions")
-    @PreAuthorize("hasAuthority('PAYMENT_READ')")
+    @PreAuthorize("hasAuthority('PAYMENT_READ') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<List<Transaction>> handle() {
         try {
             return ResponseEntity.ok(useCase.execute());

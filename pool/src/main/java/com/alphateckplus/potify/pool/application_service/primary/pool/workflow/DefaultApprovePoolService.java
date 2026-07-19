@@ -28,17 +28,24 @@ public class DefaultApprovePoolService implements ApprovePoolService {
         Pool pool = poolRepositoryPort.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cagnotte introuvable : " + id));
 
-        if (pool.getStatus() != PoolStatus.PUBLIEE) {
-            throw new IllegalStateException("Seules les cagnottes actives peuvent être approuvées. Statut actuel: " + pool.getStatus());
+        if (pool.getStatus() != PoolStatus.PUBLIEE && pool.getStatus() != PoolStatus.SUSPENDUE) {
+            throw new IllegalStateException("Seules les cagnottes actives ou suspendues peuvent être approuvées. Statut actuel: " + pool.getStatus());
         }
 
         pool.setStatus(PoolStatus.PUBLIEE);
         pool.setUpdatedAt(Instant.now());
         Pool savedPool = poolRepositoryPort.save(pool);
 
+        // Supprimer les signalements puisque la cagnotte a été approuvée/rétablie par la modération
+        poolRepositoryPort.clearReports(id);
+
         // Créer le CagnotteWalletEntity associé s'il n'existe pas déjà
-        walletRepositoryPort.save(Wallet.createEmpty(savedPool.getId()));
-        log.info("Financial wallet successfully initialized for approved pool {}", id);
+        if (walletRepositoryPort.findByPoolId(savedPool.getId()).isEmpty()) {
+            walletRepositoryPort.save(Wallet.createEmpty(savedPool.getId()));
+            log.info("Financial wallet successfully initialized for approved pool {}", id);
+        } else {
+            log.info("Financial wallet already exists for pool {}, skipping creation", id);
+        }
 
         // Approuver récursivement et créer des portefeuilles pour les sous-cagnottes enfants
         if (pool.getChildren() != null && !pool.getChildren().isEmpty()) {
@@ -46,7 +53,9 @@ public class DefaultApprovePoolService implements ApprovePoolService {
                 child.setStatus(PoolStatus.PUBLIEE);
                 child.setUpdatedAt(Instant.now());
                 Pool savedChild = poolRepositoryPort.save(child);
-                walletRepositoryPort.save(Wallet.createEmpty(savedChild.getId()));
+                if (walletRepositoryPort.findByPoolId(savedChild.getId()).isEmpty()) {
+                    walletRepositoryPort.save(Wallet.createEmpty(savedChild.getId()));
+                }
             }
         }
 

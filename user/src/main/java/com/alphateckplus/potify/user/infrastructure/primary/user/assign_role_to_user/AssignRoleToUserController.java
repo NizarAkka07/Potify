@@ -22,7 +22,7 @@ public class AssignRoleToUserController {
     private final AssignRoleToUserService assignRoleToUserService;
 
     @PostMapping("/{userId}/roles/{roleId}")
-    @PreAuthorize("hasAuthority('ADMIN_DASHBOARD')")
+    @PreAuthorize("hasAuthority('ADMIN_DASHBOARD') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<Void> assignRoleToUser(
         @PathVariable String userId,
         @PathVariable String roleId

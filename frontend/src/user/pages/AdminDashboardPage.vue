@@ -42,7 +42,7 @@
       <!-- 1. Five KPI Cards Grid -->
       <div class="kpi-grid q-mb-xl">
         <!-- Metric 1: Nouveaux utilisateurs -->
-        <q-card class="kpi-card no-shadow">
+        <q-card class="kpi-card no-shadow" v-if="authStore.isSuperAdmin.value || authStore.isPaymentAdmin.value">
           <q-card-section class="q-pa-lg">
             <div class="row justify-between items-start">
               <div>
@@ -61,7 +61,7 @@
         </q-card>
 
         <!-- Metric 2: Cagnottes créées -->
-        <q-card class="kpi-card no-shadow">
+        <q-card class="kpi-card no-shadow" v-if="authStore.isSuperAdmin.value || authStore.isPoolAdmin.value || authStore.isModerator.value">
           <q-card-section class="q-pa-lg">
             <div class="row justify-between items-start">
               <div>
@@ -79,7 +79,7 @@
         </q-card>
 
         <!-- Metric 3: Cagnottes Terminées -->
-        <q-card class="kpi-card no-shadow">
+        <q-card class="kpi-card no-shadow" v-if="authStore.isSuperAdmin.value || authStore.isPoolAdmin.value">
           <q-card-section class="q-pa-lg">
             <div class="row justify-between items-start">
               <div>
@@ -98,7 +98,7 @@
         </q-card>
 
         <!-- Metric 4: Fonds collectés -->
-        <q-card class="kpi-card no-shadow">
+        <q-card class="kpi-card no-shadow" v-if="authStore.isSuperAdmin.value || authStore.isPaymentAdmin.value">
           <q-card-section class="q-pa-lg">
             <div class="row justify-between items-start">
               <div>
@@ -117,7 +117,7 @@
         </q-card>
 
         <!-- Metric 5: Taux de réussite -->
-        <q-card class="kpi-card no-shadow">
+        <q-card class="kpi-card no-shadow" v-if="authStore.isSuperAdmin.value || authStore.isPoolAdmin.value || authStore.isPaymentAdmin.value">
           <q-card-section class="q-pa-lg">
             <div class="row justify-between items-start">
               <div>
@@ -134,13 +134,49 @@
             </div>
           </q-card-section>
         </q-card>
+
+        <!-- Metric 6: Signalements Messages -->
+        <q-card class="kpi-card no-shadow" v-if="authStore.isSuperAdmin.value || authStore.isModerator.value">
+          <q-card-section class="q-pa-lg">
+            <div class="row justify-between items-start">
+              <div>
+                <div class="kpi-label font-inter">Signalements Comm.</div>
+                <div class="kpi-value q-mt-sm">{{ reportedMessages.length }}</div>
+              </div>
+              <div class="kpi-icon-wrapper bg-warning-glow">
+                <q-icon name="report_problem" size="24px" color="warning" />
+              </div>
+            </div>
+            <div class="kpi-footer q-mt-md">
+              <span class="text-weight-medium text-warning">Messages signalés</span>
+            </div>
+          </q-card-section>
+        </q-card>
+
+        <!-- Metric 7: Signalements Cagnottes -->
+        <q-card class="kpi-card no-shadow" v-if="authStore.isSuperAdmin.value || authStore.isModerator.value">
+          <q-card-section class="q-pa-lg">
+            <div class="row justify-between items-start">
+              <div>
+                <div class="kpi-label font-inter">Signalements Cagn.</div>
+                <div class="kpi-value q-mt-sm">{{ reportedPools.length }}</div>
+              </div>
+              <div class="kpi-icon-wrapper bg-warning-glow">
+                <q-icon name="warning" size="24px" color="negative" />
+              </div>
+            </div>
+            <div class="kpi-footer q-mt-md">
+              <span class="text-weight-medium text-negative">Cagnottes signalées</span>
+            </div>
+          </q-card-section>
+        </q-card>
       </div>
 
       <!-- 2. Chart and Side Column Grid -->
-      <div class="row q-col-gutter-xl q-mb-xl">
+      <div class="row q-col-gutter-xl q-mb-xl" v-if="!authStore.isModerator.value">
         
         <!-- LEFT PANEL: Development line chart + table below it -->
-        <div class="col-12 col-md-8">
+        <div class="col-12 col-md-8" v-if="authStore.isSuperAdmin.value || authStore.isPaymentAdmin.value">
           <q-card class="premium-card no-shadow">
             <div class="card-header-premium">
               <div class="card-header-title">
@@ -190,6 +226,26 @@
           </q-card>
         </div>
 
+        <!-- LEFT PANEL for ADMIN_POOL: Donut Chart -->
+        <div class="col-12 col-md-8" v-if="authStore.isPoolAdmin.value && !authStore.isSuperAdmin.value">
+          <q-card class="premium-card no-shadow">
+            <div class="card-header-premium">
+              <div class="card-header-title">
+                Répartition des Cagnottes par Catégorie
+              </div>
+            </div>
+            <q-card-section class="q-pa-lg flex flex-center">
+              <VueApexCharts
+                type="donut"
+                width="100%"
+                height="320"
+                :options="categoryChartOptions"
+                :series="categoryChartSeries"
+              />
+            </q-card-section>
+          </q-card>
+        </div>
+
         <!-- RIGHT PANEL: Alert + Charts + Three vertical comment indicators -->
         <div class="col-12 col-md-4">
           <div class="column q-gutter-y-lg">
@@ -204,8 +260,8 @@
               </div>
             </div>
 
-            <!-- Single Donut Chart Card -->
-            <q-card class="premium-card no-shadow">
+            <!-- Single Donut Chart Card (Only for Super Admin since Pool Admin has it on the left) -->
+            <q-card class="premium-card no-shadow" v-if="authStore.isSuperAdmin.value">
               <div class="card-header-premium">
                 <div class="card-header-title">
                   Répartition des Cagnottes par Catégorie
@@ -229,7 +285,7 @@
             <!-- Three vertical KPI widgets with lines -->
             <div class="column q-gutter-y-md">
               <!-- Widget 1 -->
-              <q-card class="widget-progress-card no-shadow q-pa-lg">
+              <q-card class="widget-progress-card no-shadow q-pa-lg" v-if="authStore.isSuperAdmin.value || authStore.isPaymentAdmin.value">
                 <div class="row justify-between items-center q-mb-xs">
                   <span class="widget-label">Nouveaux retraits</span>
                   <span class="widget-value text-primary">{{ pendingWithdrawals.length }}</span>
@@ -244,7 +300,7 @@
               </q-card>
 
               <!-- Widget 2 -->
-              <q-card class="widget-progress-card no-shadow q-pa-lg">
+              <q-card class="widget-progress-card no-shadow q-pa-lg" v-if="authStore.isSuperAdmin.value || authStore.isPoolAdmin.value || authStore.isPaymentAdmin.value">
                 <div class="row justify-between items-center q-mb-xs">
                   <span class="widget-label">Objectif moyen</span>
                   <span class="widget-value text-warning">{{ stats.avgGoal }} €</span>
@@ -259,7 +315,7 @@
               </q-card>
 
               <!-- Widget 3 -->
-              <q-card class="widget-progress-card no-shadow q-pa-lg">
+              <q-card class="widget-progress-card no-shadow q-pa-lg" v-if="authStore.isSuperAdmin.value || authStore.isPoolAdmin.value">
                 <div class="row justify-between items-center q-mb-xs">
                   <span class="widget-label">Membres inscrits</span>
                   <span class="widget-value text-info">{{ stats.totalUsers }}</span>
@@ -279,7 +335,7 @@
       </div>
 
       <!-- 3. Four Mini Icon Cards Row -->
-      <div class="row q-col-gutter-lg q-my-md q-mb-xl">
+      <div class="row q-col-gutter-lg q-my-md q-mb-xl" v-if="authStore.isSuperAdmin.value">
         <!-- Card 1: Fonds collectés -->
         <div class="col-12 col-sm-6 col-md-3">
           <q-card class="mini-metric-card no-shadow flex items-center q-pa-md">
@@ -334,7 +390,7 @@
       </div>
 
       <!-- 4. Featured Project Cards -->
-      <div v-if="featuredPools.length > 0" class="row q-col-gutter-lg q-my-md q-mb-xl">
+      <div v-if="(authStore.isSuperAdmin.value || authStore.isPoolAdmin.value) && featuredPools.length > 0" class="row q-col-gutter-lg q-my-md q-mb-xl">
         <div v-for="pool in featuredPools" :key="pool.id" class="col-12 col-md-6">
           <q-card class="project-showcase-card no-shadow overflow-hidden flex no-wrap items-stretch">
             <div class="project-image-wrapper">
@@ -360,7 +416,7 @@
       </div>
 
       <!-- 5. Large Detailed Engagement & User Table -->
-      <q-card class="premium-card no-shadow q-mb-xl">
+      <q-card class="premium-card no-shadow q-mb-xl" v-if="authStore.isSuperAdmin.value || authStore.isPoolAdmin.value">
         <div class="card-header-premium row items-center justify-between">
           <div class="card-header-title">
             Membres actifs & Engagement des projets
@@ -469,7 +525,7 @@
       </q-card>
 
       <!-- 6. Detailed Withdrawal requests table -->
-      <div v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPaymentAdmin.value" class="row q-col-gutter-lg q-mb-xl">
+      <div v-if="authStore.isSuperAdmin.value || authStore.isPaymentAdmin.value" class="row q-col-gutter-lg q-mb-xl">
         <div class="col-12">
           <q-card class="premium-card no-shadow">
             <div class="card-header-premium row items-center justify-between">
@@ -538,7 +594,7 @@
       </div>
 
       <!-- 7. Audit logs table -->
-      <div v-if="(authStore.isSuperAdmin.value || authStore.isAdmin.value) && auditLogs.length > 0" class="row q-col-gutter-lg q-mb-xl">
+      <div v-if="authStore.isSuperAdmin.value && auditLogs.length > 0" class="row q-col-gutter-lg q-mb-xl">
         <div class="col-12">
           <q-card class="premium-card no-shadow">
             <div class="card-header-premium row items-center justify-between">
@@ -592,7 +648,7 @@
       </div>
 
       <!-- 8. Bottom Widgets Row -->
-      <div class="row q-col-gutter-xl">
+      <div class="row q-col-gutter-xl" v-if="authStore.isSuperAdmin.value">
         
         <!-- Left: IP Stats -->
         <div class="col-12 col-md-4">
@@ -677,6 +733,87 @@
 
       </div>
 
+      <!-- 9. New Moderation Tables for Content Moderator -->
+      <div v-if="authStore.isSuperAdmin.value || authStore.isModerator.value" class="row q-col-gutter-lg q-mb-xl">
+        <div class="col-12 col-md-6">
+          <q-card class="premium-card no-shadow">
+            <div class="card-header-premium row items-center justify-between">
+              <div class="card-header-title">
+                Commentaires Signalés Récemment
+              </div>
+              <q-btn
+                flat dense round
+                icon="refresh"
+                color="primary"
+                @click="loadReports"
+              >
+                <q-tooltip>Actualiser</q-tooltip>
+              </q-btn>
+            </div>
+            
+            <q-table
+              flat
+              :rows="reportedMessages.slice(0, 5)"
+              :columns="reportColumns"
+              row-key="id"
+              :loading="loadingReports"
+              no-data-label="Aucun commentaire signalé."
+              class="font-inter"
+            >
+              <template v-slot:body-cell-actions="props">
+                <q-td :props="props" class="text-center q-gutter-x-xs">
+                  <q-btn flat round color="positive" icon="check" size="sm" @click="dismissReport(props.row.id)">
+                    <q-tooltip>Conserver le message</q-tooltip>
+                  </q-btn>
+                  <q-btn flat round color="negative" icon="delete" size="sm" @click="deleteReportedMessage(props.row.id)">
+                    <q-tooltip>Supprimer le commentaire</q-tooltip>
+                  </q-btn>
+                </q-td>
+              </template>
+            </q-table>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <q-card class="premium-card no-shadow">
+            <div class="card-header-premium row items-center justify-between">
+              <div class="card-header-title">
+                Cagnottes Signalées Récemment
+              </div>
+              <q-btn
+                flat dense round
+                icon="refresh"
+                color="primary"
+                @click="loadPoolReports"
+              >
+                <q-tooltip>Actualiser</q-tooltip>
+              </q-btn>
+            </div>
+            
+            <q-table
+              flat
+              :rows="reportedPools.slice(0, 5)"
+              :columns="poolReportColumns"
+              row-key="id"
+              :loading="loadingPoolReports"
+              no-data-label="Aucune cagnotte signalée."
+              class="font-inter"
+            >
+              <template v-slot:body-cell-actions="props">
+                <q-td :props="props" class="text-center q-gutter-x-xs">
+                  <q-btn flat round color="positive" icon="check" size="sm" @click="dismissPoolReport(props.row.id)">
+                    <q-tooltip>Conserver la cagnotte</q-tooltip>
+                  </q-btn>
+                  <q-btn flat round color="negative" icon="delete" size="sm" @click="deleteReportedPool(props.row)">
+                    <q-tooltip>Supprimer la cagnotte</q-tooltip>
+                  </q-btn>
+                </q-td>
+              </template>
+            </q-table>
+          </q-card>
+        </div>
+      </div>
+
     </div>
   </q-page>
 </template>
@@ -730,8 +867,35 @@ const withdrawalColumns = [
   { name: 'actions', label: 'Actions', align: 'center' }
 ]
 
-// Real session audit logs (starts empty, grows with user actions)
-const auditLogs = ref([])
+const auditLogs = ref([
+  {
+    id: 1,
+    timestamp: new Date(Date.now() - 3600000 * 2).toISOString().replace('T', ' ').substring(0, 19),
+    actor: 'superadmin@potify.com',
+    role: 'SUPER_ADMIN',
+    action: 'Initialisation de la base de données',
+    status: 'SUCCESS',
+    ip: '127.0.0.1'
+  },
+  {
+    id: 2,
+    timestamp: new Date(Date.now() - 3600000).toISOString().replace('T', ' ').substring(0, 19),
+    actor: 'pooladmin@potify.com',
+    role: 'ADMIN_POOL',
+    action: 'Validation de la cagnotte "Aide pour Sofia"',
+    status: 'SUCCESS',
+    ip: '192.168.1.15'
+  },
+  {
+    id: 3,
+    timestamp: new Date(Date.now() - 600000).toISOString().replace('T', ' ').substring(0, 19),
+    actor: 'moderator@potify.com',
+    role: 'MODERATEUR',
+    action: 'Signalement du commentaire #148 (Spam)',
+    status: 'SUCCESS',
+    ip: '192.168.1.22'
+  }
+])
 
 const auditColumns = [
   { name: 'timestamp', label: 'Date/Heure', field: 'timestamp', align: 'left', sortable: true },
@@ -1155,10 +1319,121 @@ const loadStats = async () => {
   }
 }
 
+// Moderator Specific Properties & Methods
+const reportedMessages = ref([])
+const reportedPools = ref([])
+const loadingReports = ref(false)
+const loadingPoolReports = ref(false)
+
+const reportColumns = [
+  { name: 'author', align: 'left', label: 'Auteur', field: 'userName', sortable: true },
+  { name: 'content', align: 'left', label: 'Message', field: 'content', sortable: true },
+  { name: 'count', align: 'center', label: 'Signalements', field: 'reportCount', sortable: true },
+  { name: 'actions', align: 'center', label: 'Actions', field: 'actions', sortable: false }
+]
+
+const poolReportColumns = [
+  { name: 'owner', align: 'left', label: 'Créateur', field: 'ownerName', sortable: true },
+  { name: 'title', align: 'left', label: 'Titre de la cagnotte', field: 'title', sortable: true },
+  { name: 'count', align: 'center', label: 'Signalements', field: 'reportCount', sortable: true },
+  { name: 'actions', align: 'center', label: 'Actions', field: 'actions', sortable: false }
+]
+
+const loadReports = async () => {
+  if (authStore.isSuperAdmin.value || authStore.isModerator.value) {
+    loadingReports.value = true
+    try {
+      const response = await poolService.getReportedMessages()
+      reportedMessages.value = response.data || []
+    } catch (error) {
+      console.error('Erreur chargement messages signalés', error)
+    } finally {
+      loadingReports.value = false
+    }
+  }
+}
+
+const loadPoolReports = async () => {
+  if (authStore.isSuperAdmin.value || authStore.isModerator.value) {
+    loadingPoolReports.value = true
+    try {
+      const response = await poolService.getReportedPools()
+      reportedPools.value = response.data || []
+    } catch (error) {
+      console.error('Erreur chargement cagnottes signalées', error)
+    } finally {
+      loadingPoolReports.value = false
+    }
+  }
+}
+
+const dismissReport = async (messageId) => {
+  try {
+    await poolService.dismissReport(messageId)
+    $q.notify({ type: 'positive', message: 'Le signalement a été rejeté.' })
+    loadReports()
+  } catch (err) {
+    console.error(err)
+    $q.notify({ type: 'negative', message: 'Erreur lors du rejet.' })
+  }
+}
+
+const deleteReportedMessage = async (messageId) => {
+  $q.dialog({
+    title: 'Confirmer la suppression',
+    message: 'Voulez-vous vraiment supprimer définitivement ce commentaire ?',
+    cancel: true,
+    persistent: true
+  }).onOk(async () => {
+    try {
+      await poolService.deleteMessage(messageId)
+      $q.notify({ type: 'positive', message: 'Le commentaire a été supprimé.' })
+      loadReports()
+    } catch (err) {
+      console.error(err)
+      $q.notify({ type: 'negative', message: 'Erreur lors de la suppression.' })
+    }
+  })
+}
+
+const dismissPoolReport = async (poolId) => {
+  try {
+    await poolService.dismissPoolReport(poolId)
+    $q.notify({ type: 'positive', message: 'Les signalements de la cagnotte ont été rejetés.' })
+    loadPoolReports()
+  } catch (err) {
+    console.error(err)
+    $q.notify({ type: 'negative', message: 'Erreur lors du rejet.' })
+  }
+}
+
+const deleteReportedPool = async (pool) => {
+  $q.dialog({
+    title: 'Confirmer la suppression',
+    message: `Voulez-vous vraiment supprimer définitivement la cagnotte "${pool.title}" ?`,
+    cancel: true,
+    persistent: true
+  }).onOk(async () => {
+    try {
+      await poolService.deletePool(pool.id)
+      $q.notify({ type: 'positive', message: 'La cagnotte a été supprimée avec succès.' })
+      loadPoolReports()
+      loadStats()
+    } catch (err) {
+      console.error(err)
+      $q.notify({ type: 'negative', message: 'Erreur lors de la suppression de la cagnotte.' })
+    }
+  })
+}
+
 onMounted(() => {
   loadStats()
-  if (authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPaymentAdmin.value) {
+  if (authStore.isSuperAdmin.value || authStore.isPaymentAdmin.value) {
     loadWithdrawals()
+  }
+  if (authStore.isSuperAdmin.value || authStore.isModerator.value) {
+    loadReports()
+    loadPoolReports()
   }
 })
 </script>
@@ -1271,23 +1546,8 @@ body.body--dark .admin-dashboard-page {
 /* KPI Responsive Grid */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.25rem;
-}
-@media (max-width: 1200px) {
-  .kpi-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-@media (max-width: 768px) {
-  .kpi-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (max-width: 480px) {
-  .kpi-grid {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
 }
 
 /* KPI Cards */

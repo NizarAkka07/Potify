@@ -25,7 +25,7 @@ public class AddPermissionController {
     private final CreatePermissionService createPermissionService;
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ADMIN_DASHBOARD')")
+    @PreAuthorize("hasAuthority('ADMIN_DASHBOARD') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<PermissionResponse> createPermission(
         @Valid @RequestBody CreatePermissionRequest request
     ) {

@@ -21,7 +21,7 @@ public class GetReportedMessagesController {
     private final MessageService messageService;
 
     @GetMapping("/reported")
-    @PreAuthorize("hasAuthority('POOL_MODERATE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_SUPER_ADMIN') or hasAuthority('ROLE_MODERATEUR') or hasAuthority('ROLE_ADMIN_POOL')")
+    @PreAuthorize("hasAuthority('REPORT_READ') or hasRole('SUPER_ADMIN')")
     @Operation(summary = "Obtenir la liste des messages signalés (Modération)")
     public ResponseEntity<List<Message>> getReportedMessages() {
         return ResponseEntity.ok(messageService.getReportedMessages());

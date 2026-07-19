@@ -15,6 +15,7 @@
         <q-tab name="pools" label="Cagnottes" icon="account_balance_wallet" no-caps />
         <q-tab name="reports" label="Messages Signalés" icon="report_problem" no-caps />
         <q-tab name="poolReports" label="Cagnottes Signalées" icon="warning" no-caps />
+        <q-tab name="suspendedPools" label="Cagnottes Suspendues" icon="pause_circle" no-caps />
       </q-tabs>
     </div>
 
@@ -223,7 +224,7 @@
         </div>
 
         <q-table
-          :rows="reportedPools"
+          :rows="activeReportedPools"
           :columns="poolReportColumns"
           row-key="id"
           :loading="loadingPoolReports"
@@ -259,8 +260,120 @@
               <q-btn flat round color="positive" icon="check" size="sm" @click="dismissPoolReport(props.row.id)">
                 <q-tooltip>Rejeter le signalement (Conserver la cagnotte)</q-tooltip>
               </q-btn>
-              <q-btn flat round color="negative" icon="delete" size="sm" @click="deleteReportedPool(props.row)">
+              <!-- Suspend action shown for moderators/admins if not already suspended -->
+              <q-btn 
+                flat 
+                round 
+                color="warning" 
+                icon="pause" 
+                size="sm" 
+                v-if="props.row.status !== 'SUSPENDUE' && props.row.status !== 'SUSPENDED'"
+                @click="suspendReportedPool(props.row)"
+              >
+                <q-tooltip>Suspendre la cagnotte</q-tooltip>
+              </q-btn>
+              <!-- Delete action ONLY shown for Super Admin -->
+              <q-btn 
+                flat 
+                round 
+                color="negative" 
+                icon="delete" 
+                size="sm" 
+                v-if="authStore.isSuperAdmin.value"
+                @click="deleteReportedPool(props.row)"
+              >
                 <q-tooltip>Supprimer la cagnotte</q-tooltip>
+              </q-btn>
+            </q-td>
+          </template>
+        </q-table>
+      </q-card>
+    </div>
+
+    <!-- Suspended pools view -->
+    <div v-if="authStore.isModerator.value && activeTab === 'suspendedPools'">
+      <q-card class="premium-card no-shadow q-pa-md">
+        <div class="row items-center justify-between q-mb-md">
+          <div class="text-h6 text-weight-bold card-header-title">Cagnottes suspendues</div>
+          <q-btn flat dense round icon="refresh" color="primary" @click="loadPools">
+            <q-tooltip>Actualiser</q-tooltip>
+          </q-btn>
+        </div>
+
+        <q-table
+          :rows="suspendedPools"
+          :columns="suspendedPoolColumns"
+          row-key="id"
+          :loading="loading"
+          flat
+          class="transparent-table"
+          :pagination="{ rowsPerPage: 10 }"
+          no-data-label="Aucune cagnotte suspendue pour le moment"
+        >
+          <!-- Custom image cell -->
+          <template v-slot:body-cell-image="props">
+            <q-td :props="props">
+              <q-avatar rounded size="40px">
+                <q-img v-if="props.row.imageUrl" :src="props.row.imageUrl" />
+                <q-icon v-else name="account_balance" color="grey-5" />
+              </q-avatar>
+            </q-td>
+          </template>
+
+          <!-- Custom title cell linking to details page -->
+          <template v-slot:body-cell-title="props">
+            <q-td :props="props">
+              <router-link :to="`/pools/${props.row.id}`" class="text-primary text-weight-bold text-subtitle2" style="text-decoration: none;">
+                {{ props.row.title }}
+              </router-link>
+            </q-td>
+          </template>
+
+          <!-- Custom progress cell -->
+          <template v-slot:body-cell-progress="props">
+            <q-td :props="props">
+              <div class="row items-center q-col-gutter-xs">
+                <div class="col">
+                  <q-linear-progress :value="(props.row.currentAmount || 0) / props.row.goalAmount" color="primary" size="8px" rounded />
+                </div>
+                <div class="col-auto text-caption text-weight-bold">
+                  {{ Math.round(((props.row.currentAmount || 0) / props.row.goalAmount) * 100) }}%
+                </div>
+              </div>
+              <div class="text-caption text-grey-6">{{ props.row.currentAmount || 0 }} € / {{ props.row.goalAmount }} €</div>
+            </q-td>
+          </template>
+
+          <!-- Custom status cell -->
+          <template v-slot:body-cell-status="props">
+            <q-td :props="props" class="text-center">
+              <q-chip 
+                :color="getStatusColor(props.row.status)" 
+                :text-color="getStatusTextColor(props.row.status)" 
+                size="sm" 
+                class="text-weight-bold"
+              >
+                {{ props.row.status }}
+              </q-chip>
+            </q-td>
+          </template>
+
+          <!-- Custom actions cell -->
+          <template v-slot:body-cell-actions="props">
+            <q-td :props="props" class="text-center q-gutter-x-xs">
+              <q-btn flat round color="primary" icon="visibility" size="sm" :to="`/pools/${props.row.id}`">
+                <q-tooltip>Voir la cagnotte</q-tooltip>
+              </q-btn>
+              <!-- Reactivate / publish again -->
+              <q-btn 
+                flat 
+                round 
+                color="positive" 
+                icon="play_arrow" 
+                size="sm" 
+                @click="reactivatePool(props.row)"
+              >
+                <q-tooltip>Rétablir et publier la cagnotte</q-tooltip>
               </q-btn>
             </q-td>
           </template>
@@ -373,7 +486,7 @@ import poolService from 'src/shared/services/poolService'
 import authStore from 'src/shared/stores/auth'
 
 const canManagePools = computed(() => {
-  return authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPoolAdmin.value
+  return authStore.isSuperAdmin.value || authStore.isPoolAdmin.value
 })
 
 const $q = useQuasar()
@@ -385,6 +498,9 @@ const reportedMessages = ref([])
 const loadingReports = ref(false)
 
 const reportedPools = ref([])
+const activeReportedPools = computed(() => {
+  return reportedPools.value.filter(p => p.status !== 'SUSPENDUE' && p.status !== 'SUSPENDED' && p.status !== 'ARCHIVEE')
+})
 const loadingPoolReports = ref(false)
 const poolDetailsDialog = ref(false)
 const selectedPoolForDetails = ref(null)
@@ -406,6 +522,20 @@ const poolReportColumns = [
   { name: 'date', align: 'left', label: 'Dernier signalement', field: 'createdAt', sortable: true, format: val => val ? new Date(val).toLocaleString('fr-FR') : '-' },
   { name: 'actions', align: 'center', label: 'Actions', field: 'actions', sortable: false }
 ]
+
+const suspendedPoolColumns = [
+  { name: 'image', align: 'center', label: 'Aperçu', field: 'imageUrl', sortable: false },
+  { name: 'title', required: true, label: 'Titre de la cagnotte', align: 'left', field: 'title', sortable: true },
+  { name: 'owner', align: 'left', label: 'Créateur', field: 'ownerName', sortable: true },
+  { name: 'category', align: 'center', label: 'Catégorie', field: 'category', sortable: true },
+  { name: 'progress', align: 'left', label: 'Collecte', field: 'currentAmount', sortable: true },
+  { name: 'status', align: 'center', label: 'Statut', field: 'status', sortable: true },
+  { name: 'actions', align: 'center', label: 'Actions', field: 'actions', sortable: false }
+]
+
+const suspendedPools = computed(() => {
+  return pools.value.filter(p => p.status === 'SUSPENDUE' || p.status === 'SUSPENDED')
+})
 
 const filter = reactive({
   search: '',
@@ -689,6 +819,76 @@ const deleteReportedPool = async (pool) => {
       $q.notify({
         type: 'negative',
         message: 'Erreur lors de la suppression de la cagnotte.'
+      })
+    }
+  })
+}
+
+const suspendReportedPool = (pool) => {
+  $q.dialog({
+    title: 'Confirmer la suspension',
+    message: `Voulez-vous vraiment suspendre temporairement la cagnotte "${pool.title}" ?`,
+    prompt: {
+      model: 'Signalement de contenu non conforme',
+      type: 'text'
+    },
+    cancel: {
+      label: 'Annuler',
+      flat: true
+    },
+    ok: {
+      label: 'Suspendre',
+      color: 'warning',
+      unelevated: true
+    },
+    persistent: true
+  }).onOk(async (reason) => {
+    try {
+      await poolService.suspendPool(pool.id, reason)
+      $q.notify({
+        type: 'positive',
+        message: 'La cagnotte a été suspendue avec succès.'
+      })
+      await loadReportedPools()
+      await loadPools()
+    } catch (err) {
+      console.error('Erreur suspension cagnotte:', err)
+      $q.notify({
+        type: 'negative',
+        message: 'Erreur lors de la suspension de la cagnotte.'
+      })
+    }
+  })
+}
+
+const reactivatePool = (pool) => {
+  $q.dialog({
+    title: 'Confirmer la réactivation',
+    message: `Voulez-vous vraiment rétablir et publier à nouveau la cagnotte "${pool.title}" ?`,
+    cancel: {
+      label: 'Annuler',
+      flat: true
+    },
+    ok: {
+      label: 'Rétablir',
+      color: 'positive',
+      unelevated: true
+    },
+    persistent: true
+  }).onOk(async () => {
+    try {
+      await poolService.approvePool(pool.id)
+      $q.notify({
+        type: 'positive',
+        message: 'La cagnotte a été rétablie et publiée avec succès.'
+      })
+      await loadPools()
+      await loadReportedPools()
+    } catch (err) {
+      console.error('Erreur réactivation cagnotte:', err)
+      $q.notify({
+        type: 'negative',
+        message: 'Erreur lors du rétablissement de la cagnotte.'
       })
     }
   })

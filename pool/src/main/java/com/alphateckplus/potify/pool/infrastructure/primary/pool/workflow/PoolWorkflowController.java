@@ -43,7 +43,7 @@ public class PoolWorkflowController {
     }
 
     @PostMapping("/{id}/approve")
-    @PreAuthorize("hasAuthority('POOL_MODERATE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_SUPER_ADMIN') or hasAuthority('ROLE_MODERATEUR') or hasAuthority('ROLE_ADMIN_POOL')")
+    @PreAuthorize("hasAuthority('POOL_VALIDATE') or hasRole('SUPER_ADMIN') or hasRole('MODERATEUR')")
     @Operation(summary = "Approuver et publier une cagnotte")
     public ResponseEntity<PoolResponse> approve(@PathVariable String id) throws Exception {
         Pool pool = approvePoolService.execute(id);
@@ -51,7 +51,7 @@ public class PoolWorkflowController {
     }
 
     @PostMapping("/{id}/reject")
-    @PreAuthorize("hasAuthority('POOL_MODERATE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_SUPER_ADMIN') or hasAuthority('ROLE_MODERATEUR') or hasAuthority('ROLE_ADMIN_POOL')")
+    @PreAuthorize("hasAuthority('POOL_VALIDATE') or hasRole('SUPER_ADMIN')")
     @Operation(summary = "Rejeter une cagnotte en revue")
     public ResponseEntity<PoolResponse> reject(@PathVariable String id, @RequestBody ReasonRequest request) throws Exception {
         Pool pool = rejectPoolService.execute(id, request.getReason() != null ? request.getReason() : "Non spécifié");
@@ -59,7 +59,7 @@ public class PoolWorkflowController {
     }
 
     @PostMapping("/{id}/suspend")
-    @PreAuthorize("hasAuthority('POOL_MODERATE') or hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_SUPER_ADMIN') or hasAuthority('ROLE_MODERATEUR') or hasAuthority('ROLE_ADMIN_POOL')")
+    @PreAuthorize("hasAuthority('POOL_SUSPEND') or hasRole('SUPER_ADMIN') or hasRole('MODERATEUR')")
     @Operation(summary = "Suspendre temporairement une cagnotte active")
     public ResponseEntity<PoolResponse> suspend(@PathVariable String id, @RequestBody ReasonRequest request) throws Exception {
         Pool pool = suspendPoolService.execute(id, request.getReason() != null ? request.getReason() : "Non spécifié");

@@ -145,7 +145,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple to="/admin/users" exact v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value">
+        <q-item clickable v-ripple to="/admin/users" exact v-if="authStore.isSuperAdmin.value">
           <q-item-section avatar>
             <q-icon name="people" />
           </q-item-section>
@@ -155,20 +155,20 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple to="/admin/pools" exact v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPoolAdmin.value || authStore.isModerator.value">
+        <q-item clickable v-ripple to="/admin/pools" exact v-if="authStore.isSuperAdmin.value || authStore.isPoolAdmin.value || authStore.isModerator.value">
           <q-item-section avatar>
-            <q-icon :name="authStore.isModerator.value && !(authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPoolAdmin.value) ? 'chat' : 'account_balance_wallet'" />
+            <q-icon :name="authStore.isModerator.value && !authStore.isSuperAdmin.value && !authStore.isPoolAdmin.value ? 'chat' : 'account_balance_wallet'" />
           </q-item-section>
           <q-item-section>
-            <q-item-label v-if="authStore.isModerator.value && !(authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPoolAdmin.value)">Messages</q-item-label>
+            <q-item-label v-if="authStore.isModerator.value && !authStore.isSuperAdmin.value && !authStore.isPoolAdmin.value">Messages</q-item-label>
             <q-item-label v-else>{{ $t('dashboardLayout.pools') }}</q-item-label>
             
-            <q-item-section caption v-if="authStore.isModerator.value && !(authStore.isSuperAdmin.value || authStore.isAdmin.value || authStore.isPoolAdmin.value)">Gestion des messages</q-item-section>
+            <q-item-section caption v-if="authStore.isModerator.value && !authStore.isSuperAdmin.value && !authStore.isPoolAdmin.value">Gestion des messages</q-item-section>
             <q-item-section caption v-else>{{ $t('dashboardLayout.poolMgmt') }}</q-item-section>
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple to="/admin/roles" exact v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value">
+        <q-item clickable v-ripple to="/admin/roles" exact v-if="authStore.isSuperAdmin.value">
           <q-item-section avatar>
             <q-icon name="security" />
           </q-item-section>
@@ -178,7 +178,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple to="/admin/permissions" exact v-if="authStore.isSuperAdmin.value || authStore.isAdmin.value">
+        <q-item clickable v-ripple to="/admin/permissions" exact v-if="authStore.isSuperAdmin.value">
           <q-item-section avatar>
             <q-icon name="vpn_key" />
           </q-item-section>

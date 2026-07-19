@@ -41,10 +41,26 @@ export default defineRouter((/* { store, ssrContext } */) => {
       if (!token) {
         return '/login'
       }
-      const adminRoles = ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN', 'ROLE_MODERATEUR', 'ROLE_ADMIN_POOL', 'ROLE_ADMIN_PAYMENT']
+      const adminRoles = ['ROLE_SUPER_ADMIN', 'ROLE_MODERATEUR', 'ROLE_ADMIN_POOL', 'ROLE_ADMIN_PAYMENT']
       const hasAdminRole = user?.roles?.some(role => adminRoles.includes(role))
       if (!hasAdminRole) {
         return '/' // Non-authorized redirects to homepage
+      }
+
+      // Granular sub-route checks for admin pages
+      const path = to.path.toLowerCase()
+      if (path.includes('/admin/users') || path.includes('/admin/roles') || path.includes('/admin/permissions')) {
+        const isSuperAdmin = user?.roles?.includes('ROLE_SUPER_ADMIN')
+        if (!isSuperAdmin) {
+          return '/admin'
+        }
+      }
+
+      if (path.includes('/admin/pools')) {
+        const canAccessPools = user?.roles?.some(role => ['ROLE_SUPER_ADMIN', 'ROLE_ADMIN_POOL', 'ROLE_MODERATEUR'].includes(role))
+        if (!canAccessPools) {
+          return '/admin'
+        }
       }
     }
     
