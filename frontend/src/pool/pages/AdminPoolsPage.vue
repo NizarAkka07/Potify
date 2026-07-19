@@ -1,8 +1,8 @@
 <template>
   <q-page padding class="admin-pools-page font-inter">
 
-    <!-- Tab system for Moderator -->
-    <div v-if="authStore.isModerator.value" class="q-mb-md">
+    <!-- Tab system for Moderator/PoolAdmin -->
+    <div v-if="authStore.isModerator.value || authStore.isPoolAdmin.value" class="q-mb-md">
       <q-tabs
         v-model="activeTab"
         dense
@@ -13,7 +13,7 @@
         narrow-indicator
       >
         <q-tab name="pools" label="Cagnottes" icon="account_balance_wallet" no-caps />
-        <q-tab name="reports" label="Messages Signalés" icon="report_problem" no-caps />
+        <q-tab name="reports" label="Messages Signalés" icon="report_problem" no-caps v-if="authStore.isModerator.value" />
         <q-tab name="poolReports" label="Cagnottes Signalées" icon="warning" no-caps />
         <q-tab name="suspendedPools" label="Cagnottes Suspendues" icon="pause_circle" no-caps />
       </q-tabs>
@@ -124,8 +124,8 @@
                 color="secondary" 
                 icon="check_circle" 
                 size="sm" 
-                v-if="canManagePools && props.row.status === 'ACTIVE'"
-                @click="changeStatus(props.row, 'COMPLETED')"
+                v-if="canManagePools && (props.row.status === 'ACTIVE' || props.row.status === 'PUBLIEE')"
+                @click="changeStatus(props.row, 'CLOTUREE')"
               >
                 <q-tooltip>{{ $t('adminPools.markCompletedTooltip') }}</q-tooltip>
               </q-btn>
@@ -135,8 +135,8 @@
                 color="negative" 
                 icon="pause" 
                 size="sm" 
-                v-if="canManagePools && props.row.status === 'ACTIVE'"
-                @click="changeStatus(props.row, 'SUSPENDED')"
+                v-if="canManagePools && (props.row.status === 'ACTIVE' || props.row.status === 'PUBLIEE')"
+                @click="changeStatus(props.row, 'SUSPENDUE')"
               >
                 <q-tooltip>{{ $t('adminPools.suspendTooltip') }}</q-tooltip>
               </q-btn>
@@ -146,8 +146,8 @@
                 color="green" 
                 icon="play_arrow" 
                 size="sm" 
-                v-if="canManagePools && props.row.status === 'SUSPENDED'"
-                @click="changeStatus(props.row, 'ACTIVE')"
+                v-if="canManagePools && (props.row.status === 'SUSPENDED' || props.row.status === 'SUSPENDUE')"
+                @click="changeStatus(props.row, 'PUBLIEE')"
               >
                 <q-tooltip>{{ $t('adminPools.reactivateTooltip') }}</q-tooltip>
               </q-btn>
@@ -214,7 +214,7 @@
     </div>
 
     <!-- Reported pools view -->
-    <div v-if="authStore.isModerator.value && activeTab === 'poolReports'">
+    <div v-if="(authStore.isModerator.value || authStore.isPoolAdmin.value) && activeTab === 'poolReports'">
       <q-card class="premium-card no-shadow q-pa-md">
         <div class="row items-center justify-between q-mb-md">
           <div class="text-h6 text-weight-bold card-header-title">Cagnottes signalées par les utilisateurs</div>
@@ -291,7 +291,7 @@
     </div>
 
     <!-- Suspended pools view -->
-    <div v-if="authStore.isModerator.value && activeTab === 'suspendedPools'">
+    <div v-if="(authStore.isModerator.value || authStore.isPoolAdmin.value) && activeTab === 'suspendedPools'">
       <q-card class="premium-card no-shadow q-pa-md">
         <div class="row items-center justify-between q-mb-md">
           <div class="text-h6 text-weight-bold card-header-title">Cagnottes suspendues</div>
@@ -596,7 +596,16 @@ const filteredPools = computed(() => {
       (pool.ownerName && pool.ownerName.toLowerCase().includes(filter.search.toLowerCase()))
     
     // Status filter
-    const matchesStatus = filter.status === 'TOUS' || pool.status === filter.status
+    let matchesStatus = false
+    if (filter.status === 'TOUS') {
+      matchesStatus = true
+    } else if (filter.status === 'ACTIVE') {
+      matchesStatus = pool.status === 'ACTIVE' || pool.status === 'PUBLIEE'
+    } else if (filter.status === 'COMPLETED') {
+      matchesStatus = pool.status === 'COMPLETED' || pool.status === 'CLOTUREE'
+    } else if (filter.status === 'SUSPENDED') {
+      matchesStatus = pool.status === 'SUSPENDED' || pool.status === 'SUSPENDUE'
+    }
     
     return matchesSearch && matchesStatus
   })
@@ -906,9 +915,11 @@ const resetFilters = () => {
 
 onMounted(() => {
   loadPools()
+  if (authStore.isModerator.value || authStore.isPoolAdmin.value) {
+    loadReportedPools()
+  }
   if (authStore.isModerator.value) {
     loadReportedMessages()
-    loadReportedPools()
   }
 })
 </script>
