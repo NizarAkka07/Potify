@@ -138,7 +138,7 @@
               </div>
               <div class="flex items-center">
                 <q-icon name="visibility" size="18px" class="q-mr-xs text-grey-5" />
-                <span>{{ Math.round((pool.currentAmount || 0) * 0.15 + 18) }} vues</span>
+                <span>{{ pool.viewsCount || 0 }} vues</span>
               </div>
             </div>
           </div>
@@ -2003,7 +2003,22 @@ const submitPublishUpdate = async () => {
   }
 }
 
+const recordView = async () => {
+  const poolId = route.params.id
+  if (!poolId) return
+  const viewKey = `viewed_pool_${poolId}`
+  if (!sessionStorage.getItem(viewKey)) {
+    try {
+      await poolService.recordPoolView(poolId)
+      sessionStorage.setItem(viewKey, 'true')
+    } catch (err) {
+      console.debug('Erreur lors de l\'enregistrement de la vue:', err)
+    }
+  }
+}
+
 onMounted(async () => {
+  await recordView()
   await fetchPool()
   await fetchUpdates()
   setupMessageSSE()

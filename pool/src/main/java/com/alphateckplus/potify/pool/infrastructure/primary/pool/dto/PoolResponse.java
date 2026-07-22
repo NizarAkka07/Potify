@@ -37,5 +37,6 @@ public record PoolResponse(
     Boolean reported,
     Integer reportCount,
     String reportReason,
-    java.util.List<PoolReportResponse> reports
+    java.util.List<PoolReportResponse> reports,
+    Long viewsCount
 ) {}

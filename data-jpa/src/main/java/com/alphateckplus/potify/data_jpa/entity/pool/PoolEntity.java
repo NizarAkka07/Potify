@@ -128,4 +128,8 @@ public class PoolEntity extends BaseEntity {
     @jakarta.persistence.OneToMany(mappedBy = "pool", cascade = jakarta.persistence.CascadeType.ALL, fetch = jakarta.persistence.FetchType.LAZY)
     @lombok.Builder.Default
     private java.util.List<PoolReportEntity> reports = new java.util.ArrayList<>();
+
+    @Column(name = "views_count", nullable = false, columnDefinition = "bigint default 0")
+    @lombok.Builder.Default
+    private Long viewsCount = 0L;
 }

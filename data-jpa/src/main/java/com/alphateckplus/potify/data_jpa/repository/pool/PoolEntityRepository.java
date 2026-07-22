@@ -27,4 +27,8 @@ public interface PoolEntityRepository extends JpaRepository<PoolEntity, String> 
 
     @org.springframework.data.jpa.repository.Query("SELECT DISTINCT p FROM PoolEntity p JOIN p.reports r ORDER BY p.createdAt DESC")
     List<PoolEntity> findReportedPools();
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("UPDATE PoolEntity p SET p.viewsCount = COALESCE(p.viewsCount, 0) + 1 WHERE p.id = :id")
+    void incrementViewsCount(@org.springframework.data.repository.query.Param("id") String id);
 }

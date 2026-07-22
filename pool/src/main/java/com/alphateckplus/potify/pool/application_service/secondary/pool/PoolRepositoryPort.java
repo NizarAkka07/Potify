@@ -79,4 +79,6 @@ public interface PoolRepositoryPort {
     void addReport(String poolId, String userId, String reason);
     void clearReports(String poolId);
     List<Pool> findReportedPools();
+
+    void incrementViewsCount(String poolId);
 }

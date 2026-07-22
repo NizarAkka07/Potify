@@ -156,4 +156,9 @@ public class PoolJpaAdapter implements PoolRepositoryPort {
                 .map(poolPersistenceMapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public void incrementViewsCount(String poolId) {
+        poolEntityRepository.incrementViewsCount(poolId);
+    }
 }

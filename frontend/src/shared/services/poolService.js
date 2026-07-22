@@ -207,6 +207,15 @@ export const poolService = {
    */
   createPoolUpdate(poolId, data) {
     return poolApi.post(`/pools/${poolId}/updates`, data)
+  },
+
+  /**
+   * Incrémente le compteur de vues d'une cagnotte (accessible à tous les visiteurs).
+   * @param {string} poolId
+   * @returns {Promise}
+   */
+  recordPoolView(poolId) {
+    return poolApi.post(`/pools/${poolId}/view`)
   }
 }
 

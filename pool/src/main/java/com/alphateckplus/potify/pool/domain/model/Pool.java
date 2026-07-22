@@ -110,6 +110,9 @@ public class Pool {
     @Builder.Default
     private BigDecimal fees = new BigDecimal("2.00");
 
+    @Builder.Default
+    private Long viewsCount = 0L;
+
     private java.util.List<PoolReport> reports;
 
     public boolean isReported() {

@@ -53,6 +53,7 @@ public class PoolPersistenceMapper {
                 .hasDeadline(domain.getHasDeadline() != null ? domain.getHasDeadline() : false)
                 .deadlineDate(domain.getDeadlineDate())
                 .fees(domain.getFees())
+                .viewsCount(domain.getViewsCount() != null ? domain.getViewsCount() : 0L)
                 .build();
 
         if (domain.getPhases() != null) {
@@ -123,6 +124,7 @@ public class PoolPersistenceMapper {
                         entity.getPhases().stream().map(phasePersistenceMapper::toDomain).collect(Collectors.toList()) :
                         new java.util.ArrayList<>())
                 .fees(entity.getFees())
+                .viewsCount(entity.getViewsCount() != null ? entity.getViewsCount() : 0L)
                 .reports(reports)
                 .build();
     }

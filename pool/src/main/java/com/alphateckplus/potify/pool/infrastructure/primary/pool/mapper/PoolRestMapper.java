@@ -199,7 +199,8 @@ public class PoolRestMapper {
                 pool.isReported(),
                 pool.getReportCount(),
                 pool.getReportReason(),
-                poolReportResponses
+                poolReportResponses,
+                pool.getViewsCount() != null ? pool.getViewsCount() : 0L
         );
     }
 }
