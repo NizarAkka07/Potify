@@ -54,6 +54,14 @@ public class AuthController {
         return ResponseEntity.ok(authFacade.authenticate(request));
     }
 
+    /**
+     * Authentification / Inscription via Google OAuth2.
+     */
+    @PostMapping("/google")
+    public ResponseEntity<AuthResponse> googleLogin(@Valid @RequestBody com.alphateckplus.potify.user.infrastructure.primary.dto.auth.GoogleLoginRequest request) {
+        return ResponseEntity.ok(authFacade.authenticateGoogle(request));
+    }
+
     @GetMapping("/verify-email")
     public ResponseEntity<String> verifyEmail(@RequestParam String token) {
         boolean verified = verifyEmailService.execute(token);

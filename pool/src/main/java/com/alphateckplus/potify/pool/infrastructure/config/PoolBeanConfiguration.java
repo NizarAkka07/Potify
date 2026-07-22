@@ -64,9 +64,10 @@ public class PoolBeanConfiguration {
     @Bean
     public ReactionRepositoryPort reactionRepositoryPort(
             CommentReactionEntityRepository reactionRepository,
+            com.alphateckplus.potify.data_jpa.repository.pool.ReactionEntityRepository unifiedReactionRepository,
             MessageEntityRepository messageRepository,
             UserEntityRepository userRepository) {
-        return new ReactionJpaAdapter(reactionRepository, messageRepository, userRepository);
+        return new ReactionJpaAdapter(reactionRepository, unifiedReactionRepository, messageRepository, userRepository);
     }
 
     @Bean

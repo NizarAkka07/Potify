@@ -38,3 +38,7 @@ application:
       refresh-token:
         # 7 days in milliseconds
         expiration: 604800000
+    google:
+      client-id: ${GOOGLE_CLIENT_ID:1077945200760-tbqpb374p6uciqsubi9v1l2tsbv8drd7.apps.googleusercontent.com}
+      client-secret: ${GOOGLE_CLIENT_SECRET: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}
+

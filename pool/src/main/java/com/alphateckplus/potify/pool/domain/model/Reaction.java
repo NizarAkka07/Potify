@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Reaction {
     private String id;
-    private String messageId;
+    private String targetId;
+    private String targetType; // "POOL", "UPDATE", "MESSAGE"
     private String userId;
-    private String reactionType; // "LIKE", "HEART", etc.
 }

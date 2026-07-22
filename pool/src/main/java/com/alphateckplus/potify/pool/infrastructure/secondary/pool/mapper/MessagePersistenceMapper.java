@@ -21,9 +21,9 @@ public class MessagePersistenceMapper {
         java.util.List<Reaction> reactions = entity.getReactions() != null ? entity.getReactions().stream()
                 .map(r -> Reaction.builder()
                         .id(r.getId())
-                        .messageId(entity.getId())
+                        .targetId(entity.getId())
+                        .targetType("MESSAGE")
                         .userId(r.getUser().getId())
-                        .reactionType(r.getReactionType())
                         .build())
                 .collect(java.util.stream.Collectors.toList()) : new java.util.ArrayList<>();
         

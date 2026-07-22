@@ -32,15 +32,15 @@ if (!(Test-Path "user") -or !(Test-Path "pool") -or !(Test-Path "payment") -or !
     exit
 }
 
-# 0a. Rebuild du module data-jpa (necessaire si des queries ont ete modifiees)
-Write-Host "[0/4] Rebuild du module data-jpa..." -ForegroundColor $Yellow
-.\mvnw install -DskipTests -pl data-jpa -q
+# 0a. Rebuild des modules data-jpa et pool
+Write-Host "[0/4] Rebuild des modules data-jpa et pool..." -ForegroundColor $Yellow
+.\mvnw install -DskipTests -pl data-jpa,pool -q
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "ERREUR : Le build de data-jpa a echoue. Verifiez les logs." -ForegroundColor $Red
+    Write-Host "ERREUR : Le build a echoue. Verifiez les logs." -ForegroundColor $Red
     Pause
     exit
 }
-Write-Host "       data-jpa compile avec succes !" -ForegroundColor $Green
+Write-Host "       Modules data-jpa et pool compiles avec succes !" -ForegroundColor $Green
 
 # 0b. Nettoyage des ports
 Write-Host "Nettoyage des ports..." -ForegroundColor $Cyan

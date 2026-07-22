@@ -133,6 +133,10 @@
                 <span>{{ messages.length }}</span>
               </div>
               <div class="flex items-center">
+                <q-icon :name="poolLiked ? 'favorite' : 'favorite_border'" :color="poolLiked ? 'red-6' : 'grey-5'" size="18px" class="q-mr-xs" />
+                <span>{{ poolLikesCount }} likes</span>
+              </div>
+              <div class="flex items-center">
                 <q-icon name="visibility" size="18px" class="q-mr-xs text-grey-5" />
                 <span>{{ Math.round((pool.currentAmount || 0) * 0.15 + 18) }} vues</span>
               </div>
@@ -166,11 +170,20 @@
             </div>
             <div class="col-auto">
               <q-btn 
-                outline 
-                icon="favorite_border" 
+                :outline="!poolLiked" 
+                :unelevated="poolLiked"
+                :icon="poolLiked ? 'favorite' : 'favorite_border'" 
+                :color="poolLiked ? 'red-6' : 'grey-8'" 
+                :text-color="poolLiked ? 'white' : 'grey-9'"
                 class="q-py-md share-btn" 
+                :class="{ 'heart-pop': poolLiked }"
                 style="border-radius: 24px; min-width: 50px;" 
-              />
+                @click="togglePoolLike"
+              >
+                <q-tooltip>
+                  {{ poolLiked ? 'Vous aimez cette cagnotte' : 'J\'aime cette cagnotte' }}
+                </q-tooltip>
+              </q-btn>
             </div>
           </div>
 
@@ -190,40 +203,41 @@
 
         </div>
 
-        <!-- RIGHT COLUMN (Title, Story/Description, Timeline/Phases, Financial dashboard, Comments) -->
-        <div class="col-12 col-md-7">
+        <!-- RIGHT COLUMN (Seamless Open Flow - No Heavy Box Cards) -->
+        <div class="col-12 col-md-7 right-content-column q-pl-md-lg">
           
-          <!-- Pool Title -->
-          <h1 class="text-weight-bolder text-dark q-mt-none q-mb-xs pool-title" style="font-size: 2.3rem; line-height: 1.25; letter-spacing: -0.8px;">
-            {{ pool.title }}
-          </h1>
+          <!-- Pool Title & Meta Info -->
+          <div class="q-mb-xl">
+            <h1 class="text-weight-bolder text-dark q-mt-none q-mb-sm pool-main-title">
+              {{ pool.title }}
+            </h1>
 
-          <!-- Meta Info Bar (Creation Date, Category, Visibility) -->
-          <div class="row items-center q-gutter-x-md text-caption text-grey-6 q-mb-lg">
-            <div class="row items-center">
-              <q-icon name="today" size="16px" class="q-mr-xs text-primary" />
-              <span>Créée le {{ formatDate(pool.createdAt) }}</span>
-            </div>
-            <div v-if="pool.category" class="row items-center">
-              <q-icon name="folder" size="16px" class="q-mr-xs text-primary" />
-              <span>{{ pool.category }}</span>
-            </div>
-            <div class="row items-center">
-              <q-icon name="public" size="16px" class="q-mr-xs text-primary" />
-              <span>{{ $t('poolDetail.visibilityPublic') || 'Publique' }}</span>
+            <div class="row items-center q-gutter-sm text-caption q-mt-sm">
+              <div class="meta-pill-chip">
+                <q-icon name="today" size="14px" class="q-mr-xs text-primary" />
+                <span>Créée le {{ formatDate(pool.createdAt) }}</span>
+              </div>
+              <div v-if="pool.category" class="meta-pill-chip">
+                <q-icon name="folder" size="14px" class="q-mr-xs text-primary" />
+                <span>{{ pool.category }}</span>
+              </div>
+              <div class="meta-pill-chip">
+                <q-icon name="public" size="14px" class="q-mr-xs text-primary" />
+                <span>{{ $t('poolDetail.visibilityPublic') || 'Publique' }}</span>
+              </div>
             </div>
           </div>
 
-          <!-- About Pool/Story Card -->
-          <q-card class="custom-card q-pa-lg q-mb-lg no-shadow">
+          <!-- SECTION 1: ABOUT / STORY (Seamless Flow) -->
+          <div class="story-section q-mb-2xl">
             <div class="row items-center justify-between q-mb-md">
               <div class="row items-center">
-                <q-icon name="info" class="q-mr-sm" color="primary" size="24px" />
-                <div class="text-subtitle1 text-weight-bold text-dark">
+                <div class="section-icon-dot bg-primary q-mr-sm"></div>
+                <h2 class="section-heading-title text-dark q-ma-none">
                   {{ $t('poolDetail.aboutPool') }}
-                </div>
+                </h2>
               </div>
-              <div class="row q-gutter-sm">
+              <div class="row q-gutter-xs">
                 <q-btn 
                   v-if="isOwner || isAdmin" 
                   :label="$t('poolDetail.edit')" 
@@ -231,7 +245,7 @@
                   color="warning" 
                   flat 
                   no-caps 
-                  style="border-radius: 8px;"
+                  class="action-link-btn"
                   @click="router.push(`/pools/${pool.id}/edit`)"
                 />
                 <q-btn 
@@ -239,26 +253,28 @@
                   :label="$t('poolDetail.addPhase')" 
                   icon="add_circle" 
                   color="primary" 
-                  flat 
+                  unelevated 
                   no-caps 
-                  style="border-radius: 8px;"
+                  class="action-pill-btn"
                   @click="router.push({ path: '/pools/create', query: { parentId: pool.id } })"
                 />
               </div>
             </div>
-            <div class="text-body2 text-grey-8 q-mb-none" style="white-space: pre-line; line-height: 1.6; font-size: 0.95rem;">
+            
+            <div class="open-story-text text-body1 text-grey-9 q-mb-lg">
               {{ pool.description }}
             </div>
-          </q-card>
+          </div>
 
-          <!-- SECTION : ACTUALITES & TIMELINE DE CONFIANCE -->
-          <q-card class="custom-card q-pa-lg q-mb-lg no-shadow">
-            <div class="row items-center justify-between q-mb-md">
+          <q-separator class="section-divider q-my-xl" />
+
+          <!-- SECTION 2: ACTUALITES (Horizontal Green Cards like CotizUp) -->
+          <div class="updates-section q-mb-2xl">
+            <div class="row items-center justify-between q-mb-lg">
               <div class="row items-center">
-                <q-icon name="campaign" class="q-mr-sm" color="primary" size="24px" />
-                <div class="text-subtitle1 text-weight-bold text-dark">
-                  Actualités du projet ({{ updates.length }})
-                </div>
+                <h2 class="section-heading-title text-dark q-ma-none">
+                  Actualités ({{ updates.length }})
+                </h2>
               </div>
               <q-btn 
                 v-if="isOwner" 
@@ -267,107 +283,118 @@
                 color="positive" 
                 unelevated 
                 no-caps 
-                style="border-radius: 12px;"
+                class="action-pill-btn"
                 @click="openPublishUpdateDialog"
               />
             </div>
 
-            <!-- Liste des actualités -->
-            <div v-if="updates.length > 0" class="updates-timeline q-pl-sm">
-              <div v-for="update in updates" :key="update.id" class="update-timeline-item q-mb-xl" style="position: relative;">
-                <div class="row items-start">
-                  <!-- L'icône de l'actualité -->
-                  <div class="update-icon-circle q-mr-md shadow-sm bg-positive text-white flex flex-center" style="width: 40px; height: 40px; border-radius: 50%; z-index: 1;">
-                    <q-icon name="announcement" size="20px" />
+            <!-- Horizontal Scrollable Row of Green Cards -->
+            <div v-if="updates.length > 0" class="row q-gutter-md no-wrap overflow-auto q-pb-md updates-scroll-container">
+              <div 
+                v-for="update in updates" 
+                :key="update.id" 
+                class="update-green-card column justify-between cursor-pointer q-pa-lg shadow-4"
+                style="background: linear-gradient(145deg, #10B981 0%, #059669 100%) !important; color: #FFFFFF !important;"
+                @click="openUpdateDetail(update)"
+              >
+                <div>
+                  <div class="row items-center justify-between q-mb-sm">
+                    <div class="text-subtitle2 text-weight-bolder text-white card-date-header">
+                      {{ formatRelativeTime(update.createdAt) }}
+                    </div>
+                    <!-- Bouton Like Coeur -->
+                    <div 
+                      class="row items-center cursor-pointer like-badge"
+                      @click.stop="toggleLikeUpdate(update)"
+                    >
+                      <q-icon 
+                        :name="update.userLiked ? 'favorite' : 'favorite_border'" 
+                        :color="update.userLiked ? 'red-5' : 'white'" 
+                        size="15px" 
+                        class="q-mr-xs heart-icon"
+                        :class="{ 'heart-pop': update.userLiked }"
+                      />
+                      <span class="text-caption text-weight-bolder text-white">{{ update.likesCount || 0 }}</span>
+                    </div>
                   </div>
-                  
-                  <div class="col">
-                    <div class="text-weight-bold text-dark text-subtitle1 q-mb-xs">
-                      {{ update.title }}
-                    </div>
-                    <div class="text-caption text-grey-5 q-mb-md">
-                      Publié le {{ formatDateWithTime(update.createdAt) }}
-                    </div>
-                    <div class="text-body2 text-grey-8 q-mb-md" style="white-space: pre-line; line-height: 1.6;">
-                      {{ update.content }}
-                    </div>
-
-                    <!-- Images / Vidéos de l'actualité -->
-                    <div v-if="update.imageUrl" class="q-mb-md" style="max-width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0;">
-                      <q-img :src="update.imageUrl" max-height="350px" fit="contain" class="bg-grey-1" />
-                    </div>
-
-                    <div v-if="update.videoUrl" class="q-mb-md" style="max-width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0;">
-                      <q-video :src="update.videoUrl" :ratio="16/9" style="max-height: 350px;" />
-                    </div>
+                  <div class="text-body1 text-weight-bold text-white card-snippet-text">
+                    {{ update.title || update.content }}
                   </div>
+                </div>
+
+                <div class="row items-center justify-between text-white text-caption q-mt-md">
+                  <span class="text-weight-bold" style="opacity: 0.95;">Voir la suite</span>
+                  <q-icon name="arrow_forward" size="16px" />
                 </div>
               </div>
             </div>
 
-            <div v-else class="text-center q-py-xl text-grey-5">
-              <q-icon name="notifications_none" size="48px" class="q-mb-sm text-grey-4" />
-              <div>Aucune actualité publiée pour le moment.</div>
-              <div class="text-caption text-grey-5 q-mt-xs">Suivez cette cagnotte pour rester informé des derniers développements.</div>
+            <div v-else class="empty-state-open text-center q-py-lg text-grey-6">
+              <q-icon name="notifications_none" size="32px" color="grey-4" class="q-mb-xs" />
+              <div class="text-body2 text-grey-6">Aucune actualité publiée pour le moment.</div>
             </div>
-          </q-card>
+          </div>
 
-          <!-- Last Donors List Card (CotizUp Style) -->
-          <q-card class="custom-card q-pa-lg q-mb-lg no-shadow">
-            <div class="row items-center justify-between q-mb-md">
+          <q-separator class="section-divider q-my-xl" />
+
+          <!-- SECTION 3: LAST DONORS -->
+          <div class="donors-section q-mb-2xl">
+            <div class="row items-center justify-between q-mb-lg">
               <div class="row items-center">
-                <q-icon name="favorite" class="q-mr-sm" color="primary" size="24px" />
-                <div class="text-subtitle1 text-weight-bold text-dark">
-                  {{ $t('poolDetail.lastDonors') }} ({{ contributions.length }})
-                </div>
+                <div class="section-icon-dot bg-rose q-mr-sm"></div>
+                <h2 class="section-heading-title text-dark q-ma-none">
+                  {{ $t('poolDetail.lastDonors') }} <span class="text-caption text-grey-6 text-weight-medium">({{ contributions.length }})</span>
+                </h2>
               </div>
-              <q-btn flat dense no-caps color="grey-6" label="Les plus récents" icon-right="expand_more" size="sm" class="text-weight-bold" />
             </div>
 
-            <q-list v-if="contributions.length > 0" class="q-gutter-y-xs">
-              <q-item v-for="contrib in contributions.slice(0, 8)" :key="contrib.id" class="q-px-none q-py-md" style="border-bottom: 1px solid #F8FAFC;">
-                <q-item-section avatar>
-                  <q-avatar size="38px" class="bg-grey-2 text-grey-7 text-weight-bold">
+            <div v-if="contributions.length > 0" class="donors-open-list">
+              <div v-for="contrib in contributions.slice(0, 8)" :key="contrib.id" class="donor-seamless-row flex items-center justify-between q-py-sm">
+                <div class="flex items-center">
+                  <q-avatar size="40px" class="donor-avatar text-weight-bold q-mr-md">
                     <template v-if="contrib.anonymous">
                       <span v-if="isOwner">{{ (contrib.contributorName || 'A').charAt(0).toUpperCase() }}</span>
                       <span v-else>-</span>
                     </template>
                     <span v-else>{{ (contrib.contributorName || 'A').charAt(0).toUpperCase() }}</span>
                   </q-avatar>
-                </q-item-section>
-                <q-item-section>
-                  <div class="row items-baseline justify-between">
-                    <div class="text-weight-bold text-dark" style="font-size: 0.95rem;">
+                  <div>
+                    <div class="text-weight-bold text-dark text-body2">
                       <template v-if="contrib.anonymous">
                         <span v-if="isOwner">{{ contrib.contributorName }} (Anonyme)</span>
                         <span v-else>{{ $t('poolDetail.anonymousDonor') }}</span>
                       </template>
                       <span v-else>{{ contrib.contributorName }}</span>
                     </div>
-                    <div class="text-weight-bolder text-dark" style="font-size: 0.95rem;">
-                      +{{ contrib.amount }} €
+                    <div class="text-caption text-grey-5 flex items-center">
+                      <q-icon name="schedule" size="12px" class="q-mr-xs" />
+                      Récemment
                     </div>
                   </div>
-                  <q-item-label caption class="text-grey-5 q-mt-xs">Il y a quelques jours</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-
-            <div v-else class="text-center q-py-xl text-grey-5 text-italic">
-              {{ $t('poolDetail.firstContributorPrompt') }}
-            </div>
-          </q-card>
-
-          <!-- SECTION : PHASES DE PROGRESSION (Cagnotte Simple) -->
-          <q-card v-if="(!pool.subPools || pool.subPools.length === 0) && pool.phases && pool.phases.length > 0" class="custom-card q-pa-lg q-mb-lg no-shadow">
-            <div class="row items-center q-mb-lg">
-              <q-icon name="flag" class="q-mr-sm" color="primary" size="24px" />
-              <div class="text-subtitle1 text-weight-bold text-dark">
-                {{ $t('poolDetail.phasesHeader') }} ({{ pool.phases.length }})
+                </div>
+                <div class="donor-clean-amount text-weight-bolder text-positive">
+                  +{{ contrib.amount }} €
+                </div>
               </div>
             </div>
-            
-            <div class="phases-timeline q-pl-sm">
+
+            <div v-else class="empty-state-open text-center q-py-lg text-grey-6 text-italic">
+              {{ $t('poolDetail.firstContributorPrompt') }}
+            </div>
+          </div>
+
+          <q-separator class="section-divider q-my-xl" />
+
+          <!-- SECTION 4: PHASES & SUBPOOLS -->
+          <div v-if="(pool.subPools && pool.subPools.length > 0) || (pool.phases && pool.phases.length > 0)" class="phases-section q-mb-2xl">
+            <div class="row items-center q-mb-lg">
+              <div class="section-icon-dot bg-indigo q-mr-sm"></div>
+              <h2 class="section-heading-title text-dark q-ma-none">
+                Étapes & Progression
+              </h2>
+            </div>
+
+            <div v-if="(!pool.subPools || pool.subPools.length === 0) && pool.phases && pool.phases.length > 0" class="phases-timeline">
               <div v-for="(phase, phIndex) in pool.phases" :key="phase.id" class="phase-item q-mb-md">
                 <div class="row items-center q-mb-xs">
                   <div class="phase-number-circle q-mr-md shadow-sm" :class="getPhaseStatusClass(phase)">
@@ -395,44 +422,27 @@
                 </div>
               </div>
             </div>
-          </q-card>
 
-          <!-- SECTION : SOUS-CAGNOTTES / ÉTAPES DU PROJET -->
-          <q-card v-if="pool.subPools && pool.subPools.length > 0" class="custom-card q-pa-lg q-mb-lg no-shadow">
-            <div class="row items-center q-mb-lg">
-              <q-icon name="account_tree" class="q-mr-sm" color="primary" size="24px" />
-              <div class="text-subtitle1 text-weight-bold text-dark">
-                {{ $t('poolDetail.subPoolsHeader') }} ({{ pool.subPools.length }})
-              </div>
-            </div>
-            
-            <div class="q-gutter-y-lg">
+            <div v-if="pool.subPools && pool.subPools.length > 0" class="q-gutter-y-lg">
               <div v-for="(subPool, spIndex) in pool.subPools" :key="subPool.id" :class="{'q-pt-lg border-top-divider': spIndex > 0}">
-                <!-- Title and Contribute button -->
                 <div class="row items-center justify-between q-mb-md">
                   <div class="col">
                     <div class="text-subtitle1 text-weight-bold text-dark">{{ subPool.title }}</div>
                     <div v-if="subPool.description" class="text-body2 text-grey-6 q-mt-xs">{{ subPool.description }}</div>
-                    <!-- Subpool deadline -->
-                    <div v-if="subPool.hasDeadline && subPool.deadlineDate" class="text-caption text-amber-9 text-weight-bold q-mt-xs">
-                      <q-icon name="alarm" class="q-mr-xs" /> Fin le {{ formatDateWithTime(subPool.deadlineDate) }}
-                    </div>
                   </div>
-                  
                   <div class="col-auto">
                     <q-btn 
                       label="Contribuer" 
                       color="secondary" 
                       unelevated 
                       no-caps 
-                      style="border-radius: 12px;"
+                      class="action-pill-btn"
                       @click="contributeToSubPool(subPool.id)"
                       :disable="subPool.status === 'COMPLETED'"
                     />
                   </div>
                 </div>
 
-                <!-- Progress bar -->
                 <div class="q-mb-md">
                   <div class="row justify-between text-caption text-grey-6 q-mb-xs">
                     <span>{{ subPool.currentAmount || 0 }} € collectés sur {{ subPool.goalAmount }} €</span>
@@ -445,58 +455,28 @@
                     rounded 
                   />
                 </div>
-
-                <!-- Phases within this sub-pool -->
-                <div v-if="subPool.phases && subPool.phases.length > 0" class="q-mt-md">
-                  <div class="text-subtitle2 text-weight-bold text-grey-7 q-mb-sm">{{ $t('poolDetail.phasesHeader') }} :</div>
-                  <div class="phases-timeline q-pl-sm">
-                    <div v-for="(phase, phIndex) in subPool.phases" :key="phase.id" class="phase-item q-mb-md">
-                      <div class="row items-center q-mb-xs">
-                        <div class="phase-number-circle q-mr-md shadow-sm" :class="getPhaseStatusClass(phase)">
-                          {{ phIndex + 1 }}
-                        </div>
-                        <div class="col">
-                          <div class="row items-center justify-between">
-                            <div class="text-caption text-weight-bold text-dark">
-                              {{ phase.title }}
-                              <q-badge v-if="phase.status === 'ACTIVE'" color="secondary" label="ACTIVE" class="q-ml-xs text-weight-bold text-xxs" />
-                            </div>
-                            <div class="text-caption text-weight-medium text-grey-6">
-                              {{ phase.currentAmount }} € / {{ phase.goalAmount }} €
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="q-pl-xl">
-                        <q-linear-progress 
-                          :value="phase.currentAmount / phase.goalAmount" 
-                          :color="phase.status === 'COMPLETED' ? 'green' : (phase.status === 'ACTIVE' ? 'secondary' : 'grey-4')" 
-                          size="6px" 
-                          rounded 
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
-          </q-card>
 
-          <!-- SECTION FINANCIERE (Visible uniquement par le proprietaire) -->
-          <q-card v-if="isOwner" class="custom-card q-pa-lg q-mb-lg no-shadow">
+            <q-separator class="section-divider q-my-xl" />
+          </div>
+
+          <!-- SECTION 5: FINANCIAL DASHBOARD (OWNER ONLY) -->
+          <div v-if="isOwner" class="finance-section q-mb-2xl">
             <div class="row items-center q-mb-lg">
-              <q-icon name="account_balance_wallet" class="q-mr-sm" color="primary" size="24px" />
-              <div class="text-subtitle1 text-weight-bold text-dark">
+              <div class="section-icon-dot bg-teal q-mr-sm"></div>
+              <h2 class="section-heading-title text-dark q-ma-none">
                 {{ $t('poolDetail.financialDashboard') }}
-              </div>
+              </h2>
             </div>
             
             <div class="row q-col-gutter-md">
               <div class="col-12 col-sm-6">
-                <div class="financial-box q-pa-md column justify-between" style="min-height: 150px; border-radius: 16px;">
-                  <div class="text-overline text-grey-6">{{ $t('poolDetail.availableBalance') }}</div>
-                  <div class="text-h4 text-weight-bolder text-dark">{{ pool.availableBalance || 0 }} €</div>
-                  <div class="text-caption text-grey-5">{{ $t('poolDetail.readyToWithdraw') }}</div>
+                <div class="financial-box q-pa-lg column justify-between" style="border-radius: 20px;">
+                  <div>
+                    <div class="text-overline text-grey-6 text-weight-bold">{{ $t('poolDetail.availableBalance') }}</div>
+                    <div class="text-h4 text-weight-bolder text-positive q-mt-xs">{{ pool.availableBalance || 0 }} €</div>
+                  </div>
                   <div class="q-mt-md" v-if="pool.availableBalance > 0">
                     <q-btn 
                       label="Demander un retrait" 
@@ -504,33 +484,35 @@
                       unelevated 
                       no-caps 
                       icon="payment"
-                      class="full-width text-weight-bold"
-                      style="border-radius: 12px;"
+                      class="full-width text-weight-bold action-pill-btn"
                       @click="openWithdrawDialog"
                     />
                   </div>
                 </div>
               </div>
               <div class="col-12 col-sm-6">
-                <div class="financial-box q-pa-md column justify-between" style="min-height: 150px; border-radius: 16px;">
-                  <div class="text-overline text-grey-6">{{ $t('poolDetail.pending') }}</div>
-                  <div class="text-h4 text-weight-bolder text-grey-6">{{ pool.pendingBalance || 0 }} €</div>
-                  <div class="text-caption text-grey-5">{{ $t('poolDetail.pendingDesc') }}</div>
+                <div class="financial-box q-pa-lg column justify-between" style="border-radius: 20px;">
+                  <div>
+                    <div class="text-overline text-grey-6 text-weight-bold">{{ $t('poolDetail.pending') }}</div>
+                    <div class="text-h4 text-weight-bolder text-grey-7 q-mt-xs">{{ pool.pendingBalance || 0 }} €</div>
+                  </div>
+                  <div class="text-caption text-grey-6 q-mt-sm">{{ $t('poolDetail.pendingDesc') }}</div>
                 </div>
               </div>
             </div>
-          </q-card>
 
-          <!-- SECTION : COMMENTAIRES -->
-          <q-card class="custom-card q-pa-lg q-mb-lg no-shadow">
+            <q-separator class="section-divider q-my-xl" />
+          </div>
+
+          <!-- SECTION 6: COMMENTS -->
+          <div class="comments-section q-mb-2xl">
             <div class="row items-center q-mb-lg">
-              <q-icon name="forum" class="q-mr-sm" color="primary" size="24px" />
-              <div class="text-subtitle1 text-weight-bold text-dark">
-                {{ $t('poolDetail.commentsHeader') }} ({{ messages.length }})
-              </div>
+              <div class="section-icon-dot bg-primary q-mr-sm"></div>
+              <h2 class="section-heading-title text-dark q-ma-none">
+                {{ $t('poolDetail.commentsHeader') }} <span class="text-caption text-grey-6 text-weight-medium">({{ messages.length }})</span>
+              </h2>
             </div>
 
-            <!-- Champ de saisie pour nouveau commentaire -->
             <div v-if="authStore.isAuthenticated.value" class="q-mb-lg">
               <q-input
                 outlined
@@ -540,37 +522,38 @@
                 rows="3"
                 color="secondary"
                 bg-color="white"
-                style="border-radius: 12px; overflow: hidden;"
+                class="comment-input-area"
               >
                 <template v-slot:after>
                   <div class="column justify-end full-height q-pb-xs">
-                    <q-btn round color="primary" icon="send" :loading="sendingComment" @click="postComment" />
+                    <q-btn round color="primary" icon="send" class="shadow-1" :loading="sendingComment" @click="postComment" />
                   </div>
                 </template>
               </q-input>
             </div>
-            <div v-else class="q-pa-md bg-blue-1 text-blue-9 text-weight-bold q-mb-lg" style="border-radius: 12px; border: 1px dashed rgba(33, 150, 243, 0.3);">
-              <q-icon name="info" class="q-mr-sm" />
+            <div v-else class="q-pa-md bg-blue-1 text-blue-9 text-weight-bold q-mb-lg rounded-borders flex items-center" style="border: 1px dashed rgba(33, 150, 243, 0.3);">
+              <q-icon name="info" class="q-mr-sm" size="20px" />
               {{ $t('poolDetail.loginToComment') }}
             </div>
 
-            <!-- Liste des commentaires -->
             <div v-if="messages.length > 0" class="q-gutter-y-md">
               <div v-for="msg in messages" :key="msg.id" class="comment-item q-pa-md">
                 <div class="row justify-between items-center q-mb-sm">
                   <div class="row items-center">
-                    <q-avatar size="32px" class="bg-primary text-secondary text-weight-bold q-mr-sm">
+                    <q-avatar size="34px" class="bg-primary text-secondary text-weight-bold q-mr-sm shadow-xs">
                       {{ msg.userName?.charAt(0).toUpperCase() || '?' }}
                     </q-avatar>
                     <div>
-                      <div class="text-weight-bold text-dark">
+                      <div class="text-weight-bold text-dark text-body2">
                         {{ msg.userName || 'Utilisateur anonyme' }}
                       </div>
-                      <div class="text-caption text-grey-5">{{ formatDate(msg.createdAt) }}</div>
+                      <div class="text-caption text-grey-5 flex items-center">
+                        <q-icon name="schedule" size="12px" class="q-mr-xs" />
+                        {{ formatDate(msg.createdAt) }}
+                      </div>
                     </div>
                   </div>
                   
-                  <!-- Reactions and flags -->
                   <div class="row items-center q-gutter-x-xs">
                     <div v-if="authStore.isAuthenticated.value" class="reaction-trigger">
                       <q-btn flat round dense icon="add_reaction" color="grey-6" size="sm">
@@ -594,11 +577,10 @@
                   </div>
                 </div>
                 
-                <div class="text-body2 text-grey-8 q-pl-md q-mb-sm" style="border-left: 2px solid #CBD5E1; line-height: 1.6;">
+                <div class="text-body2 text-grey-8 q-pl-md q-mb-sm comment-text-body">
                   {{ msg.content }}
                 </div>
 
-                <!-- Reaction Badges -->
                 <div v-if="msg.reactions && msg.reactions.length > 0" class="row q-gutter-xs q-pl-md">
                   <div v-for="(group, type) in groupReactions(msg.reactions)" :key="type" 
                        class="reaction-badge row items-center q-px-sm q-py-xs"
@@ -610,11 +592,10 @@
                 </div>
               </div>
             </div>
-            <div v-else class="text-center q-py-xl text-grey-5">
-              <q-icon name="chat_bubble_outline" size="48px" class="q-mr-sm" />
-              <div>{{ $t('poolDetail.noComments') }}</div>
+            <div v-else class="empty-state-open text-center q-py-lg text-grey-6">
+              <div class="text-body2 text-grey-6">{{ $t('poolDetail.noComments') }}</div>
             </div>
-          </q-card>
+          </div>
         </div>
       </div>
     </div>
@@ -1136,6 +1117,55 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <!-- Dialogue de Détail d'Actualité -->
+    <q-dialog v-model="updateDetailDialog" transition-show="scale" transition-hide="scale">
+      <q-card v-if="selectedUpdate" style="min-width: 500px; max-width: 650px; border-radius: 24px; overflow: hidden;" :dark="$q.dark.isActive">
+        <q-card-section class="row items-center justify-between text-white q-pa-lg" style="background: linear-gradient(145deg, #10B981 0%, #059669 100%);">
+          <div>
+            <div class="text-caption text-weight-bold" style="opacity: 0.95;">
+              <q-icon name="schedule" size="14px" class="q-mr-xs" />
+              Publié le {{ formatDateWithTime(selectedUpdate.createdAt) }} ({{ formatRelativeTime(selectedUpdate.createdAt) }})
+            </div>
+            <div class="text-h6 text-weight-bolder q-mt-xs text-white" style="font-family: 'Outfit', sans-serif;">
+              {{ selectedUpdate.title || 'Actualité du projet' }}
+            </div>
+          </div>
+          <q-btn icon="close" flat round dense v-close-popup class="text-white" />
+        </q-card-section>
+
+        <q-card-section class="q-pa-lg">
+          <div 
+            class="text-body1 q-mb-lg" 
+            :class="$q.dark.isActive ? 'text-grey-3' : 'text-grey-9'"
+            style="white-space: pre-line; line-height: 1.7; font-size: 1.05rem;"
+          >
+            {{ selectedUpdate.content }}
+          </div>
+
+          <div v-if="selectedUpdate.imageUrl" class="q-mb-md media-preview-wrapper">
+            <q-img :src="selectedUpdate.imageUrl" max-height="400px" fit="contain" class="bg-grey-1" />
+          </div>
+
+          <div v-if="selectedUpdate.videoUrl" class="q-mb-md media-preview-wrapper">
+            <q-video :src="selectedUpdate.videoUrl" :ratio="16/9" style="max-height: 400px;" />
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="between" class="q-pa-md" :class="$q.dark.isActive ? 'bg-dark' : 'bg-grey-1'">
+          <q-btn 
+            :icon="selectedUpdate.userLiked ? 'favorite' : 'favorite_border'" 
+            :label="selectedUpdate.userLiked ? 'Aimé (' + (selectedUpdate.likesCount || 0) + ')' : 'J\'aime (' + (selectedUpdate.likesCount || 0) + ')'" 
+            :color="selectedUpdate.userLiked ? 'red-6' : 'grey-8'" 
+            flat 
+            no-caps 
+            class="text-weight-bold"
+            @click="toggleLikeUpdate(selectedUpdate)"
+          />
+          <q-btn label="Fermer" flat color="positive" v-close-popup no-caps class="text-weight-bold" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -1166,6 +1196,114 @@ const mediaSlide = ref('image')
 const updates = ref([])
 const publishUpdateDialog = ref(false)
 const publishingUpdate = ref(false)
+const selectedUpdate = ref(null)
+const updateDetailDialog = ref(false)
+
+const poolLiked = ref(false)
+const poolLikesCount = ref(0)
+
+const togglePoolLike = async () => {
+  if (!pool.value || !pool.value.id) return
+
+  if (poolLiked.value) {
+    poolLiked.value = false
+    poolLikesCount.value = Math.max(0, poolLikesCount.value - 1)
+  } else {
+    poolLiked.value = true
+    poolLikesCount.value = poolLikesCount.value + 1
+  }
+
+  try {
+    const params = {}
+    if (authStore.user.value?.id) {
+      params.userId = authStore.user.value.id
+    }
+    await poolApi.post(`/pools/${pool.value.id}/like`, null, { params })
+  } catch (err) {
+    console.debug('Optimistic pool like toggle:', err)
+  }
+}
+
+const openUpdateDetail = (update) => {
+  selectedUpdate.value = update
+  updateDetailDialog.value = true
+}
+
+const toggleLikeUpdate = async (update) => {
+  if (!update) return
+  if (update.likesCount === undefined) update.likesCount = 0
+
+  if (update.userLiked) {
+    update.userLiked = false
+    update.likesCount = Math.max(0, update.likesCount - 1)
+  } else {
+    update.userLiked = true
+    update.likesCount = update.likesCount + 1
+  }
+
+  try {
+    const params = {}
+    if (authStore.user.value?.id) {
+      params.userId = authStore.user.value.id
+    }
+    await poolApi.post(`/updates/${update.id}/like`, null, { params })
+  } catch (err) {
+    console.debug('Optimistic update like:', err)
+  }
+}
+
+const fetchUpdates = async () => {
+  try {
+    const id = route.params.id
+    const params = {}
+    if (authStore.user.value?.id) {
+      params.userId = authStore.user.value.id
+    }
+    const response = await poolApi.get(`/pools/${id}/updates`, { params })
+    updates.value = response.data
+  } catch (err) {
+    console.error('Erreur chargement actualités:', err)
+  }
+}
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  return new Date(dateStr).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+}
+
+const formatDateWithTime = (dateStr) => {
+  if (!dateStr) return ''
+  return new Date(dateStr).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+const formatRelativeTime = (dateStr) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const now = new Date()
+  const diffInSeconds = Math.floor((now - date) / 1000)
+
+  if (diffInSeconds < 60) return "À l'instant"
+  const diffInMinutes = Math.floor(diffInSeconds / 60)
+  if (diffInMinutes < 60) return `Il y a ${diffInMinutes} min`
+  const diffInHours = Math.floor(diffInMinutes / 60)
+  if (diffInHours < 24) return `Il y a ${diffInHours} h`
+  const diffInDays = Math.floor(diffInHours / 24)
+  if (diffInDays < 30) return `Il y a ${diffInDays} jour${diffInDays > 1 ? 's' : ''}`
+  const diffInMonths = Math.floor(diffInDays / 30)
+  if (diffInMonths < 12) return `Il y a ${diffInMonths} mois`
+  const diffInYears = Math.floor(diffInMonths / 12)
+  return `Il y a ${diffInYears} an${diffInYears > 1 ? 's' : ''}`
+}
 const imageFileInput = ref(null)
 const uploadingImage = ref(false)
 const updateForm = reactive({
@@ -1257,17 +1395,6 @@ const subPoolOptions = computed(() => {
 const contributeToSubPool = (subPoolId) => {
   selectedSubPoolId.value = subPoolId
   contributionDialog.value = true
-}
-
-const formatDateWithTime = (dateStr) => {
-  if (!dateStr) return '-'
-  return new Date(dateStr).toLocaleString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
 }
 
 const getPhaseStatusClass = (phase) => {
@@ -1490,15 +1617,6 @@ const contributionForm = reactive({
   anonymous: false
 })
 
-const formatDate = (dateStr) => {
-  if (!dateStr) return '-'
-  return new Date(dateStr).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  })
-}
-
 const fetchContributions = async () => {
   try {
     const id = route.params.id
@@ -1560,9 +1678,26 @@ const fetchPool = async () => {
       }
     })
     pool.value = response.data
+    try {
+      const likesRes = await poolApi.get('/reactions/status', {
+        params: {
+          targetId: route.params.id,
+          targetType: 'POOL',
+          userId: authStore.user.value?.id
+        }
+      })
+      if (likesRes.data) {
+        poolLikesCount.value = likesRes.data.count || 0
+        poolLiked.value = likesRes.data.liked || false
+      }
+    } catch (err) {
+      console.debug('Could not fetch initial pool likes status:', err)
+    }
+
     if (!pool.value.imageUrl && pool.value.videoUrl) {
       mediaSlide.value = 'video'
     }
+    await fetchUpdates()
     await fetchMessages()
     await fetchContributions()
     if (isOwner.value) {
@@ -1821,16 +1956,6 @@ const openPublishUpdateDialog = () => {
   publishUpdateDialog.value = true
 }
 
-const fetchUpdates = async () => {
-  try {
-    const id = route.params.id
-    const response = await poolService.getPoolUpdates(id)
-    updates.value = response.data
-  } catch (err) {
-    console.error('Erreur chargement updates:', err)
-  }
-}
-
 const submitPublishUpdate = async () => {
   if (!updateForm.title.trim() || !updateForm.content.trim()) {
     $q.notify({
@@ -1899,23 +2024,320 @@ onUnmounted(() => {
   border: 1.5px solid rgba(0, 230, 118, 0.2);
 }
 
-.pool-title {
+.pool-main-title {
   color: #0F172A;
   font-family: 'Outfit', 'Inter', sans-serif;
+  font-size: 2.3rem;
+  line-height: 1.25;
+  letter-spacing: -0.8px;
+}
+
+.section-heading-title {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.section-icon-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.like-badge {
+  background: rgba(255, 255, 255, 0.22);
+  padding: 3px 8px;
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
+}
+
+.like-badge:hover {
+  background: rgba(255, 255, 255, 0.38);
+  transform: scale(1.08);
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+.heart-pop {
+  animation: heartPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.updates-scroll-container {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+}
+
+.update-green-card {
+  width: 200px !important;
+  min-width: 200px !important;
+  height: 230px !important;
+  border-radius: 20px !important;
+  background: linear-gradient(145deg, #10B981 0%, #059669 100%) !important;
+  color: #FFFFFF !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  user-select: none;
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4) !important;
+}
+
+.update-green-card:hover {
+  transform: translateY(-6px) scale(1.03) !important;
+  box-shadow: 0 16px 32px -4px rgba(16, 185, 129, 0.5) !important;
+}
+
+.card-date-header {
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 0.9rem !important;
+  letter-spacing: -0.2px;
+  color: #FFFFFF !important;
+}
+
+.card-snippet-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  white-space: pre-line;
+  font-family: 'Outfit', 'Inter', sans-serif !important;
+  color: #FFFFFF !important;
+}
+
+.section-divider {
+  background-color: #E2E8F0;
+  opacity: 0.6;
+}
+body.body--dark .section-divider {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.donor-seamless-row {
+  border-bottom: 1px solid #F1F5F9;
+  transition: background 0.2s ease;
+}
+.donor-seamless-row:last-child {
+  border-bottom: none;
+}
+body.body--dark .donor-seamless-row {
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.media-preview-wrapper {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #E2E8F0;
+}
+body.body--dark .media-preview-wrapper {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.update-timeline-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
 }
 body.body--dark .pool-title {
   color: #FFFFFF;
 }
 
-.custom-card {
+.meta-pill-chip {
+  display: inline-flex;
+  align-items: center;
+  background: #F1F5F9;
+  color: #475569;
+  padding: 6px 14px;
   border-radius: 20px;
-  background: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 600;
   border: 1px solid #E2E8F0;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+}
+.meta-pill-chip:hover {
+  background: #E2E8F0;
+  color: #1E293B;
+}
+body.body--dark .meta-pill-chip {
+  background: #1E293B;
+  color: #94A3B8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+body.body--dark .meta-pill-chip:hover {
+  background: #334155;
+  color: #F8FAFC;
+}
+
+.custom-card {
+  border-radius: 24px;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 25px -4px rgba(15, 23, 42, 0.03), 0 1px 3px rgba(15, 23, 42, 0.02);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.custom-card:hover {
+  border-color: rgba(203, 213, 225, 0.9);
+  box-shadow: 0 12px 35px -6px rgba(15, 23, 42, 0.06);
 }
 body.body--dark .custom-card {
   background: #121F32;
   border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+body.body--dark .custom-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.icon-box-pill {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(0, 230, 118, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+.custom-card:hover .icon-box-pill {
+  transform: scale(1.05);
+}
+.bg-emerald-light {
+  background: rgba(0, 230, 118, 0.12);
+}
+.bg-rose-light {
+  background: rgba(244, 63, 94, 0.12);
+}
+.bg-indigo-light {
+  background: rgba(99, 102, 241, 0.12);
+}
+.bg-teal-light {
+  background: rgba(20, 184, 166, 0.12);
+}
+
+.section-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  line-height: 1.3;
+}
+body.body--dark .section-title {
+  color: #FFFFFF !important;
+}
+
+.action-pill-btn {
+  border-radius: 20px !important;
+  font-weight: 600 !important;
+  padding: 4px 16px !important;
+  transition: transform 0.2s ease !important;
+}
+.action-pill-btn:hover {
+  transform: translateY(-1px);
+}
+
+.story-description-content {
+  white-space: pre-line;
+  line-height: 1.75;
+  font-size: 0.98rem;
+  color: #334155;
+  background: #F8FAFC;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #F1F5F9;
+}
+body.body--dark .story-description-content {
+  background: #0D1B2E;
+  color: #CBD5E1;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.update-card-box {
+  background: #F8FAFC;
+  border-radius: 18px;
+  border: 1px solid #E2E8F0;
+  transition: all 0.2s ease;
+}
+.update-card-box:hover {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+body.body--dark .update-card-box {
+  background: #0D1B2E;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.donor-item-row {
+  background: #F8FAFC;
+  border: 1px solid #F1F5F9;
+  border-radius: 16px;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.donor-item-row:hover {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+body.body--dark .donor-item-row {
+  background: #0D1B2E;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+body.body--dark .donor-item-row:hover {
+  background: #14243B;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.donor-avatar {
+  background: #E2E8F0;
+  color: #334155;
+}
+body.body--dark .donor-avatar {
+  background: #1E293B;
+  color: #E2E8F0;
+}
+
+.donor-amount-badge {
+  background: rgba(0, 230, 118, 0.12);
+  color: #00A86B;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 230, 118, 0.25);
+}
+body.body--dark .donor-amount-badge {
+  background: rgba(0, 230, 118, 0.15);
+  color: #00E676;
+}
+
+.empty-state-box {
+  background: #F8FAFC;
+  border-radius: 18px;
+  border: 1.5px dashed #E2E8F0;
+  padding: 32px 20px;
+}
+body.body--dark .empty-state-box {
+  background: #0D1B2E;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.empty-icon-wrapper {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #F1F5F9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+body.body--dark .empty-icon-wrapper {
+  background: #1E293B;
 }
 
 .profile-row {
@@ -1954,15 +2376,41 @@ body.body--dark .share-btn:hover {
   border-color: rgba(255, 255, 255, 0.25);
 }
 
+.comment-input-area {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #E2E8F0;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.comment-input-area:focus-within {
+  border-color: #00E676;
+  box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.15);
+}
+
 .comment-item {
   background: #F8FAFC;
   border: 1px solid #E2E8F0;
-  border-radius: 16px;
-  transition: all 0.3s ease;
+  border-radius: 18px;
+  transition: all 0.25s ease;
+}
+.comment-item:hover {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
 }
 body.body--dark .comment-item {
   background: #0D1B2E;
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.comment-text-body {
+  border-left: 3px solid #00E676;
+  line-height: 1.65;
+  color: #334155;
+  font-size: 0.95rem;
+}
+body.body--dark .comment-text-body {
+  color: #CBD5E1;
 }
 
 .reaction-badge {
@@ -2012,8 +2460,8 @@ body.body--dark .user-reacted {
 }
 
 .phase-number-circle {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -2028,8 +2476,8 @@ body.body--dark .user-reacted {
 .phase-item:not(:last-child)::after {
   content: '';
   position: absolute;
-  left: 16px;
-  top: 32px;
+  left: 17px;
+  top: 34px;
   bottom: -20px;
   width: 2px;
   background: #CBD5E1;
@@ -2049,12 +2497,12 @@ body.body--dark .phase-item:not(:last-child)::after {
 }
 
 .financial-box {
-  background: #F8FAFC;
+  background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
   border: 1px solid #E2E8F0;
   transition: all 0.3s ease;
 }
 body.body--dark .financial-box {
-  background: #1A2536;
+  background: linear-gradient(135deg, #1A2536 0%, #0F172A 100%);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
