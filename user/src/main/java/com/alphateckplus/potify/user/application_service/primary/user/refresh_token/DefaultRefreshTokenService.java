@@ -103,6 +103,7 @@ public class DefaultRefreshTokenService implements RefreshTokenService {
                 .roles(roles)
                 .fullName(user.getFullName())
                 .avatarUrl(user.getAvatarUrl())
+                .adminVerification(user.isAdminVerification())
                 .build();
     }
 

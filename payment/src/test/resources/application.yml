@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:potify_payment_test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+
+stripe:
+  api:
+    key: sk_test_mock_key
+  frontend-url: http://localhost:9000
+
+paypal:
+  client-id: test_client_id
+  client-secret: test_client_secret
+  mode: sandbox
+  api-url: https://api-m.sandbox.paypal.com
+
+application:
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      expiration: 86400000

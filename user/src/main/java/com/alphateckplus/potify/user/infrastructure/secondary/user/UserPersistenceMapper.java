@@ -27,6 +27,7 @@ public class UserPersistenceMapper {
             .lockTime(domain.getLockTime())
             .verificationToken(domain.getVerificationToken())
             .avatarUrl(domain.getAvatarUrl())
+            .adminVerification(domain.isAdminVerification())
             .build();
     }
 
@@ -48,6 +49,7 @@ public class UserPersistenceMapper {
             .lockTime(entity.getLockTime())
             .verificationToken(entity.getVerificationToken())
             .avatarUrl(entity.getAvatarUrl())
+            .adminVerification(entity.isAdminVerification())
             .build();
     }
 }

@@ -47,6 +47,11 @@ public class DefaultWithdrawService implements WithdrawService {
             throw new org.springframework.security.access.AccessDeniedException("Seul le propriétaire de la cagnotte peut effectuer un retrait");
         }
 
+        // Validate admin verification status
+        if (!userCheckPort.isAdminVerified(authenticatedUserId)) {
+            throw new IllegalAccessException("Votre compte est en attente d'approbation par un administrateur. Vous ne pouvez pas effectuer de retrait tant que votre compte n'est pas vérifié.");
+        }
+
         // No fees applied on withdrawal anymore, as they are deducted on deposit
         BigDecimal fees = BigDecimal.ZERO;
 

@@ -21,7 +21,8 @@ public class UserRestMapper {
             user.getStatus(),
             user.getCreatedAt(),
             user.getUpdatedAt(),
-            user.getAvatarUrl()
+            user.getAvatarUrl(),
+            user.isAdminVerification()
         );
     }
 }

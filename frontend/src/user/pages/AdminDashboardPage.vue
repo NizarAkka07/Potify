@@ -524,6 +524,78 @@
         </q-table>
       </q-card>
 
+      <!-- Section: Utilisateurs en attente de vérification par le Super Admin -->
+      <q-card class="premium-card no-shadow q-mb-xl" v-if="authStore.isSuperAdmin.value">
+        <div class="card-header-premium row items-center justify-between">
+          <div class="card-header-title row items-center">
+            <q-icon name="admin_panel_settings" color="warning" class="q-mr-sm" size="sm" />
+            Utilisateurs en attente de vérification par l'Administrateur
+            <q-badge color="amber-9" text-color="white" class="q-ml-md" v-if="pendingVerificationUsers.length > 0">
+              {{ pendingVerificationUsers.length }} en attente
+            </q-badge>
+          </div>
+          <q-btn flat round dense icon="refresh" color="grey-6" @click="loadPendingVerificationUsers">
+            <q-tooltip>Actualiser</q-tooltip>
+          </q-btn>
+        </div>
+
+        <div v-if="loadingPendingUsers" class="flex flex-center q-py-xl">
+          <q-spinner-dots size="40px" color="primary" />
+        </div>
+
+        <div v-else-if="pendingVerificationUsers.length === 0" class="text-center q-py-xl text-grey-6 font-inter">
+          <q-icon name="verified_user" size="48px" color="positive" class="q-mb-sm" />
+          <div class="text-subtitle1 text-weight-bold" style="color: var(--text-main)">Aucun utilisateur en attente de vérification</div>
+          <div style="color: var(--text-muted)">Tous les utilisateurs enregistrés ont été vérifiés par un administrateur.</div>
+        </div>
+
+        <q-list v-else separator class="font-inter">
+          <q-item v-for="user in pendingVerificationUsers" :key="user.id" class="q-py-md">
+            <q-item-section avatar>
+              <q-avatar size="42px" color="amber-2" text-color="amber-10" class="shadow-1">
+                <q-img v-if="user.avatarUrl" :src="user.avatarUrl" />
+                <q-icon v-else name="person" />
+              </q-avatar>
+            </q-item-section>
+
+            <q-item-section>
+              <q-item-label class="text-weight-bold text-subtitle1" style="color: var(--text-main)">
+                {{ user.fullName }}
+                <q-chip size="xs" color="warning" text-color="white" class="q-ml-xs">Vérification requise</q-chip>
+              </q-item-label>
+              <q-item-label caption style="color: var(--text-muted)">
+                Email : <strong>{{ user.email }}</strong> • Inscription : {{ new Date(user.createdAt).toLocaleDateString('fr-FR') }}
+              </q-item-label>
+            </q-item-section>
+
+            <q-item-section side>
+              <div class="row q-gutter-sm">
+                <q-btn
+                  color="positive"
+                  icon="check_circle"
+                  label="Approuver"
+                  dense
+                  no-caps
+                  unelevated
+                  class="q-px-md"
+                  @click="approveUser(user)"
+                />
+                <q-btn
+                  color="negative"
+                  icon="cancel"
+                  label="Rejeter"
+                  dense
+                  no-caps
+                  flat
+                  class="q-px-md"
+                  @click="rejectUser(user)"
+                />
+              </div>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-card>
+
       <!-- 6. Detailed Withdrawal requests table -->
       <div v-if="authStore.isSuperAdmin.value || authStore.isPaymentAdmin.value" class="row q-col-gutter-lg q-mb-xl">
         <div class="col-12">
@@ -821,7 +893,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useQuasar } from 'quasar'
-import { getUsers } from 'src/shared/services/api'
+import { getUsers, getPendingVerificationUsers, updateAdminVerification } from 'src/shared/services/api'
 import poolService from 'src/shared/services/poolService'
 import authStore from 'src/shared/stores/auth'
 import VueApexCharts from 'vue3-apexcharts'
@@ -1426,8 +1498,50 @@ const deleteReportedPool = async (pool) => {
   })
 }
 
+const pendingVerificationUsers = ref([])
+const loadingPendingUsers = ref(false)
+
+const loadPendingVerificationUsers = async () => {
+  if (!authStore.isSuperAdmin.value) return
+  loadingPendingUsers.value = true
+  try {
+    const res = await getPendingVerificationUsers()
+    pendingVerificationUsers.value = res.data || []
+  } catch (err) {
+    console.error('Erreur chargement des utilisateurs en attente:', err)
+  } finally {
+    loadingPendingUsers.value = false
+  }
+}
+
+const approveUser = async (user) => {
+  try {
+    await updateAdminVerification(user.id, true)
+    $q.notify({ type: 'positive', message: `Le compte de ${user.fullName} a été approuvé avec succès !` })
+    loadPendingVerificationUsers()
+    loadStats()
+  } catch (err) {
+    console.error('Erreur approbation:', err)
+    $q.notify({ type: 'negative', message: 'Erreur lors de l\'approbation.' })
+  }
+}
+
+const rejectUser = async (user) => {
+  try {
+    await updateAdminVerification(user.id, false)
+    $q.notify({ type: 'info', message: `La demande de vérification de ${user.fullName} a été rejetée.` })
+    loadPendingVerificationUsers()
+  } catch (err) {
+    console.error('Erreur rejet:', err)
+    $q.notify({ type: 'negative', message: 'Erreur lors du rejet.' })
+  }
+}
+
 onMounted(() => {
   loadStats()
+  if (authStore.isSuperAdmin.value) {
+    loadPendingVerificationUsers()
+  }
   if (authStore.isSuperAdmin.value || authStore.isPaymentAdmin.value) {
     loadWithdrawals()
   }

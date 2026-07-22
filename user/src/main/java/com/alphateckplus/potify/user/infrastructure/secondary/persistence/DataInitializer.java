@@ -74,7 +74,8 @@ public class DataInitializer implements CommandLineRunner {
             jdbcTemplate.execute("ALTER TABLE transactions DROP CONSTRAINT IF EXISTS transactions_status_check");
             jdbcTemplate.execute("ALTER TABLE transactions DROP CONSTRAINT IF EXISTS transactions_type_check");
             jdbcTemplate.execute("ALTER TABLE pools DROP CONSTRAINT IF EXISTS pools_status_check");
-            System.out.println(">>> [Nettoyage] Contraintes supprimées avec succès.");
+            jdbcTemplate.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS admin_verification BOOLEAN NOT NULL DEFAULT FALSE");
+            System.out.println(">>> [Nettoyage] Contraintes supprimées et colonne admin_verification configurée avec succès.");
         } catch (Exception e) {
             System.out.println(">>> [Nettoyage] Info: Pas de contrainte à supprimer ou erreur : " + e.getMessage());
         }
@@ -390,6 +391,7 @@ public class DataInitializer implements CommandLineRunner {
                     .status(UserStatus.ACTIVE)
                     .enabled(true)
                     .accountNonLocked(true)
+                    .adminVerification(true)
                     .roles(new HashSet<>(Set.of(role)))
                     .build();
             userRepository.save(user);

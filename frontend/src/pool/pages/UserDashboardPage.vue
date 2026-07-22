@@ -14,6 +14,23 @@
         </div>
       </div>
 
+      <!-- Banner Attente de Validation Administrateur -->
+      <q-banner
+        v-if="isPendingAdminVerification"
+        class="bg-amber-1 text-amber-10 shadow-1 q-mb-xl"
+        style="border-left: 5px solid #F59E0B; border-radius: 12px; padding: 16px 20px;"
+      >
+        <template v-slot:avatar>
+          <q-icon name="hourglass_top" color="amber-9" size="32px" />
+        </template>
+        <div class="text-subtitle1 text-weight-bold q-mb-xs" style="color: #B45309;">
+          Compte en attente de validation administrateur
+        </div>
+        <div class="text-body2" style="color: #78350F; line-height: 1.5;">
+          Votre compte a bien été créé et votre adresse email est vérifiée. Cependant, avant de pouvoir effectuer des retraits d'argent, votre compte doit être validé par un administrateur. Vous pouvez néanmoins naviguer et utiliser toutes les autres fonctionnalités normalement (créer des cagnottes, faire des dons, etc.).
+        </div>
+      </q-banner>
+
       <!-- Onglets -->
       <q-tabs
         v-model="tab"
@@ -372,6 +389,7 @@ const userName = computed(() => authStore.user.value?.fullName || authStore.user
 const userAvatarUrl = computed(() => authStore.user.value?.avatarUrl)
 const userId = computed(() => authStore.user.value?.id)
 const userEmail = computed(() => authStore.user.value?.email || '')
+const isPendingAdminVerification = computed(() => authStore.user.value && authStore.user.value.adminVerification === false)
 
 const userPools = ref([])
 const invitedPools = ref([])

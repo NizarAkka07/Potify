@@ -24,4 +24,12 @@ public class UserCheckAdapter implements UserCheckPort {
                 .map(user -> user.getId())
                 .orElse(null);
     }
+
+    @Override
+    public boolean isAdminVerified(String userId) {
+        if (userId == null) return false;
+        return userEntityRepository.findById(userId)
+                .map(user -> user.isAdminVerification())
+                .orElse(false);
+    }
 }

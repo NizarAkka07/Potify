@@ -1863,6 +1863,16 @@ const netAmount = computed(() => {
 })
 
 const submitWithdrawal = async () => {
+  if (authStore.user.value && authStore.user.value.adminVerification === false) {
+    $q.notify({
+      type: 'warning',
+      message: 'Votre compte est en attente d\'approbation par un administrateur. Vous ne pouvez pas effectuer de retrait tant que votre compte n\'est pas vérifié.',
+      icon: 'hourglass_top',
+      timeout: 6000
+    })
+    return
+  }
+
   if (withdrawForm.amount <= 0 || withdrawForm.amount > pool.value.availableBalance) {
     $q.notify({
       type: 'negative',

@@ -48,6 +48,7 @@ public class User {
     private LocalDateTime lockTime;
     private String verificationToken;
     private String avatarUrl;
+    private boolean adminVerification;
 
     /**
      * Logique metier: Verifie si le verrouillage a expire.

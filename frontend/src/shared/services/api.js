@@ -10,6 +10,10 @@ export const changePassword = (id, data) => api.put(`/v1/users/${id}/password`, 
 export const assignRoleToUser = (userId, roleId) => api.post(`/v1/access/users/${userId}/roles/${roleId}`)
 export const removeRoleFromUser = (userId, roleId) => api.delete(`/v1/access/users/${userId}/roles/${roleId}`)
 export const getUserRoles = (userId) => api.get(`/v1/access/users/${userId}/roles`)
+export const getPendingVerificationUsers = () => api.get('/v1/users/pending-verification')
+export const approveUserVerification = (id) => api.post(`/v1/users/${id}/approve-verification`)
+export const rejectUserVerification = (id) => api.post(`/v1/users/${id}/reject-verification`)
+export const updateAdminVerification = (id, approved) => api.put(`/v1/users/${id}/admin-verification`, { approved })
 
 // Role endpoints
 export const getRoles = () => api.get('/v1/access/roles')

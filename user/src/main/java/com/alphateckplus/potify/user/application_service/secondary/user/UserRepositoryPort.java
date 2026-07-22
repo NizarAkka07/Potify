@@ -31,4 +31,8 @@ public interface UserRepositoryPort {
     List<Role> findRolesByUserId(String userId);
 
     void associateContributionsToUser(String email, String userId);
+
+    List<User> findByAdminVerification(boolean adminVerification);
+
+    User updateAdminVerification(String userId, boolean approved);
 }

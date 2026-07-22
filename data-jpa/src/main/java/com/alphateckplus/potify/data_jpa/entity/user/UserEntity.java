@@ -92,4 +92,8 @@ public class UserEntity extends BaseEntity {
 
     @Column(name = "avatar_url", length = 255)
     private String avatarUrl;
+
+    @Column(name = "admin_verification", nullable = false, columnDefinition = "boolean default false")
+    @Builder.Default
+    private boolean adminVerification = false;
 }

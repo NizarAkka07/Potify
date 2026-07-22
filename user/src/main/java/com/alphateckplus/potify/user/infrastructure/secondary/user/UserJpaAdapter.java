@@ -57,6 +57,7 @@ public class UserJpaAdapter implements UserRepositoryPort {
             }
             userEntity.setVerificationToken(user.getVerificationToken());
             userEntity.setAvatarUrl(user.getAvatarUrl());
+            userEntity.setAdminVerification(user.isAdminVerification());
             // Do not overwrite roles to prevent wiping them out
         } else {
             userEntity = userPersistenceMapper.toEntity(user);
@@ -139,5 +140,22 @@ public class UserJpaAdapter implements UserRepositoryPort {
             contribution.setUser(userEntity);
             contributionEntityRepository.save(contribution);
         }
+    }
+
+    @Override
+    public List<User> findByAdminVerification(boolean adminVerification) {
+        return userEntityRepository.findByAdminVerification(adminVerification)
+            .stream()
+            .map(userPersistenceMapper::toDomain)
+            .toList();
+    }
+
+    @Override
+    public User updateAdminVerification(String userId, boolean approved) {
+        UserEntity userEntity = userEntityRepository.findById(userId)
+            .orElseThrow(() -> new com.alphateckplus.potify.user.domain.exception.UserNotFoundException("Utilisateur non trouvé: " + userId));
+        userEntity.setAdminVerification(approved);
+        UserEntity saved = userEntityRepository.save(userEntity);
+        return userPersistenceMapper.toDomain(saved);
     }
 }

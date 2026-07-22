@@ -13,6 +13,7 @@ public record UserResponse(
     UserStatus status,
     Instant createdAt,
     Instant updatedAt,
-    String avatarUrl
+    String avatarUrl,
+    boolean adminVerification
 ) {
 }

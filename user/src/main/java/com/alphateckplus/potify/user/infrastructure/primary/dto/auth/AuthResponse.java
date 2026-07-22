@@ -22,5 +22,6 @@ public class AuthResponse {
     private List<String> roles;
     private String fullName;
     private String avatarUrl;
+    private boolean adminVerification;
 }
 
