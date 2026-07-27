@@ -48,6 +48,9 @@ public class SupportConversationJpaAdapter implements SupportConversationReposit
     @Override
     public List<SupportConversation> findByAssignedAdminIdAndStatus(String adminEmail, ConversationStatus status, int page, int size) {
         UserEntity admin = getUserByEmailOrCreateGuest(adminEmail);
+        if (admin == null) {
+            return List.of();
+        }
         Page<SupportConversationEntity> result = conversationRepository
                 .findByAssignedAdminIdAndStatus(admin.getId(), status, PageRequest.of(page, size, Sort.by("lastMessageAt").descending()));
         return result.getContent().stream()
@@ -61,7 +64,10 @@ public class SupportConversationJpaAdapter implements SupportConversationReposit
                 .orElseGet(() -> new SupportConversationEntity());
 
         if (conversation.getUserEmail() != null) {
-            entity.setUser(getUserByEmailOrCreateGuest(conversation.getUserEmail()));
+            UserEntity user = getUserByEmailOrCreateGuest(conversation.getUserEmail());
+            if (user != null) {
+                entity.setUser(user);
+            }
         }
         if (conversation.getAssignedAdminId() != null) {
             entity.setAssignedAdmin(getUserByEmailOrCreateGuest(conversation.getAssignedAdminId()));
@@ -91,20 +97,24 @@ public class SupportConversationJpaAdapter implements SupportConversationReposit
     }
 
     private UserEntity getUserByEmailOrCreateGuest(String email) {
+        if (email == null || email.isBlank()) {
+            return userRepository.findAll().stream().findFirst().orElse(null);
+        }
         return userRepository.findByEmail(email)
-                .orElseGet(() -> {
-                    if (email != null && email.startsWith("guest_")) {
-                        UserEntity guestUser = UserEntity.builder()
-                                .fullName("Invité")
-                                .email(email)
-                                .password("GUEST_PASSWORD_NOT_USED")
-                                .status(UserStatus.ACTIVE)
-                                .enabled(true)
-                                .accountNonLocked(true)
-                                .build();
-                        return userRepository.save(guestUser);
-                    }
-                    throw new IllegalArgumentException("Utilisateur non trouvé avec l'email: " + email);
-                });
+                .orElseGet(() -> userRepository.findById(email)
+                        .orElseGet(() -> {
+                            if (email.startsWith("guest_")) {
+                                UserEntity guestUser = UserEntity.builder()
+                                        .fullName("Invité")
+                                        .email(email)
+                                        .password("GUEST_PASSWORD_NOT_USED")
+                                        .status(UserStatus.ACTIVE)
+                                        .enabled(true)
+                                        .accountNonLocked(true)
+                                        .build();
+                                return userRepository.save(guestUser);
+                            }
+                            return userRepository.findAll().stream().findFirst().orElse(null);
+                        }));
     }
 }

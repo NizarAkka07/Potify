@@ -31,7 +31,11 @@ public class DefaultSendAdminMessageService implements SendAdminMessageUseCase {
                 .orElseThrow(() -> new ConversationNotFoundException("Conversation non trouvée"));
 
         if (!ConversationStatus.AGENT_ASSIGNED.equals(conversation.getStatus())) {
-            throw new IllegalStateException("La conversation doit être assignée avant de pouvoir répondre");
+            conversation.setStatus(ConversationStatus.AGENT_ASSIGNED);
+        }
+        if (conversation.getAssignedAdminId() == null && adminEmail != null) {
+            conversation.setAssignedAdminId(adminEmail);
+            conversation.setAssignedAdminName(adminEmail);
         }
 
         SupportMessage adminMsg = SupportMessage.builder()

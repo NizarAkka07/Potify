@@ -31,6 +31,10 @@ public class DefaultResolveAdminConversationService implements ResolveAdminConve
                 .orElseThrow(() -> new ConversationNotFoundException("Conversation non trouvée"));
 
         conversation.setStatus(ConversationStatus.RESOLVED);
+        if (adminEmail != null && conversation.getAssignedAdminId() == null) {
+            conversation.setAssignedAdminId(adminEmail);
+            conversation.setAssignedAdminName(adminEmail);
+        }
         conversation = conversationRepositoryPort.save(conversation);
 
         SupportMessage sysMsg = SupportMessage.builder()
