@@ -41,7 +41,7 @@ export default defineRouter((/* { store, ssrContext } */) => {
       if (!token) {
         return '/login'
       }
-      const adminRoles = ['ROLE_SUPER_ADMIN', 'ROLE_MODERATEUR', 'ROLE_ADMIN_POOL', 'ROLE_ADMIN_PAYMENT']
+      const adminRoles = ['ROLE_SUPER_ADMIN', 'ROLE_MODERATEUR', 'ROLE_ADMIN_POOL', 'ROLE_ADMIN_PAYMENT', 'ROLE_SUPPORT_AGENT']
       const hasAdminRole = user?.roles?.some(role => adminRoles.includes(role))
       if (!hasAdminRole) {
         return '/' // Non-authorized redirects to homepage

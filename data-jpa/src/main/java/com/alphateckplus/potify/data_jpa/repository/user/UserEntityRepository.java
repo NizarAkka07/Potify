@@ -18,6 +18,9 @@ public interface UserEntityRepository extends JpaRepository<UserEntity, String> 
      */
     Optional<UserEntity> findByEmail(String email);
 
+    @org.springframework.data.jpa.repository.Query("SELECT DISTINCT u FROM UserEntity u LEFT JOIN FETCH u.roles r LEFT JOIN FETCH r.permissions WHERE u.email = :email")
+    Optional<UserEntity> findWithRolesByEmail(@org.springframework.data.repository.query.Param("email") String email);
+
     Optional<UserEntity> findByVerificationToken(String verificationToken);
 
     boolean existsByEmail(String email);

@@ -53,7 +53,8 @@ public class SecurityConfig {
                                         "/configuration/security",
                                         "/swagger-ui/**",
                                         "/webjars/**",
-                                        "/swagger-ui.html"
+                                        "/swagger-ui.html",
+                                        "/ws-support/**"
                                 )
                                 .permitAll()
                                 .requestMatchers("/api/v1/users/**").authenticated() // Autorise l'accès au profil pour tous les connectés
@@ -91,7 +92,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:9000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 

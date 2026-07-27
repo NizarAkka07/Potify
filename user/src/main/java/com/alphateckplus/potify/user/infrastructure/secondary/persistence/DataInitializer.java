@@ -104,6 +104,13 @@ public class DataInitializer implements CommandLineRunner {
         PermissionEntity reportResolvePerm = getOrCreatePermission("REPORT_RESOLVE", "Résoudre les signalements");
         PermissionEntity messageDeletePerm = getOrCreatePermission("MESSAGE_DELETE", "Supprimer les messages modérés");
 
+        // Permissions pour SUPPORT
+        PermissionEntity supportQueueViewPerm = getOrCreatePermission("SUPPORT_QUEUE_VIEW", "Accès au tableau de bord et à la file d'attente support");
+        PermissionEntity supportChatAssignPerm = getOrCreatePermission("SUPPORT_CHAT_ASSIGN", "Prendre en charge un ticket de support");
+        PermissionEntity supportChatReplyPerm = getOrCreatePermission("SUPPORT_CHAT_REPLY", "Répondre aux messages de support");
+        PermissionEntity supportChatTransferPerm = getOrCreatePermission("SUPPORT_CHAT_TRANSFER", "Transférer un ticket de support à un autre agent");
+        PermissionEntity supportChatClosePerm = getOrCreatePermission("SUPPORT_CHAT_CLOSE", "Résoudre et fermer un ticket de support");
+
         // Permissions pour USER
         PermissionEntity poolCreatePerm = getOrCreatePermission("POOL_CREATE", "Créer une cagnotte");
         PermissionEntity poolUpdateOwnPerm = getOrCreatePermission("POOL_UPDATE_OWN", "Modifier sa propre cagnotte");
@@ -111,8 +118,8 @@ public class DataInitializer implements CommandLineRunner {
         PermissionEntity contributionCreatePerm = getOrCreatePermission("CONTRIBUTION_CREATE", "Contribuer à une cagnotte");
         PermissionEntity messageCreateOwnPerm = getOrCreatePermission("MESSAGE_CREATE_OWN", "Ajouter un message sur une cagnotte");
 
-        // 2. Initialiser les rôles si ils n'existent pas
-        RoleEntity superAdminRole = getOrCreateRole("SUPER_ADMIN", "Super administrateur du système", Set.of(allPerm));
+        Set<PermissionEntity> allSuperAdminPerms = Set.of(allPerm, paymentReadPerm, paymentConfirmPerm, paymentRefundPerm, exportFinancialPerm, poolReadPerm, poolValidatePerm, poolSuspendPerm, poolArchivePerm, reportReadPerm, reportResolvePerm, messageDeletePerm, supportQueueViewPerm, supportChatAssignPerm, supportChatReplyPerm, supportChatTransferPerm, supportChatClosePerm);
+        RoleEntity superAdminRole = getOrCreateRole("SUPER_ADMIN", "Super administrateur du système", allSuperAdminPerms);
         
         Set<PermissionEntity> paymentAdminPerms = Set.of(paymentReadPerm, paymentConfirmPerm, paymentRefundPerm, exportFinancialPerm);
         RoleEntity paymentAdminRole = getOrCreateRole("ADMIN_PAYMENT", "Administrateur des paiements et retraits", paymentAdminPerms);
@@ -123,11 +130,15 @@ public class DataInitializer implements CommandLineRunner {
         Set<PermissionEntity> moderatorPerms = Set.of(reportReadPerm, reportResolvePerm, messageDeletePerm);
         RoleEntity moderatorRole = getOrCreateRole("MODERATEUR", "Modérateur de contenu pour messages", moderatorPerms);
         
+        Set<PermissionEntity> supportAgentPerms = Set.of(supportQueueViewPerm, supportChatAssignPerm, supportChatReplyPerm, supportChatTransferPerm, supportChatClosePerm);
+        RoleEntity supportAgentRole = getOrCreateRole("SUPPORT_AGENT", "Agent de support client", supportAgentPerms);
+
         Set<PermissionEntity> userPerms = Set.of(poolCreatePerm, poolUpdateOwnPerm, poolCloseOwnPerm, contributionCreatePerm, messageCreateOwnPerm);
         RoleEntity userRole = getOrCreateRole("USER", "Utilisateur standard", userPerms);
 
         // 3. Initialiser les comptes de test s'ils n'existent pas
         createTestUserIfAbsent("superadmin@potify.com", "superadmin", "Super Admin", superAdminRole);
+        createTestUserIfAbsent("supportagent@potify.com", "admin123", "Agent Support", supportAgentRole);
         createTestUserIfAbsent("moderator@potify.com", "admin123", "Modérateur Potify", moderatorRole);
         createTestUserIfAbsent("pooladmin@potify.com", "admin123", "Admin Cagnottes", poolAdminRole);
         createTestUserIfAbsent("paymentadmin@potify.com", "admin123", "Admin Paiements", paymentAdminRole);

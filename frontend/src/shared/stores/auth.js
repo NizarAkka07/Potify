@@ -16,8 +16,9 @@ const authStore = {
   isModerator: computed(() => state.user?.roles?.includes('ROLE_MODERATEUR') || state.user?.roles?.includes('ROLE_SUPER_ADMIN')),
   isPoolAdmin: computed(() => state.user?.roles?.includes('ROLE_ADMIN_POOL') || state.user?.roles?.includes('ROLE_SUPER_ADMIN')),
   isPaymentAdmin: computed(() => state.user?.roles?.includes('ROLE_ADMIN_PAYMENT') || state.user?.roles?.includes('ROLE_SUPER_ADMIN')),
+  isSupportAgent: computed(() => state.user?.roles?.includes('ROLE_SUPPORT_AGENT') || state.user?.roles?.includes('ROLE_SUPER_ADMIN')),
   hasAdminAccess: computed(() => {
-    const adminRoles = ['ROLE_SUPER_ADMIN', 'ROLE_MODERATEUR', 'ROLE_ADMIN_POOL', 'ROLE_ADMIN_PAYMENT']
+    const adminRoles = ['ROLE_SUPER_ADMIN', 'ROLE_MODERATEUR', 'ROLE_ADMIN_POOL', 'ROLE_ADMIN_PAYMENT', 'ROLE_SUPPORT_AGENT']
     return state.user?.roles?.some(role => adminRoles.includes(role))
   }),
 
@@ -53,6 +54,7 @@ const authStore = {
     this.setToken(null)
     this.setRefreshToken(null)
     localStorage.removeItem('refreshToken')
+    localStorage.removeItem('guest_session_id')
   }
 }
 
