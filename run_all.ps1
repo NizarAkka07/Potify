@@ -25,22 +25,22 @@ Write-Host "   Potify - Lancement des Microservices   " -ForegroundColor $Cyan
 Write-Host "==========================================" -ForegroundColor $Cyan
 
 # Verification du repertoire
-if (!(Test-Path "user") -or !(Test-Path "pool") -or !(Test-Path "payment") -or !(Test-Path "frontend")) {
+if (!(Test-Path "user") -or !(Test-Path "pool") -or !(Test-Path "payment") -or !(Test-Path "support") -or !(Test-Path "frontend")) {
     Write-Host "Erreur : Veuillez lancer ce script depuis la racine du projet 'potify'." -ForegroundColor $Red
     Write-Host "Chemin actuel : $(Get-Location)"
     Pause
     exit
 }
 
-# 0a. Rebuild des modules data-jpa et pool
-Write-Host "[0/4] Rebuild des modules data-jpa et pool..." -ForegroundColor $Yellow
-.\mvnw install -DskipTests -pl data-jpa,pool -q
+# 0a. Rebuild des modules data-jpa, user, pool et support
+Write-Host "[0/4] Rebuild des modules data-jpa, user, pool et support..." -ForegroundColor $Yellow
+.\mvnw install -DskipTests -pl data-jpa,user,pool,support -q
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ERREUR : Le build a echoue. Verifiez les logs." -ForegroundColor $Red
     Pause
     exit
 }
-Write-Host "       Modules data-jpa et pool compiles avec succes !" -ForegroundColor $Green
+Write-Host "       Modules data-jpa, user, pool et support compiles avec succes !" -ForegroundColor $Green
 
 # 0b. Nettoyage des ports
 Write-Host "Nettoyage des ports..." -ForegroundColor $Cyan
@@ -48,6 +48,7 @@ Stop-ProcessOnPort 8081 # User
 Stop-ProcessOnPort 8082 # Pool
 Stop-ProcessOnPort 8083 # Payment
 Stop-ProcessOnPort 8084 # Notification
+Stop-ProcessOnPort 8085 # Support
 Stop-ProcessOnPort 9000 # Frontend (Quasar)
 Stop-ProcessOnPort 9092 # Kafka Broker
 Stop-ProcessOnPort 2181 # Zookeeper
@@ -65,23 +66,27 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demar
 Start-Sleep -Seconds 4
 
 # 1. Microservice User
-Write-Host "[1/5] Lancement du Microservice User (Port 8081)..." -ForegroundColor $Yellow
+Write-Host "[1/6] Lancement du Microservice User (Port 8081)..." -ForegroundColor $Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage du service User...'; Set-Location user; ..\mvnw spring-boot:run" -WindowStyle Normal
 
 # 2. Microservice Pool
-Write-Host "[2/5] Lancement du Microservice Pool (Port 8082)..." -ForegroundColor $Yellow
+Write-Host "[2/6] Lancement du Microservice Pool (Port 8082)..." -ForegroundColor $Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage du service Pool...'; Set-Location pool; ..\mvnw spring-boot:run" -WindowStyle Normal
 
 # 3. Microservice Payment
-Write-Host "[3/5] Lancement du Microservice Payment (Port 8083)..." -ForegroundColor $Yellow
+Write-Host "[3/6] Lancement du Microservice Payment (Port 8083)..." -ForegroundColor $Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage du service Payment...'; Set-Location payment; ..\mvnw spring-boot:run" -WindowStyle Normal
 
 # 4. Microservice Notification
-Write-Host "[4/5] Lancement du Microservice Notification (Port 8084)..." -ForegroundColor $Yellow
+Write-Host "[4/6] Lancement du Microservice Notification (Port 8084)..." -ForegroundColor $Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage du service Notification...'; Set-Location notification; ..\mvnw spring-boot:run" -WindowStyle Normal
 
-# 5. Frontend (Quasar)
-Write-Host "[5/5] Lancement du Frontend (Quasar Port 9000)..." -ForegroundColor $Yellow
+# 5. Microservice Support
+Write-Host "[5/6] Lancement du Microservice Support (Port 8085)..." -ForegroundColor $Yellow
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage du service Support...'; Set-Location support; ..\mvnw spring-boot:run" -WindowStyle Normal
+
+# 6. Frontend (Quasar)
+Write-Host "[6/6] Lancement du Frontend (Quasar Port 9000)..." -ForegroundColor $Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Demarrage du Frontend...'; Set-Location frontend; npm run dev" -WindowStyle Normal
 
 Write-Host "------------------------------------------" -ForegroundColor $Cyan

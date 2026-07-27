@@ -29,6 +29,7 @@
     <module>pool</module>
     <module>payment</module>
     <module>notification</module>
+    <module>support</module>
     <module>data-jpa</module>
   </modules>
 
