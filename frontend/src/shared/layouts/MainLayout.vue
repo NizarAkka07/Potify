@@ -178,6 +178,16 @@
           </q-item-section>
         </q-item>
 
+        <q-item clickable v-ripple to="/admin/support" exact v-if="authStore.hasAdminAccess.value">
+          <q-item-section avatar>
+            <q-icon name="headset_mic" color="primary" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Support & Chat</q-item-label>
+            <q-item-section caption>Desk d'assistance en direct</q-item-section>
+          </q-item-section>
+        </q-item>
+
         <q-item clickable v-ripple to="/admin/permissions" exact v-if="authStore.isSuperAdmin.value">
           <q-item-section avatar>
             <q-icon name="vpn_key" />

@@ -50,7 +50,9 @@ const routes = [
       { path: 'roles', component: () => import('src/user/pages/RoleListPage.vue') },
       { path: 'permissions', component: () => import('src/user/pages/RoleListPage.vue') },
       // Gestion totale des cagnottes
-      { path: 'pools', component: () => import('src/pool/pages/AdminPoolsPage.vue') }
+      { path: 'pools', component: () => import('src/pool/pages/AdminPoolsPage.vue') },
+      // Centre de Support Administrateur (Chat & Tickets)
+      { path: 'support', component: () => import('src/support/pages/AdminSupportDesk.vue') }
     ]
   },
 

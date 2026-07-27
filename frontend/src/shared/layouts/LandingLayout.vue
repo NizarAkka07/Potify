@@ -147,6 +147,16 @@
                     </q-item-section>
                   </q-item>
 
+                  <q-item v-if="authStore.isSupportAgent.value || authStore.hasAdminAccess.value" clickable v-close-popup to="/admin/support" class="q-py-md">
+                    <q-item-section avatar>
+                      <q-icon name="support_agent" color="teal" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-weight-bold">Desk Support Client</q-item-label>
+                      <q-item-label caption>Gérer les demandes et le chat</q-item-label>
+                    </q-item-section>
+                  </q-item>
+
                   <q-item v-if="authStore.hasAdminAccess.value" clickable v-close-popup to="/admin" class="q-py-md">
                     <q-item-section avatar>
                       <q-icon name="admin_panel_settings" color="amber" />
@@ -243,6 +253,9 @@
       </div>
     </q-page-container>
 
+    <!-- Widget Chat Support & Chatbot IA -->
+    <UserSupportWidget />
+
   </q-layout>
 </template>
 
@@ -253,6 +266,7 @@ import { useI18n } from 'vue-i18n'
 import { useQuasar } from 'quasar'
 import authStore from 'src/shared/stores/auth'
 import notificationService from 'src/shared/services/notificationService'
+import UserSupportWidget from 'src/support/components/UserSupportWidget.vue'
 import { date } from 'quasar'
 
 const { locale } = useI18n()
