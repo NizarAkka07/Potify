@@ -272,9 +272,23 @@ const formatTime = (timestamp) => {
 }
 
 import authStore from 'src/shared/stores/auth'
-import { watch, onUnmounted } from 'vue'
+import { watch, onMounted, onUnmounted } from 'vue'
 
 let pollTimer = null
+
+const handleOpenSupportEvent = async (e) => {
+  isOpen.value = true
+  if (!conversation.value) {
+    await initConversation()
+  }
+  if (e.detail?.escalate) {
+    await requestHuman()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('open-support-chat', handleOpenSupportEvent)
+})
 
 const startPolling = () => {
   stopPolling()
@@ -315,6 +329,7 @@ watch(
 )
 
 onUnmounted(() => {
+  window.removeEventListener('open-support-chat', handleOpenSupportEvent)
   stopPolling()
 })
 

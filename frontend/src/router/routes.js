@@ -23,6 +23,8 @@ const routes = [
       { path: 'pools/create', component: () => import('src/pool/pages/CreatePoolPage.vue') },
       // Liste des cagnottes publiques
       { path: 'pools', component: () => import('src/pool/pages/PublicPoolsPage.vue') },
+      // Centre de Support & Aide FAQ
+      { path: 'support', component: () => import('src/support/pages/SupportCenterPage.vue') },
       // Détail d'une cagnotte
       { path: 'pools/:id', component: () => import('src/pool/pages/PoolDetailPage.vue') },
       // Édition d'une cagnotte

@@ -28,6 +28,7 @@
         <div class="gt-sm row items-center q-gutter-xl">
           <span class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="$router.push('/pools')">{{ $t('nav.explore') }}</span>
           <span class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="scrollToHowItWorks">{{ $t('nav.howItWorks') }}</span>
+          <span class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="$router.push('/support')">Support</span>
           <span class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="$router.push('/dashboard')">{{ $t('nav.mySpace') }}</span>
           <span v-if="authStore.hasAdminAccess.value" class="nav-link cursor-pointer" :style="{ color: $q.dark.isActive ? 'rgba(255,255,255,0.85)' : '#1A1A2A' }" style="font-size: 0.95rem; font-weight: 500;" @click="$router.push('/admin')">{{ $t('nav.admin') }}</span>
         </div>
@@ -147,6 +148,16 @@
                     </q-item-section>
                   </q-item>
 
+                  <q-item clickable v-close-popup to="/support" class="q-py-md">
+                    <q-item-section avatar>
+                      <q-icon name="help_outline" color="positive" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-weight-bold">Centre de Support & FAQ</q-item-label>
+                      <q-item-label caption>Aide, questions fréquentes & assistance</q-item-label>
+                    </q-item-section>
+                  </q-item>
+
                   <q-item v-if="authStore.isSupportAgent.value || authStore.hasAdminAccess.value" clickable v-close-popup to="/admin/support" class="q-py-md">
                     <q-item-section avatar>
                       <q-icon name="support_agent" color="teal" />
@@ -244,7 +255,7 @@
             <!-- Right: Links -->
             <div class="row items-center q-gutter-x-lg text-caption">
               <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.85rem;">{{ $t('footer.ourMission') }}</a>
-              <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.85rem;">{{ $t('footer.contact') }}</a>
+              <router-link to="/support" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.85rem;">Centre de Support & FAQ</router-link>
               <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.85rem;">{{ $t('footer.terms') }}</a>
               <a href="#" style="color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.85rem;">{{ $t('footer.privacy') }}</a>
             </div>
