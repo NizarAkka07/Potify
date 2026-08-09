@@ -207,16 +207,18 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useQuasar } from 'quasar'
 import authStore from 'src/shared/stores/auth'
+import { sendAdminHeartbeat, sendAdminOffline } from 'src/shared/services/supportService'
 
 const { locale } = useI18n()
 const router = useRouter()
 const $q = useQuasar()
 const leftDrawerOpen = ref(false)
+let adminHeartbeatTimer = null
 
 function toggleDarkMode() {
   $q.dark.toggle()
@@ -249,10 +251,49 @@ function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
 
-function onLogout () {
+async function onLogout () {
+  if (authStore.hasAdminAccess.value) {
+    try {
+      await sendAdminOffline()
+    } catch {
+      // Ignore offline signal error
+    }
+  }
+  if (adminHeartbeatTimer) {
+    clearInterval(adminHeartbeatTimer)
+    adminHeartbeatTimer = null
+  }
   authStore.logout()
   router.push('/login')
 }
+
+const triggerHeartbeat = async () => {
+  if (authStore.hasAdminAccess.value) {
+    try {
+      await sendAdminHeartbeat()
+    } catch {
+      // Ignore heartbeat errors
+    }
+  }
+}
+
+watch(
+  () => authStore.hasAdminAccess.value,
+  (hasAccess) => {
+    if (hasAccess) {
+      triggerHeartbeat()
+      if (!adminHeartbeatTimer) {
+        adminHeartbeatTimer = setInterval(triggerHeartbeat, 10000)
+      }
+    } else {
+      if (adminHeartbeatTimer) {
+        clearInterval(adminHeartbeatTimer)
+        adminHeartbeatTimer = null
+      }
+    }
+  },
+  { immediate: true }
+)
 
 onMounted(() => {
   const langCode = locale.value || 'fr'
@@ -260,6 +301,13 @@ onMounted(() => {
     document.documentElement.setAttribute('dir', 'rtl')
   } else {
     document.documentElement.setAttribute('dir', 'ltr')
+  }
+})
+
+onUnmounted(() => {
+  if (adminHeartbeatTimer) {
+    clearInterval(adminHeartbeatTimer)
+    adminHeartbeatTimer = null
   }
 })
 </script>

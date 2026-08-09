@@ -89,8 +89,8 @@
           </div>
         </q-card-section>
 
-        <!-- Escalation Banner if BOT_ACTIVE -->
-        <div v-if="conversation?.status === 'BOT_ACTIVE'" class="bg-amber-1 q-px-sm q-py-xs row items-center justify-between border-top border-amber-3">
+        <!-- Escalation Banner if BOT_ACTIVE and Admin Online -->
+        <div v-if="conversation?.status === 'BOT_ACTIVE' && isAnyAdminOnline" class="bg-amber-1 q-px-sm q-py-xs row items-center justify-between border-top border-amber-3">
           <span class="text-caption text-amber-9 text-bold">Besoin d'un conseiller humain ?</span>
           <q-btn dense size="sm" color="amber-10" label="Parler à un humain" icon-right="headset_mic" flat @click="requestHuman" />
         </div>
@@ -140,7 +140,8 @@ import {
   sendMessageUser,
   escalateConversation,
   getMessagesUser,
-  submitRating
+  submitRating,
+  checkAdminAvailability
 } from 'src/shared/services/supportService'
 
 const $q = useQuasar()
@@ -152,6 +153,16 @@ const isTyping = ref(false)
 const unreadCount = ref(0)
 const ratingScore = ref(5)
 const messagesContainer = ref(null)
+const isAnyAdminOnline = ref(false)
+
+const fetchAdminAvailability = async () => {
+  try {
+    const res = await checkAdminAvailability()
+    isAnyAdminOnline.value = !!res.data?.online
+  } catch {
+    isAnyAdminOnline.value = false
+  }
+}
 
 const isHumanAssigned = computed(() => conversation.value?.status === 'AGENT_ASSIGNED')
 
@@ -169,13 +180,17 @@ const statusText = computed(() => {
 
 const toggleChat = async () => {
   isOpen.value = !isOpen.value
-  if (isOpen.value && !conversation.value) {
-    await initConversation()
+  if (isOpen.value) {
+    await fetchAdminAvailability()
+    if (!conversation.value) {
+      await initConversation()
+    }
   }
 }
 
 const initConversation = async () => {
   try {
+    await fetchAdminAvailability()
     const res = await getActiveConversation()
     conversation.value = res.data
     await fetchMessages()
@@ -278,15 +293,21 @@ let pollTimer = null
 
 const handleOpenSupportEvent = async (e) => {
   isOpen.value = true
+  await fetchAdminAvailability()
   if (!conversation.value) {
     await initConversation()
   }
   if (e.detail?.escalate) {
-    await requestHuman()
+    if (isAnyAdminOnline.value) {
+      await requestHuman()
+    } else {
+      $q.notify({ type: 'warning', message: 'Aucun conseiller n\'est actuellement disponible en ligne.' })
+    }
   }
 }
 
 onMounted(() => {
+  fetchAdminAvailability()
   window.addEventListener('open-support-chat', handleOpenSupportEvent)
 })
 
@@ -295,6 +316,7 @@ const startPolling = () => {
   pollTimer = setInterval(() => {
     if (isOpen.value && conversation.value) {
       fetchMessages()
+      fetchAdminAvailability()
     }
   }, 3000)
 }

@@ -11,6 +11,7 @@ import com.alphateckplus.potify.support.domain.exception.UnauthorizedSupportAcce
 import com.alphateckplus.potify.support.domain.model.SupportConversation;
 import com.alphateckplus.potify.support.domain.model.SupportMessage;
 import com.alphateckplus.potify.support.infrastructure.primary.dto.SupportMessageDto;
+import com.alphateckplus.potify.support.infrastructure.secondary.presence.AdminPresenceRegistry;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,15 @@ public class DefaultEscalateConversationService implements EscalateConversationU
     private final SupportConversationRepositoryPort conversationRepositoryPort;
     private final SupportMessageRepositoryPort messageRepositoryPort;
     private final SupportNotificationPort notificationPort;
+    private final AdminPresenceRegistry adminPresenceRegistry;
 
     @Override
     @Transactional
     public void escalateConversation(String userEmail, String conversationId) {
+        if (!adminPresenceRegistry.isAnyAdminOnline()) {
+            throw new IllegalStateException("Aucun conseiller n'est actuellement disponible en ligne. Veuillez poser votre question à notre assistant IA.");
+        }
+
         SupportConversation conversation = conversationRepositoryPort.findById(conversationId)
                 .orElseThrow(() -> new ConversationNotFoundException("Conversation non trouvée"));
 

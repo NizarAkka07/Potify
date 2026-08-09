@@ -103,7 +103,7 @@
       </div>
 
       <!-- Human Assistance Request Banner (Contact Support Direct) -->
-      <q-card flat bordered class="human-support-card rounded-borders overflow-hidden shadow-6 text-white" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(255,255,255,0.1);">
+      <q-card v-if="isAnyAdminOnline" flat bordered class="human-support-card rounded-borders overflow-hidden shadow-6 text-white" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(255,255,255,0.1);">
         <q-card-section class="q-pa-lg">
           <div class="row items-center justify-between q-col-gutter-md">
             <div class="col-12 col-md-8">
@@ -135,15 +135,37 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useQuasar } from 'quasar'
+import { checkAdminAvailability } from 'src/shared/services/supportService'
 
 const $q = useQuasar()
 const searchQuery = ref('')
 const selectedCategory = ref('all')
+const isAnyAdminOnline = ref(false)
+let availabilityTimer = null
+
+const fetchAvailability = async () => {
+  try {
+    const res = await checkAdminAvailability()
+    isAnyAdminOnline.value = !!res.data?.online
+  } catch {
+    isAnyAdminOnline.value = false
+  }
+}
+
+onMounted(() => {
+  fetchAvailability()
+  availabilityTimer = setInterval(fetchAvailability, 5000)
+})
+
+onUnmounted(() => {
+  if (availabilityTimer) {
+    clearInterval(availabilityTimer)
+  }
+})
 
 const categories = [
-  { id: 'all', label: 'Toutes les questions', icon: 'apps' },
   { id: 'creation', label: 'Créer une cagnotte', icon: 'add_circle_outline' },
   { id: 'payment', label: 'Paiements & Virement', icon: 'account_balance_wallet' },
   { id: 'security', label: 'Sécurité & Frais', icon: 'shield' },

@@ -240,7 +240,8 @@ import {
   leaveConversationAdmin,
   resolveConversationAdmin,
   getMessagesAdmin,
-  getCannedResponsesAdmin
+  getCannedResponsesAdmin,
+  sendAdminHeartbeat
 } from 'src/shared/services/supportService'
 
 const $q = useQuasar()
@@ -259,6 +260,7 @@ const transferReason = ref('')
 
 const loadAllData = async () => {
   try {
+    sendAdminHeartbeat().catch(() => {})
     const [pendingRes, assignedRes, cannedRes] = await Promise.all([
       getPendingConversationsAdmin(),
       getAssignedConversationsAdmin(),

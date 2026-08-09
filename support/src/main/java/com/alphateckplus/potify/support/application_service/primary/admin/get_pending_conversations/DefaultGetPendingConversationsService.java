@@ -19,7 +19,7 @@ public class DefaultGetPendingConversationsService implements GetPendingConversa
     @Transactional(readOnly = true)
     public List<SupportConversationDto> getPendingConversations() {
         return conversationRepositoryPort
-                .findAllByStatusIn(List.of(ConversationStatus.PENDING_AGENT, ConversationStatus.BOT_ACTIVE)).stream()
+                .findAllByStatusIn(List.of(ConversationStatus.PENDING_AGENT)).stream()
                 .map(this::mapConversationToDto)
                 .toList();
     }
