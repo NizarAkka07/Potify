@@ -9,6 +9,7 @@ public interface MessageService {
     void toggleReaction(String messageId, String userId, String type);
     Message getMessage(String messageId);
     void deleteMessage(String messageId);
+    void deleteMessage(String messageId, String reason);
     void reportMessage(String messageId, String userId, String reason);
     List<Message> getReportedMessages();
     void dismissReport(String messageId);

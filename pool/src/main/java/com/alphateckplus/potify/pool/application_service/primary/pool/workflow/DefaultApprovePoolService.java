@@ -23,6 +23,12 @@ public class DefaultApprovePoolService implements ApprovePoolService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Pool execute(String id) throws Exception {
+        return execute(id, null, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Pool execute(String id, String customTitle, String customMessage) throws Exception {
         log.info("Approving pool {} by moderator/admin", id);
 
         Pool pool = poolRepositoryPort.findById(id)
@@ -59,13 +65,23 @@ public class DefaultApprovePoolService implements ApprovePoolService {
             }
         }
 
-        // Envoyer la notification de publication
-        notificationEventPublisherPort.publish(
-                pool.getOwnerId(),
-                "POOL_PUBLISHED",
-                "Cagnotte approuvée et en ligne ! 🎉",
-                "Félicitations, votre cagnotte '" + pool.getTitle() + "' a été validée par la modération et est désormais active."
-        );
+        String finalTitle = (customTitle != null && !customTitle.isBlank())
+                ? customTitle
+                : "Cagnotte approuvée / réactivée ! 🎉";
+
+        String finalMessage = (customMessage != null && !customMessage.isBlank())
+                ? customMessage
+                : "Félicitations, votre cagnotte '" + pool.getTitle() + "' a été validée par la modération et est désormais active.";
+
+        // Envoyer la notification au propriétaire
+        if (pool.getOwnerId() != null && !pool.getOwnerId().isBlank()) {
+            notificationEventPublisherPort.publish(
+                    pool.getOwnerId(),
+                    "POOL_PUBLISHED",
+                    finalTitle,
+                    finalMessage
+            );
+        }
 
         log.info("Pool {} successfully approved and published", id);
         return savedPool;

@@ -56,9 +56,26 @@ public class NotificationJpaAdapter implements NotificationRepositoryPort {
         UserEntity user = userRepository.findById(domain.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User introuvable: " + domain.getUserId()));
 
-        NotificationStatus status = NotificationStatus.valueOf(domain.getStatus() != null ? domain.getStatus() : "ACTIVE");
-        NotificationType type = NotificationType.valueOf(domain.getType());
-        NotificationChannel channel = NotificationChannel.valueOf(domain.getChannel() != null ? domain.getChannel() : "NOTIF_APP");
+        NotificationStatus status;
+        try {
+            status = NotificationStatus.valueOf(domain.getStatus() != null ? domain.getStatus() : "ACTIVE");
+        } catch (Exception e) {
+            status = NotificationStatus.ACTIVE;
+        }
+
+        NotificationType type;
+        try {
+            type = NotificationType.valueOf(domain.getType() != null ? domain.getType() : "SYSTEM");
+        } catch (Exception e) {
+            type = NotificationType.SYSTEM;
+        }
+
+        NotificationChannel channel;
+        try {
+            channel = NotificationChannel.valueOf(domain.getChannel() != null ? domain.getChannel() : "NOTIF_APP");
+        } catch (Exception e) {
+            channel = NotificationChannel.NOTIF_APP;
+        }
 
         return NotificationEntity.builder()
                 .id(domain.getId())

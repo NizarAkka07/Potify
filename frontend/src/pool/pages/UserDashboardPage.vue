@@ -336,8 +336,8 @@
                   <q-item-section avatar>
                     <q-avatar :color="notif.status === 'ACTIVE' ? 'blue-2' : 'grey-2'" size="40px">
                       <q-icon 
-                        :name="notif.type === 'CONTRIBUTION' ? 'monetization_on' : (notif.type === 'MESSAGE' ? 'chat' : (notif.type === 'INVITATION' ? 'person_add' : (notif.type === 'REACTION' ? 'favorite' : 'notifications')))" 
-                        :color="notif.type === 'CONTRIBUTION' ? 'green' : (notif.type === 'MESSAGE' ? 'blue' : (notif.type === 'INVITATION' ? 'purple' : (notif.type === 'REACTION' ? 'pink' : 'orange')))" 
+                        :name="getNotifIcon(notif.type)" 
+                        :color="getNotifColor(notif.type)" 
                       />
                     </q-avatar>
                   </q-item-section>
@@ -377,7 +377,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { poolApi } from 'boot/axios'
 import { poolService } from 'src/shared/services/poolService'
 import authStore from 'src/shared/stores/auth'
@@ -773,6 +773,35 @@ const fetchUserNotifications = async () => {
     loadingNotifications.value = false
   }
 }
+const getNotifIcon = (type) => {
+  switch (type) {
+    case 'CONTRIBUTION': return 'monetization_on'
+    case 'MESSAGE': return 'chat'
+    case 'INVITATION': return 'person_add'
+    case 'REACTION': return 'favorite'
+    case 'POOL_SUSPENDED': return 'block'
+    case 'MESSAGE_DELETED': return 'delete_sweep'
+    case 'MESSAGE_SUSPENDED': return 'unpublished'
+    case 'WARNING':
+    case 'ADMIN_WARNING': return 'warning'
+    default: return 'notifications'
+  }
+}
+
+const getNotifColor = (type) => {
+  switch (type) {
+    case 'CONTRIBUTION': return 'green'
+    case 'MESSAGE': return 'blue'
+    case 'INVITATION': return 'purple'
+    case 'REACTION': return 'pink'
+    case 'POOL_SUSPENDED': return 'negative'
+    case 'MESSAGE_DELETED': return 'deep-orange'
+    case 'MESSAGE_SUSPENDED': return 'amber-9'
+    case 'WARNING':
+    case 'ADMIN_WARNING': return 'negative'
+    default: return 'orange'
+  }
+}
 
 const markNotificationAsRead = async (id) => {
   try {
@@ -849,6 +878,27 @@ const formatDate = (dateStr) => {
   })
 }
 
+let dashboardSse = null
+
+const initDashboardSse = () => {
+  if (dashboardSse) {
+    dashboardSse.close()
+    dashboardSse = null
+  }
+  if (!userId.value) return
+  dashboardSse = notificationService.subscribeToNotifications(
+    userId.value,
+    (notif) => {
+      if (notif && notif.id) {
+        const exists = userNotifications.value.some(n => n.id === notif.id)
+        if (!exists) {
+          userNotifications.value.unshift(notif)
+        }
+      }
+    }
+  )
+}
+
 onMounted(() => {
   if (userId.value) {
     fetchAllPools()
@@ -856,6 +906,14 @@ onMounted(() => {
     fetchInvitedPools()
     fetchUserContributions()
     fetchUserNotifications()
+    initDashboardSse()
+  }
+})
+
+onUnmounted(() => {
+  if (dashboardSse) {
+    dashboardSse.close()
+    dashboardSse = null
   }
 })
 
@@ -866,6 +924,7 @@ watch(userId, (newId) => {
     fetchInvitedPools()
     fetchUserContributions()
     fetchUserNotifications()
+    initDashboardSse()
   }
 }, { immediate: true })
 

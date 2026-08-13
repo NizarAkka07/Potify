@@ -78,7 +78,25 @@ public class DefaultMessageService implements MessageService {
 
     @Override
     public void deleteMessage(String messageId) {
+        deleteMessage(messageId, null);
+    }
+
+    @Override
+    public void deleteMessage(String messageId, String reason) {
+        Message msg = messageRepositoryPort.findById(messageId).orElse(null);
         messageRepositoryPort.deleteById(messageId);
+
+        if (msg != null && msg.getUserId() != null && !msg.getUserId().isBlank()) {
+            String title = "Message supprimé par la modération";
+            String explanation = (reason != null && !reason.isBlank()) ? reason : "Contenu non conforme aux règles de la communauté.";
+            String content = "Votre commentaire a été supprimé par un administrateur. Motif / Avertissement : " + explanation;
+            
+            try {
+                notificationEventPublisherPort.publish(msg.getUserId(), "MESSAGE_DELETED", title, content);
+            } catch (Exception e) {
+                log.error("Erreur lors de l'envoi de la notification de suppression de message", e);
+            }
+        }
     }
 
     @Override

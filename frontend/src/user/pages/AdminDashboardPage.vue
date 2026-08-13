@@ -1453,13 +1453,18 @@ const dismissReport = async (messageId) => {
 const deleteReportedMessage = async (messageId) => {
   $q.dialog({
     title: 'Confirmer la suppression',
-    message: 'Voulez-vous vraiment supprimer définitivement ce commentaire ?',
+    message: 'Voulez-vous vraiment supprimer ce commentaire ? Un avertissement sera transmis à l\'auteur.',
+    prompt: {
+      model: 'Contenu non conforme aux règles de la communauté.',
+      type: 'text',
+      label: 'Motif de suppression / Avertissement'
+    },
     cancel: true,
     persistent: true
-  }).onOk(async () => {
+  }).onOk(async (reason) => {
     try {
-      await poolService.deleteMessage(messageId)
-      $q.notify({ type: 'positive', message: 'Le commentaire a été supprimé.' })
+      await poolService.deleteMessage(messageId, reason)
+      $q.notify({ type: 'positive', message: 'Le commentaire a été supprimé et l\'utilisateur notifié.' })
       loadReports()
     } catch (err) {
       console.error(err)

@@ -7,5 +7,11 @@ public enum NotificationType {
     MESSAGE,
     CONTRIBUTION,
     REACTION,
-    INVITATION
+    INVITATION,
+    POOL_SUSPENDED,
+    MESSAGE_DELETED,
+    MESSAGE_SUSPENDED,
+    WARNING,
+    ADMIN_WARNING,
+    SYSTEM
 }

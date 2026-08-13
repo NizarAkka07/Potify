@@ -474,6 +474,55 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- Modale de personnalisation de notification Admin (Suspension / Réactivation) -->
+    <q-dialog v-model="workflowDialog.show" persistent>
+      <q-card style="min-width: 500px; border-radius: 16px;">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6 text-weight-bold" :class="workflowDialog.action === 'suspend' ? 'text-negative' : 'text-positive'">
+            <q-icon :name="workflowDialog.action === 'suspend' ? 'pause_circle' : 'check_circle'" size="28px" class="q-mr-sm" />
+            {{ workflowDialog.action === 'suspend' ? 'Suspendre la cagnotte' : 'Réactiver / Approuver la cagnotte' }}
+          </div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section class="q-pa-md">
+          <div class="text-subtitle2 text-grey-8 q-mb-md">
+            Cagnotte : <strong>{{ workflowDialog.pool?.title }}</strong> (Créateur : {{ workflowDialog.pool?.ownerName || 'Inconnu' }})
+          </div>
+
+          <q-input
+            v-model="workflowDialog.title"
+            label="Titre de la notification"
+            outlined
+            dense
+            class="q-mb-md"
+            hint="Titre de la notification et de l'email envoyés au propriétaire"
+          />
+
+          <q-input
+            v-model="workflowDialog.message"
+            type="textarea"
+            label="Message d'explication pour le propriétaire"
+            outlined
+            rows="4"
+            hint="Message personnalisé expliquant les raisons à l'utilisateur."
+          />
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn label="Annuler" flat color="grey" v-close-popup />
+          <q-btn 
+            :label="workflowDialog.action === 'suspend' ? 'Suspendre et Notifier' : 'Réactiver et Notifier'" 
+            :color="workflowDialog.action === 'suspend' ? 'negative' : 'positive'"
+            unelevated
+            :loading="workflowDialog.loading"
+            @click="confirmWorkflowAction"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -730,23 +779,28 @@ const dismissReport = async (messageId) => {
 const deleteReportedMessage = async (messageId) => {
   $q.dialog({
     title: 'Confirmer la suppression',
-    message: 'Voulez-vous vraiment supprimer définitivement ce commentaire ? Cette action est irréversible.',
+    message: 'Voulez-vous vraiment supprimer ce commentaire ? Un avertissement avec le motif sera envoyé à l\'auteur.',
+    prompt: {
+      model: 'Contenu non conforme aux règles de la communauté.',
+      type: 'text',
+      label: 'Motif de suppression / Avertissement'
+    },
     cancel: {
       label: 'Annuler',
       flat: true
     },
     ok: {
-      label: 'Supprimer',
+      label: 'Supprimer et Notifier',
       color: 'negative',
       unelevated: true
     },
     persistent: true
-  }).onOk(async () => {
+  }).onOk(async (reason) => {
     try {
-      await poolService.deleteMessage(messageId)
+      await poolService.deleteMessage(messageId, reason)
       $q.notify({
         type: 'positive',
-        message: 'Le commentaire a été supprimé.'
+        message: 'Le commentaire a été supprimé et l\'auteur a été notifié.'
       })
       await loadReportedMessages()
     } catch (err) {
@@ -833,74 +887,68 @@ const deleteReportedPool = async (pool) => {
   })
 }
 
+const workflowDialog = ref({
+  show: false,
+  action: 'suspend',
+  pool: null,
+  title: '',
+  message: '',
+  loading: false
+})
+
 const suspendReportedPool = (pool) => {
-  $q.dialog({
-    title: 'Confirmer la suspension',
-    message: `Voulez-vous vraiment suspendre temporairement la cagnotte "${pool.title}" ?`,
-    prompt: {
-      model: 'Signalement de contenu non conforme',
-      type: 'text'
-    },
-    cancel: {
-      label: 'Annuler',
-      flat: true
-    },
-    ok: {
-      label: 'Suspendre',
-      color: 'warning',
-      unelevated: true
-    },
-    persistent: true
-  }).onOk(async (reason) => {
-    try {
-      await poolService.suspendPool(pool.id, reason)
-      $q.notify({
-        type: 'positive',
-        message: 'La cagnotte a été suspendue avec succès.'
-      })
-      await loadReportedPools()
-      await loadPools()
-    } catch (err) {
-      console.error('Erreur suspension cagnotte:', err)
-      $q.notify({
-        type: 'negative',
-        message: 'Erreur lors de la suspension de la cagnotte.'
-      })
-    }
-  })
+  workflowDialog.value = {
+    show: true,
+    action: 'suspend',
+    pool,
+    title: 'Cagnotte suspendue par l\'administration',
+    message: `Votre cagnotte "${pool.title}" a été temporairement suspendue par un modérateur. Motif : Signalement ou non-conformité aux règles de la communauté.`,
+    loading: false
+  }
 }
 
 const reactivatePool = (pool) => {
-  $q.dialog({
-    title: 'Confirmer la réactivation',
-    message: `Voulez-vous vraiment rétablir et publier à nouveau la cagnotte "${pool.title}" ?`,
-    cancel: {
-      label: 'Annuler',
-      flat: true
-    },
-    ok: {
-      label: 'Rétablir',
-      color: 'positive',
-      unelevated: true
-    },
-    persistent: true
-  }).onOk(async () => {
-    try {
-      await poolService.approvePool(pool.id)
+  workflowDialog.value = {
+    show: true,
+    action: 'approve',
+    pool,
+    title: 'Cagnotte réactivée / approuvée 🎉',
+    message: `Excellente nouvelle ! Votre cagnotte "${pool.title}" a été vérifiée, validée par la modération et est de nouveau active sur la plateforme.`,
+    loading: false
+  }
+}
+
+const confirmWorkflowAction = async () => {
+  const { action, pool, title, message } = workflowDialog.value
+  if (!pool) return
+
+  workflowDialog.value.loading = true
+  try {
+    if (action === 'suspend') {
+      await poolService.suspendPool(pool.id, { title, reason: message, message })
       $q.notify({
         type: 'positive',
-        message: 'La cagnotte a été rétablie et publiée avec succès.'
+        message: 'La cagnotte a été suspendue et le créateur notifié.'
       })
-      await loadPools()
-      await loadReportedPools()
-    } catch (err) {
-      console.error('Erreur réactivation cagnotte:', err)
+    } else {
+      await poolService.approvePool(pool.id, { title, message })
       $q.notify({
-        type: 'negative',
-        message: 'Erreur lors du rétablissement de la cagnotte.'
+        type: 'positive',
+        message: 'La cagnotte a été réactivée et le créateur notifié.'
       })
     }
-  })
+    workflowDialog.value.show = false
+    await loadPools()
+    await loadReportedPools()
+  } catch (err) {
+    console.error('Erreur lors de l action de modération:', err)
+    $q.notify({
+      type: 'negative',
+      message: 'Erreur lors de l exécution de l action.'
+    })
+  } finally {
+    workflowDialog.value.loading = false
+  }
 }
 
 const showPoolReportDetails = (pool) => {

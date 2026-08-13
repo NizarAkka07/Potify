@@ -19,11 +19,22 @@ public class DeleteMessageController {
 
     private final MessageService messageService;
 
+    @lombok.Data
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
+    public static class DeleteMessageRequest {
+        private String reason;
+    }
+
     @DeleteMapping("/{messageId}")
-    @PreAuthorize("hasAuthority('MESSAGE_DELETE') or hasRole('SUPER_ADMIN')")
-    @Operation(summary = "Supprimer un commentaire (Modération)")
-    public ResponseEntity<Void> deleteMessage(@PathVariable String messageId) {
-        messageService.deleteMessage(messageId);
+    @PreAuthorize("hasAuthority('MESSAGE_DELETE') or hasRole('SUPER_ADMIN') or hasRole('MODERATEUR')")
+    @Operation(summary = "Supprimer un commentaire avec motif/avertissement (Modération)")
+    public ResponseEntity<Void> deleteMessage(
+            @PathVariable String messageId,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String reason,
+            @org.springframework.web.bind.annotation.RequestBody(required = false) DeleteMessageRequest request) {
+        String finalReason = (reason != null && !reason.isBlank()) ? reason : (request != null ? request.getReason() : null);
+        messageService.deleteMessage(messageId, finalReason);
         return ResponseEntity.noContent().build();
     }
 }

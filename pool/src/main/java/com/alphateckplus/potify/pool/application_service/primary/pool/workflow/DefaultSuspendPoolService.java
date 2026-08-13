@@ -20,7 +20,13 @@ public class DefaultSuspendPoolService implements SuspendPoolService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Pool execute(String id, String reason) throws Exception {
-        log.info("Suspending pool {}, reason: {}", id, reason);
+        return execute(id, null, reason, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Pool execute(String id, String title, String reason, String message) throws Exception {
+        log.info("Suspending pool {}, title: {}, reason: {}, message: {}", id, title, reason, message);
 
         Pool pool = poolRepositoryPort.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cagnotte introuvable : " + id));
@@ -38,13 +44,30 @@ public class DefaultSuspendPoolService implements SuspendPoolService {
             }
         }
 
+        String finalTitle = (title != null && !title.isBlank())
+                ? title
+                : "Cagnotte suspendue par l'administration";
+
+        String explanation = (message != null && !message.isBlank())
+                ? message
+                : ((reason != null && !reason.isBlank()) ? "Motif / Explication : " + reason : "Signalement ou non-conformité aux règles de la communauté.");
+
+        String finalContent = (message != null && !message.isBlank())
+                ? message
+                : "Votre cagnotte '" + pool.getTitle() + "' a été suspendue par la modération. " + explanation;
+
         // Notifier le créateur de la suspension
-        notificationEventPublisherPort.publish(
-                pool.getOwnerId(),
-                "POOL_SUSPENDED",
-                "Cagnotte suspendue",
-                "Votre cagnotte '" + pool.getTitle() + "' a été suspendue. Motif: " + reason
-        );
+        if (pool.getOwnerId() != null && !pool.getOwnerId().isBlank()) {
+            notificationEventPublisherPort.publish(
+                    pool.getOwnerId(),
+                    "POOL_SUSPENDED",
+                    finalTitle,
+                    finalContent
+            );
+            log.info("Notification POOL_SUSPENDED envoyée à l'owner {}", pool.getOwnerId());
+        } else {
+            log.warn("Impossible d'envoyer la notification de suspension : pool.getOwnerId() est null pour la cagnotte {}", id);
+        }
 
         log.info("Pool {} successfully suspended", id);
         return savedPool;

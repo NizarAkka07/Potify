@@ -137,15 +137,17 @@ export const poolService = {
   /**
    * Suspendre une cagnotte (Modération).
    */
-  suspendPool(poolId, reason = 'Signalement de contenu non conforme') {
-    return poolApi.post(`/pools/${poolId}/suspend`, { reason })
+  suspendPool(poolId, payload = {}) {
+    const body = typeof payload === 'string' ? { reason: payload } : payload
+    return poolApi.post(`/pools/${poolId}/suspend`, body)
   },
 
   /**
-   * Approuver/publier une cagnotte (Modération/Administration).
+   * Approuver/réactiver une cagnotte (Modération/Administration).
    */
-  approvePool(poolId) {
-    return poolApi.post(`/pools/${poolId}/approve`)
+  approvePool(poolId, payload = {}) {
+    const body = typeof payload === 'string' ? { message: payload } : payload
+    return poolApi.post(`/pools/${poolId}/approve`, body)
   },
 
   /**
@@ -165,8 +167,9 @@ export const poolService = {
   /**
    * Supprime un commentaire.
    */
-  deleteMessage(messageId) {
-    return poolApi.delete(`/messages/${messageId}`)
+  deleteMessage(messageId, reason = null) {
+    const params = reason ? { reason } : {}
+    return poolApi.delete(`/messages/${messageId}`, { params })
   },
 
   /**

@@ -85,8 +85,8 @@
                    >
                      <q-item-section avatar>
                        <q-icon 
-                         :name="notif.type === 'CONTRIBUTION' ? 'monetization_on' : (notif.type === 'MESSAGE' ? 'chat' : (notif.type === 'INVITATION' ? 'person_add' : (notif.type === 'REACTION' ? 'favorite' : 'notifications')))" 
-                         :color="notif.type === 'CONTRIBUTION' ? 'green' : (notif.type === 'MESSAGE' ? 'blue' : (notif.type === 'INVITATION' ? 'purple' : (notif.type === 'REACTION' ? 'pink' : 'orange')))" 
+                         :name="getNotifIcon(notif.type)" 
+                         :color="getNotifColor(notif.type)" 
                        />
                      </q-item-section>
                      <q-item-section>
@@ -354,6 +354,36 @@ async function markAsRead(id) {
   }
 }
 
+function getNotifIcon(type) {
+  switch (type) {
+    case 'CONTRIBUTION': return 'monetization_on'
+    case 'MESSAGE': return 'chat'
+    case 'INVITATION': return 'person_add'
+    case 'REACTION': return 'favorite'
+    case 'POOL_SUSPENDED': return 'block'
+    case 'MESSAGE_DELETED': return 'delete_sweep'
+    case 'MESSAGE_SUSPENDED': return 'unpublished'
+    case 'WARNING':
+    case 'ADMIN_WARNING': return 'warning'
+    default: return 'notifications'
+  }
+}
+
+function getNotifColor(type) {
+  switch (type) {
+    case 'CONTRIBUTION': return 'green'
+    case 'MESSAGE': return 'blue'
+    case 'INVITATION': return 'purple'
+    case 'REACTION': return 'pink'
+    case 'POOL_SUSPENDED': return 'negative'
+    case 'MESSAGE_DELETED': return 'deep-orange'
+    case 'MESSAGE_SUSPENDED': return 'amber-9'
+    case 'WARNING':
+    case 'ADMIN_WARNING': return 'negative'
+    default: return 'orange'
+  }
+}
+
 function formatDate(isoString) {
   if (!isoString) return ''
   return date.formatDate(new Date(isoString), 'DD/MM/YYYY HH:mm')
@@ -364,13 +394,50 @@ function onLogout () {
   router.push('/login')
 }
 
+let eventSource = null
+
+function initSse() {
+  closeSse()
+  if (!authStore.isAuthenticated.value || !authStore.user.value?.id) return
+  
+  eventSource = notificationService.subscribeToNotifications(
+    authStore.user.value.id,
+    (notif) => {
+      console.log('Notification SSE reçue en temps réel:', notif)
+      if (notif && notif.id) {
+        const exists = notifications.value.some(n => n.id === notif.id)
+        if (!exists) {
+          notifications.value.unshift(notif)
+        }
+      }
+      $q.notify({
+        type: (notif.type === 'POOL_SUSPENDED' || notif.type === 'MESSAGE_DELETED' || notif.type === 'ADMIN_WARNING' || notif.type === 'WARNING') ? 'warning' : 'info',
+        icon: getNotifIcon(notif.type),
+        message: notif.title || 'Nouvelle notification',
+        caption: notif.content,
+        position: 'top-right',
+        timeout: 8000
+      })
+    }
+  )
+}
+
+function closeSse() {
+  if (eventSource) {
+    eventSource.close()
+    eventSource = null
+  }
+}
+
 watch(
   () => authStore.isAuthenticated.value,
   (isAuth) => {
     if (isAuth) {
       fetchNotifications()
+      initSse()
       startPolling()
     } else {
+      closeSse()
       stopPolling()
       notifications.value = []
     }
@@ -380,7 +447,7 @@ watch(
 
 function startPolling() {
   stopPolling()
-  intervalId = setInterval(fetchNotifications, 10000)
+  intervalId = setInterval(fetchNotifications, 15000)
 }
 
 function stopPolling() {

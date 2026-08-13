@@ -23,6 +23,7 @@ public class NotificationKafkaConsumer {
     private final CreateNotificationService createNotificationService;
     private final UserEntityRepository userEntityRepository;
     private final JavaMailSender mailSender;
+    private final NotificationSseService notificationSseService;
 
     @KafkaListener(topics = "potify-notifications", groupId = "potify-group")
     public void listen(Map<String, Object> payload) {
@@ -46,8 +47,15 @@ public class NotificationKafkaConsumer {
                         .status("ACTIVE")
                         .build();
 
-                createNotificationService.execute(notification);
+                Notification created = createNotificationService.execute(notification);
                 log.info("Successfully processed and saved notification for user: {}", userId);
+
+                // Diffusion en temps réel via SSE
+                try {
+                    notificationSseService.sendNotification(userId, created);
+                } catch (Exception e) {
+                    log.error("Erreur lors de la diffusion SSE pour l'utilisateur {}", userId, e);
+                }
 
                 // Envoi de l'email à l'utilisateur
                 userEntityRepository.findById(userId).ifPresentOrElse(user -> {
