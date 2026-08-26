@@ -301,13 +301,13 @@
                         <q-btn 
                           unelevated 
                           no-caps 
-                          color="primary" 
-                          :label="$t('publicPools.contributeButton')" 
-                          icon-right="favorite" 
+                          :color="(pool.status === 'CLOTUREE' || (pool.goalAmount > 0 && (pool.currentAmount || 0) >= pool.goalAmount)) ? 'positive' : 'primary'" 
+                          :label="(pool.status === 'CLOTUREE' || (pool.goalAmount > 0 && (pool.currentAmount || 0) >= pool.goalAmount)) ? 'Objectif atteint' : $t('publicPools.contributeButton')" 
+                          :icon-right="(pool.status === 'CLOTUREE' || (pool.goalAmount > 0 && (pool.currentAmount || 0) >= pool.goalAmount)) ? 'check_circle' : 'favorite'" 
                           class="q-px-md text-weight-bold contribute-btn" 
-                          style="border-radius: 8px; background: #FFA726 !important; color: #1A1A2A !important;"
+                          :style="(pool.status === 'CLOTUREE' || (pool.goalAmount > 0 && (pool.currentAmount || 0) >= pool.goalAmount)) ? 'border-radius: 8px; opacity: 0.85;' : 'border-radius: 8px; background: #FFA726 !important; color: #1A1A2A !important;'"
                           @click.stop="goToPoolDetailForDonation(pool.id)"
-                          :disable="pool.status === 'CLOTUREE'"
+                          :disable="pool.status === 'CLOTUREE' || (pool.goalAmount > 0 && (pool.currentAmount || 0) >= pool.goalAmount)"
                         />
                       </div>
                     </div>

@@ -143,6 +143,17 @@
             </div>
           </div>
 
+          <!-- Goal Reached Banner -->
+          <div v-if="isGoalReached" class="q-pa-md q-mb-md rounded-borders text-body2 text-weight-bold flex items-center text-positive" style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 16px;">
+            <q-icon name="celebration" class="q-mr-sm" size="24px" />
+            <div>
+              <div>Objectif atteint ! 🎉</div>
+              <div class="text-caption text-grey-8 text-weight-normal q-mt-xs">
+                {{ $t('poolDetail.goalReachedNotice') || 'L\'objectif financier a été atteint. Les contributions sont désormais fermées.' }}
+              </div>
+            </div>
+          </div>
+
           <!-- Action Buttons Row -->
           <div class="row q-col-gutter-sm q-mb-md items-center">
             <div class="col">
@@ -158,6 +169,7 @@
             </div>
             <div class="col">
               <q-btn
+                v-if="!isGoalReached"
                 :label="$t('poolDetail.contributeNow') || 'Participer'"
                 unelevated
                 color="primary"
@@ -167,6 +179,22 @@
                 no-caps
                 @click="contribute"
               />
+              <q-btn
+                v-else
+                :label="$t('poolDetail.goalReached') || 'Objectif atteint 🎉'"
+                unelevated
+                color="positive"
+                text-color="white"
+                disable
+                class="full-width q-py-md text-weight-bolder shadow-1"
+                style="border-radius: 24px; font-size: 1rem; opacity: 0.9;"
+                no-caps
+                icon="check_circle"
+              >
+                <q-tooltip>
+                  {{ $t('poolDetail.goalReachedNotice') || 'L\'objectif financier a été atteint. Les contributions sont désormais fermées.' }}
+                </q-tooltip>
+              </q-btn>
             </div>
             <div class="col-auto">
               <q-btn 
@@ -264,6 +292,190 @@
             <div class="open-story-text text-body1 text-grey-9 q-mb-lg">
               {{ pool.description }}
             </div>
+          </div>
+
+          <!-- SECTION TONTINE: DASHBOARD DE LA TONTINE (Visible si type === 'PRIVATE_TONTINE') -->
+          <div v-if="pool.type === 'PRIVATE_TONTINE'" class="tontine-dashboard-section q-mb-2xl q-mt-lg">
+            <div class="row items-center justify-between q-mb-lg">
+              <div class="row items-center">
+                <div class="section-icon-dot bg-warning q-mr-sm"></div>
+                <h2 class="section-heading-title text-dark q-ma-none flex items-center" style="font-size: 1.5rem;">
+                  <q-icon name="sync" color="warning" class="q-mr-xs" />
+                  Tableau de Bord — Tontine Rotative
+                </h2>
+              </div>
+              <div class="row q-gutter-xs items-center">
+                <q-chip 
+                  v-if="tontineSummary" 
+                  color="amber-9" 
+                  text-color="white" 
+                  class="text-weight-bold"
+                >
+                  🔄 Réinitialisations : {{ tontineSummary.resetCount !== undefined ? tontineSummary.resetCount : (tontineSummary.currentRoundNumber ? tontineSummary.currentRoundNumber - 1 : 0) }}
+                </q-chip>
+                <q-chip 
+                  v-if="tontineSummary" 
+                  :color="tontineSummary.status === 'COMPLETED' ? 'info' : 'positive'" 
+                  text-color="white" 
+                  class="text-weight-bold"
+                >
+                  {{ tontineSummary.status === 'COMPLETED' ? '✅ Tontine Terminée' : '⚡ Tontine Active' }}
+                </q-chip>
+              </div>
+            </div>
+
+            <q-card class="q-pa-lg no-shadow" style="border-radius: 20px; background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border: 1.5px solid #FCD34D;">
+              
+              <!-- Résumé de la répartition équitable -->
+              <div v-if="tontineSummary" class="row q-col-gutter-sm q-mb-md">
+                <div class="col-12 col-sm-4">
+                  <div class="bg-white q-pa-sm rounded-borders text-center shadow-xs" style="border: 1px solid #FDE68A; border-radius: 12px;">
+                    <div class="text-caption text-grey-7">Montant global du pot</div>
+                    <div class="text-subtitle1 text-weight-bolder text-dark">{{ pool.goalAmount || 0 }} €</div>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <div class="bg-white q-pa-sm rounded-borders text-center shadow-xs" style="border: 1px solid #FDE68A; border-radius: 12px;">
+                    <div class="text-caption text-grey-7">Participants partagés</div>
+                    <div class="text-subtitle1 text-weight-bolder text-dark">{{ tontineSummary.members ? tontineSummary.members.length : 0 }} membre(s)</div>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <div class="bg-white q-pa-sm rounded-borders text-center shadow-xs" style="border: 1px solid #FDE68A; border-radius: 12px;">
+                    <div class="text-caption text-grey-7">Cotisation par utilisateur</div>
+                    <div class="text-subtitle1 text-weight-bolder text-warning">{{ tontinePerUserAmount }} € / tour</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tontine ACTIVE -->
+              <div v-if="tontineSummary && tontineSummary.activeRound">
+                
+                <!-- Bannière du Tour en cours -->
+                <div class="row q-col-gutter-md items-center bg-white q-pa-md rounded-borders q-mb-lg shadow-sm" style="border-left: 6px solid #F59E0B; border-radius: 14px;">
+                  <div class="col-12 col-sm-7">
+                    <div class="text-caption text-warning text-weight-bold">
+                      PÉRIODE / TOUR ACTIF (Réinitialisation n°{{ tontineSummary.resetCount !== undefined ? tontineSummary.resetCount : (tontineSummary.currentRoundNumber - 1) }})
+                    </div>
+                    <div class="text-h6 text-weight-bolder text-dark q-mt-xs">
+                      Bénéficiaire du pot : <span class="text-primary">{{ tontineSummary.activeRound.beneficiaryName }}</span>
+                    </div>
+                    <div class="text-caption text-grey-7 q-mt-xs">
+                      Échéance de la période : <strong>{{ formatDate(tontineSummary.activeRound.dueDate) }}</strong> 
+                      <span v-if="tontineSummary.latePenaltyRate > 0" class="text-negative font-weight-bold q-ml-xs">
+                        (Pénalité de retard : {{ tontineSummary.latePenaltyRate }}% / jour)
+                      </span>
+                    </div>
+
+                    <!-- Message d'attente de réinitialisation quand la mission du tour est achevée -->
+                    <div v-if="tontinePaidMembersCount === tontineSummary.members.length && tontineSummary.members.length > 0" class="q-mt-sm q-pa-xs rounded-borders text-caption text-weight-bold flex items-center text-positive" style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px;">
+                      <q-icon name="celebration" class="q-mr-xs" size="18px" />
+                      Objectif atteint ! En attente de la réinitialisation automatique du tour à l'échéance ({{ formatDate(tontineSummary.activeRound.dueDate) }}).
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-sm-5 text-right">
+                    <q-btn 
+                      v-if="!currentUserHasPaidCurrentRound && !isGoalReached"
+                      :label="`Cotiser pour ce tour (${tontinePerUserAmount} €)`" 
+                      color="warning" 
+                      text-color="dark"
+                      unelevated 
+                      no-caps 
+                      icon="payments"
+                      class="text-weight-bold action-pill-btn full-width"
+                      @click="contributeToTontine"
+                    />
+                    <q-btn 
+                      v-else-if="currentUserHasPaidCurrentRound"
+                      label="Cotisation réglée ✅" 
+                      color="positive" 
+                      text-color="white"
+                      unelevated 
+                      disable
+                      no-caps 
+                      icon="task_alt"
+                      class="text-weight-bold action-pill-btn full-width"
+                    />
+                    <q-btn 
+                      v-else
+                      label="Objectif du tour atteint ✅" 
+                      color="positive" 
+                      text-color="white"
+                      unelevated 
+                      disable
+                      no-caps 
+                      icon="task_alt"
+                      class="text-weight-bold action-pill-btn full-width"
+                    />
+                  </div>
+                </div>
+
+                <!-- Barre de progression des cotisations collectées pour ce tour -->
+                <div class="q-mb-lg bg-white q-pa-md rounded-borders shadow-xs" style="border-radius: 14px;">
+                  <div class="row justify-between text-caption text-grey-9 text-weight-bold q-mb-xs">
+                    <span>Progression du pot du tour : {{ tontineSummary.activeRound.collectedAmount }} € collectés</span>
+                    <span>Objectif du pot : {{ pool.goalAmount || tontineSummary.activeRound.targetAmount }} €</span>
+                  </div>
+                  <q-linear-progress 
+                    :value="(pool.goalAmount > 0) ? (tontineSummary.activeRound.collectedAmount / pool.goalAmount) : (tontineSummary.activeRound.targetAmount > 0 ? (tontineSummary.activeRound.collectedAmount / tontineSummary.activeRound.targetAmount) : 0)" 
+                    color="warning" 
+                    size="12px" 
+                    rounded 
+                  />
+                </div>
+
+                <!-- Chronologie des membres & suivi des cotisations du tour -->
+                <div class="row items-center justify-between q-mb-md">
+                  <div class="text-subtitle2 text-weight-bold text-dark flex items-center">
+                    <q-icon name="format_list_numbered" class="q-mr-xs text-warning" /> Membres & suivi des cotisations du tour en cours
+                  </div>
+                  <div class="text-caption text-grey-8 text-weight-bold">
+                    Cotisations payées : <span class="text-positive">{{ tontinePaidMembersCount }}</span> / {{ tontineSummary.members.length }}
+                  </div>
+                </div>
+
+                <div class="row q-col-gutter-sm">
+                  <div v-for="member in tontineSummary.members" :key="member.userId" class="col-12 col-sm-6">
+                    <q-card flat class="q-pa-sm bg-white flex items-center justify-between" style="border: 1px solid #E2E8F0; border-radius: 12px;">
+                      <div class="flex items-center">
+                        <q-avatar size="32px" class="bg-amber-2 text-amber-10 text-weight-bold q-mr-sm">
+                          #{{ member.orderIndex }}
+                        </q-avatar>
+                        <div>
+                          <div class="text-weight-bold text-dark text-caption" style="line-height: 1.2;">
+                            {{ member.userName }}
+                            <span v-if="String(member.userId) === String(authStore.user.value?.id)" class="text-primary text-weight-bold">(Vous)</span>
+                          </div>
+                          <div class="text-caption text-grey-6" style="font-size: 0.7rem;">{{ member.userEmail }}</div>
+                        </div>
+                      </div>
+
+                      <div class="flex items-center q-gutter-xs">
+                        <q-chip 
+                          size="sm" 
+                          :color="member.hasPaidCurrentRound ? 'positive' : 'deep-orange-5'" 
+                          text-color="white" 
+                          class="text-weight-bold"
+                        >
+                          {{ member.hasPaidCurrentRound ? 'Cotisé ✅' : 'Non cotisé ⏳' }}
+                        </q-chip>
+                        <q-chip 
+                          v-if="member.hasReceivedPayout" 
+                          size="sm" 
+                          color="info" 
+                          text-color="white" 
+                          class="text-weight-bold"
+                        >
+                          Pot Perçu 🎉
+                        </q-chip>
+                      </div>
+                    </q-card>
+                  </div>
+                </div>
+
+              </div>
+            </q-card>
           </div>
 
           <q-separator class="section-divider q-my-xl" />
@@ -432,13 +644,13 @@
                   </div>
                   <div class="col-auto">
                     <q-btn 
-                      label="Contribuer" 
-                      color="secondary" 
+                      :label="(subPool.status === 'COMPLETED' || (subPool.goalAmount > 0 && (subPool.currentAmount || 0) >= subPool.goalAmount)) ? 'Objectif atteint' : 'Contribuer'" 
+                      :color="(subPool.status === 'COMPLETED' || (subPool.goalAmount > 0 && (subPool.currentAmount || 0) >= subPool.goalAmount)) ? 'positive' : 'secondary'" 
                       unelevated 
                       no-caps 
                       class="action-pill-btn"
                       @click="contributeToSubPool(subPool.id)"
-                      :disable="subPool.status === 'COMPLETED'"
+                      :disable="subPool.status === 'COMPLETED' || (subPool.goalAmount > 0 && (subPool.currentAmount || 0) >= subPool.goalAmount)"
                     />
                   </div>
                 </div>
@@ -610,6 +822,11 @@
         </q-card-section>
 
         <q-card-section class="q-pt-md">
+          <div v-if="isGoalReached" class="q-pa-md bg-positive text-white rounded-borders q-mb-md text-weight-bold flex items-center" style="border-radius: 12px;">
+            <q-icon name="check_circle" class="q-mr-sm" size="sm" />
+            <span>{{ $t('poolDetail.goalReachedNotice') || 'L\'objectif financier a été atteint. Les contributions sont désormais fermées.' }}</span>
+          </div>
+
           <div class="text-subtitle2 q-mb-md text-grey-7">
             {{ $t('poolDetail.donateDialogSubtitlePrefix') }} "{{ pool?.title }}" {{ $t('poolDetail.donateDialogSubtitleSuffix') }}
           </div>
@@ -713,7 +930,7 @@
                     style="border-radius: 8px;"
                     @click="submitPayment('stripe')"
                     :loading="submitting && selectedMethod === 'stripe'"
-                    :disable="submitting"
+                    :disable="submitting || isGoalReached"
                   >
                     <q-icon name="credit_card" class="q-mr-xs" />
                     Stripe
@@ -728,7 +945,7 @@
                     style="border-radius: 8px;"
                     @click="submitPayment('paypal')"
                     :loading="submitting && selectedMethod === 'paypal'"
-                    :disable="submitting"
+                    :disable="submitting || isGoalReached"
                   >
                     <q-icon name="payment" class="q-mr-xs" />
                     PayPal
@@ -924,7 +1141,13 @@
               Inviter des participants par email :
             </div>
             
-            <div class="row q-col-gutter-sm items-center q-mb-md">
+            <!-- Message de verrouillage si cotisations en cours sur la tontine -->
+            <div v-if="pool.type === 'PRIVATE_TONTINE' && tontineSummary && tontineSummary.invitationsLocked" class="q-pa-sm bg-amber-1 text-amber-10 rounded-borders text-caption q-mb-md flex items-center" style="border: 1px solid #FCD34D;">
+              <q-icon name="lock" class="q-mr-xs text-amber-9" size="18px" />
+              <span>Les invitations sont verrouillées pour ce tour car des cotisations ont déjà été effectuées.</span>
+            </div>
+
+            <div v-else class="row q-col-gutter-sm items-center q-mb-md">
               <div class="col">
                 <q-input
                   v-model="inviteEmail"
@@ -1364,6 +1587,35 @@ const isAdmin = computed(() => {
   return authStore.isAuthenticated.value && (authStore.user.value?.roles?.includes('ADMIN') || authStore.user.value?.role === 'ADMIN')
 })
 
+const isGoalReached = computed(() => {
+  if (!pool.value) return false
+  if (pool.value.status === 'CLOTUREE' || pool.value.status === 'COMPLETED') return true
+
+  if (pool.value.type === 'PRIVATE_TONTINE') {
+    if (tontineSummary.value?.status === 'COMPLETED') return true
+    if (tontineSummary.value?.activeRound) {
+      const active = tontineSummary.value.activeRound
+      if (active.status === 'COMPLETED') return true
+      const target = Number(pool.value.goalAmount || active.targetAmount || 0)
+      const collected = Number(active.collectedAmount || 0)
+      if (target > 0 && collected >= target) return true
+    }
+    if (tontineSummary.value?.members?.length > 0 && tontinePaidMembersCount.value >= tontineSummary.value.members.length) {
+      return true
+    }
+    return false
+  }
+
+  if (pool.value.subPools && pool.value.subPools.length > 0) {
+    const allCompleted = pool.value.subPools.every(sp => (sp.goalAmount > 0 && (sp.currentAmount || 0) >= sp.goalAmount) || sp.status === 'COMPLETED')
+    if (allCompleted) return true
+  }
+
+  const goal = Number(pool.value.goalAmount) || 0
+  const current = Number(pool.value.currentAmount) || 0
+  return goal > 0 && current >= goal
+})
+
 const poolFees = computed(() => {
   return pool.value && pool.value.fees !== undefined && pool.value.fees !== null
     ? pool.value.fees
@@ -1393,6 +1645,15 @@ const subPoolOptions = computed(() => {
 })
 
 const contributeToSubPool = (subPoolId) => {
+  const targetSubPool = pool.value.subPools?.find(sp => sp.id === subPoolId)
+  if (targetSubPool && (targetSubPool.status === 'COMPLETED' || (targetSubPool.goalAmount > 0 && (targetSubPool.currentAmount || 0) >= targetSubPool.goalAmount))) {
+    $q.notify({
+      type: 'info',
+      message: 'L\'objectif de cette sous-cagnotte est déjà atteint.',
+      icon: 'check_circle'
+    })
+    return
+  }
   selectedSubPoolId.value = subPoolId
   contributionDialog.value = true
 }
@@ -1738,6 +1999,9 @@ const removeInvitation = async (invitationId) => {
       await poolApi.delete(`/invitations/${invitationId}`)
       $q.notify({ type: 'positive', message: 'Invitation supprimée' })
       await fetchInvitations()
+      if (pool.value.type === 'PRIVATE_TONTINE') {
+        await fetchTontineSummary()
+      }
     } catch (err) {
       console.error('Erreur suppression invitation:', err)
       $q.notify({ type: 'negative', message: 'Erreur lors de la suppression' })
@@ -1764,6 +2028,9 @@ const sendInvitation = async () => {
     $q.notify({ type: 'positive', message: `Invitation envoyée à ${inviteEmail.value}` })
     inviteEmail.value = ''
     await fetchInvitations()
+    if (pool.value.type === 'PRIVATE_TONTINE') {
+      await fetchTontineSummary()
+    }
   } catch (err) {
     console.error('Erreur envoi invitation:', err)
     const errorMsg = err.response?.data?.message || 'Une erreur est survenue lors de l\'envoi de l\'invitation.'
@@ -1774,9 +2041,17 @@ const sendInvitation = async () => {
 }
 
 const contribute = () => {
+  if (isGoalReached.value) {
+    $q.notify({
+      type: 'info',
+      message: 'L\'objectif financier de cette cagnotte a été atteint. Les contributions sont fermées.',
+      icon: 'check_circle'
+    })
+    return
+  }
   if (pool.value.subPools && pool.value.subPools.length > 0) {
     if (!selectedSubPoolId.value) {
-      const firstActive = pool.value.subPools.find(sp => sp.status !== 'COMPLETED')
+      const firstActive = pool.value.subPools.find(sp => sp.status !== 'COMPLETED' && (sp.goalAmount <= 0 || (sp.currentAmount || 0) < sp.goalAmount))
       selectedSubPoolId.value = firstActive ? firstActive.id : pool.value.subPools[0].id
     }
   }
@@ -2017,10 +2292,76 @@ const recordView = async () => {
   }
 }
 
+const tontineSummary = ref(null)
+const loadingTontine = ref(false)
+
+const fetchTontineSummary = async () => {
+  const poolId = route.params.id
+  if (!poolId) return
+  loadingTontine.value = true
+  try {
+    const res = await poolApi.get(`/pools/${poolId}/tontine/summary`)
+    tontineSummary.value = res.data
+  } catch (e) {
+    console.error('Erreur chargement tontine:', e)
+  } finally {
+    loadingTontine.value = false
+  }
+}
+
+const currentUserHasPaidCurrentRound = computed(() => {
+  if (!tontineSummary.value || !tontineSummary.value.members || !authStore.user.value) return false
+  const currentUserId = String(authStore.user.value.id)
+  const member = tontineSummary.value.members.find(m => String(m.userId) === currentUserId)
+  return member ? !!member.hasPaidCurrentRound : false
+})
+
+const tontinePaidMembersCount = computed(() => {
+  if (!tontineSummary.value || !tontineSummary.value.members) return 0
+  return tontineSummary.value.members.filter(m => m.hasPaidCurrentRound).length
+})
+
+const tontinePerUserAmount = computed(() => {
+  const goal = Number(pool.value?.goalAmount) || 0
+  const membersCount = tontineSummary.value?.members?.length || 1
+  if (goal > 0 && membersCount > 0) {
+    const raw = goal / membersCount
+    return Number.isInteger(raw) ? String(raw) : raw.toFixed(2)
+  }
+  return tontineSummary.value?.contributionAmount || 0
+})
+
+const contributeToTontine = () => {
+  if (isGoalReached.value) {
+    $q.notify({
+      type: 'info',
+      message: 'L\'objectif de ce tour de tontine est déjà atteint. Les cotisations sont fermées.',
+      icon: 'check_circle'
+    })
+    return
+  }
+  if (currentUserHasPaidCurrentRound.value) {
+    $q.notify({
+      type: 'warning',
+      message: `Vous avez déjà payé votre cotisation pour le tour en cours (#${tontineSummary.value?.currentRoundNumber || 1}).`,
+      icon: 'check_circle'
+    })
+    return
+  }
+  if (tontineSummary.value && tontineSummary.value.activeRound) {
+    const round = tontineSummary.value.activeRound
+    const baseAmount = Number(tontinePerUserAmount.value) || tontineSummary.value.contributionAmount || 100
+    contributionForm.amount = baseAmount
+    contributionForm.message = `Cotisation Tontine Tour #${round.roundNumber}`
+  }
+  contributionDialog.value = true
+}
+
 onMounted(async () => {
   await recordView()
   await fetchPool()
   await fetchUpdates()
+  await fetchTontineSummary()
   setupMessageSSE()
 })
 
