@@ -4,12 +4,14 @@ import com.alphateckplus.potify.data_jpa.entity.payment.ContributionEntity;
 import com.alphateckplus.potify.data_jpa.entity.payment.TransactionEntity;
 import com.alphateckplus.potify.data_jpa.entity.pool.CagnotteWalletEntity;
 import com.alphateckplus.potify.data_jpa.entity.pool.PoolEntity;
+import com.alphateckplus.potify.data_jpa.entity.pool.TontineDetailsEntity;
 import com.alphateckplus.potify.data_jpa.entity.user.UserEntity;
 import com.alphateckplus.potify.data_jpa.repository.payment.ContributionEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.payment.TransactionEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.pool.CagnotteWalletEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.pool.PoolEntityRepository;
 import com.alphateckplus.potify.data_jpa.repository.user.UserEntityRepository;
+import com.alphateckplus.potify.data_jpa.repository.pool.TontineDetailsEntityRepository;
 import com.alphateckplus.potify.payment.application_service.secondary.payment.PaymentRepositoryPort;
 import com.alphateckplus.potify.payment.domain.model.Contribution;
 import com.alphateckplus.potify.payment.domain.model.ContributionStatus;
@@ -35,6 +37,7 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
     private final UserEntityRepository userRepository;
     private final CagnotteWalletEntityRepository walletRepository;
     private final TransactionEntityRepository transactionRepository;
+    private final TontineDetailsEntityRepository tontineDetailsRepository;
 
     @Override
     public Contribution saveContribution(Contribution domain) {
@@ -58,11 +61,45 @@ public class PaymentJpaAdapter implements PaymentRepositoryPort {
         if (domain.getPoolId() != null) {
             PoolEntity pool = poolRepository.findById(domain.getPoolId())
                     .orElseThrow(() -> new IllegalArgumentException("Cagnotte introuvable: " + domain.getPoolId()));
+            
+            // Validation lors de la création d'une nouvelle contribution
+            if (domain.getId() == null) {
+                if (pool.getType() != null && "PRIVATE_TONTINE".equalsIgnoreCase(pool.getType())) {
+                    TontineDetailsEntity tontine = tontineDetailsRepository.findByPoolId(pool.getId()).orElse(null);
+                    if (tontine != null) {
+                        if (tontine.getStatus() == com.alphateckplus.potify.data_jpa.entity.pool.TontineStatus.COMPLETED) {
+                            throw new IllegalStateException("Cette tontine est terminée. Les contributions ne sont plus acceptées.");
+                        }
+                        int rNum = tontine.getCurrentRoundNumber() != null ? tontine.getCurrentRoundNumber() : 1;
+                        BigDecimal collectedInRound = contributionRepository.sumAmountByPoolIdAndRoundNumber(pool.getId(), rNum);
+                        BigDecimal roundTarget = pool.getGoalAmount() != null && pool.getGoalAmount().compareTo(BigDecimal.ZERO) > 0
+                                ? pool.getGoalAmount()
+                                : (tontine.getContributionAmount() != null ? tontine.getContributionAmount().multiply(new BigDecimal(tontine.getTotalRounds())) : BigDecimal.ZERO);
+                        if (roundTarget.compareTo(BigDecimal.ZERO) > 0 && collectedInRound.compareTo(roundTarget) >= 0) {
+                            throw new IllegalStateException("L'objectif de ce tour de tontine (" + roundTarget + " €) a déjà été atteint. Les contributions sont fermées.");
+                        }
+                    }
+                } else {
+                    if (pool.getGoalAmount() != null && pool.getGoalAmount().compareTo(BigDecimal.ZERO) > 0) {
+                        BigDecimal currentAmt = pool.getCurrentAmount() != null ? pool.getCurrentAmount() : BigDecimal.ZERO;
+                        if (currentAmt.compareTo(pool.getGoalAmount()) >= 0) {
+                            throw new IllegalStateException("L'objectif financier de cette cagnotte (" + pool.getGoalAmount() + " €) a déjà été atteint. Les contributions ne sont plus acceptées.");
+                        }
+                    }
+                }
+            }
+
             entity.setPool(pool);
             
             CagnotteWalletEntity wallet = walletRepository.findByPoolId(domain.getPoolId())
                     .orElse(null);
             entity.setWallet(wallet);
+
+            if (pool.getType() != null && "PRIVATE_TONTINE".equalsIgnoreCase(pool.getType()) && entity.getRoundNumber() == null) {
+                tontineDetailsRepository.findByPoolId(pool.getId()).ifPresent(details -> {
+                    entity.setRoundNumber(details.getCurrentRoundNumber() != null ? details.getCurrentRoundNumber() : 1);
+                });
+            }
         }
 
         if (domain.getUserId() != null) {

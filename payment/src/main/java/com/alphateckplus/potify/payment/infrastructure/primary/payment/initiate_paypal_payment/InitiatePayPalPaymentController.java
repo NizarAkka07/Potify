@@ -27,6 +27,9 @@ public class InitiatePayPalPaymentController {
         try {
             CheckoutResponse response = useCase.execute(request);
             return ResponseEntity.ok(response);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            log.warn("PayPal initiation validation error: {}", e.getMessage());
+            return ResponseEntity.status(400).body(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {
             log.error("PayPal initiation error", e);
             String msg = e.getMessage();
