@@ -189,8 +189,9 @@ public class PoolBeanConfiguration {
             UserCheckPort userCheckPort,
             NotificationPort poolNotificationPort,
             PoolRepositoryPort poolRepositoryPort,
-            com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort) {
-        return new DefaultInvitationService(invitationRepositoryPort, userCheckPort, poolNotificationPort, poolRepositoryPort, notificationEventPublisherPort);
+            com.alphateckplus.potify.pool.application_service.secondary.notification.NotificationEventPublisherPort notificationEventPublisherPort,
+            com.alphateckplus.potify.pool.application_service.tontine.TontineService tontineService) {
+        return new DefaultInvitationService(invitationRepositoryPort, userCheckPort, poolNotificationPort, poolRepositoryPort, notificationEventPublisherPort, tontineService);
     }
 
     @Bean

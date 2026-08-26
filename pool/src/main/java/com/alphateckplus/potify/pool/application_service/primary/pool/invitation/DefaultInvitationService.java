@@ -22,12 +22,20 @@ public class DefaultInvitationService implements InvitationService {
     private final NotificationPort notificationPort;
     private final PoolRepositoryPort poolRepositoryPort;
     private final NotificationEventPublisherPort notificationEventPublisherPort;
+    private final com.alphateckplus.potify.pool.application_service.tontine.TontineService tontineService;
 
     @Override
     public Invitation inviteUser(String poolId, String email) {
         // 1. Charger la cagnotte
         Pool pool = poolRepositoryPort.findById(poolId)
                 .orElseThrow(() -> new RuntimeException("Cagnotte introuvable"));
+
+        // 1b. Vérifier si c'est une tontine et si les invitations sont verrouillées pour ce tour
+        if (pool.getType() != null && "PRIVATE_TONTINE".equalsIgnoreCase(pool.getType().name())) {
+            if (tontineService != null && tontineService.isInvitationsLocked(poolId)) {
+                throw new IllegalStateException("Les invitations sont fermées pour ce tour car des cotisations ont déjà été effectuées. Vous pourrez inviter de nouveaux membres lors du prochain cycle.");
+            }
+        }
 
         // 2. Verifier si l'utilisateur invite est le proprietaire
         String ownerEmail = userCheckPort.getEmailById(pool.getOwnerId());
