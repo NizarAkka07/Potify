@@ -7,14 +7,17 @@
         <div class="row items-center justify-between">
           <div>
             <div class="text-h6 text-weight-bolder" style="font-size: 1.25rem; letter-spacing: -0.5px; color: #0F172A;">
-              {{ $t('createPool.title') }}
+              {{ isTontineMode ? 'Créer une Tontine Rotative' : $t('createPool.title') }}
             </div>
             <div class="text-caption text-grey-6 q-mt-xs">
-              {{ $t('createPool.subtitle') }}
+              {{ isTontineMode ? 'Organisez une épargne collective et solidaire entre membres de confiance.' : $t('createPool.subtitle') }}
             </div>
           </div>
           <!-- Type badge -->
-          <q-badge v-if="currentStep > 1" :color="mode === 'simple' ? 'primary' : 'secondary'" class="q-px-sm q-py-xs text-weight-bold text-caption" style="border-radius: 8px;">
+          <q-badge v-if="isTontineMode" color="orange-8" class="q-px-sm q-py-xs text-weight-bold text-caption" style="border-radius: 8px;">
+            <q-icon name="sync" size="14px" class="q-mr-xs" /> Tontine Rotative
+          </q-badge>
+          <q-badge v-else-if="currentStep > 1" :color="mode === 'simple' ? 'primary' : 'secondary'" class="q-px-sm q-py-xs text-weight-bold text-caption" style="border-radius: 8px;">
             {{ mode === 'simple' ? 'Cagnotte Simple' : 'Cagnotte avec Phases' }}
           </q-badge>
         </div>
@@ -80,13 +83,51 @@
         <!-- STEP 1 — Choix du type de cagnotte -->
         <div v-if="currentStep === 1" class="q-px-xl q-py-lg animate-fade">
           <div class="text-h6 text-weight-bold text-center q-mb-xs" style="color: #0D1B2E;">
-            Sélectionnez la structure de la cagnotte
+            {{ isTontineMode ? 'Structure de la Tontine Rotative' : 'Sélectionnez la structure de la cagnotte' }}
           </div>
           <p class="text-caption text-grey-7 text-center q-mb-lg q-mx-auto" style="max-width: 500px;">
-            Choisissez la structure la plus adaptée pour collecter et gérer vos fonds de manière transparente.
+            {{ isTontineMode ? 'Une tontine rotative permet à un groupe de membres de cotiser périodiquement une somme fixe, chaque tour reversant l\'intégralité du pot à un bénéficiaire.' : 'Choisissez la structure la plus adaptée pour collecter et gérer vos fonds de manière transparente.' }}
           </p>
 
-          <div class="row q-col-gutter-lg justify-center">
+          <!-- TONTINE CARD IF IN TONTINE MODE -->
+          <div v-if="isTontineMode" class="row justify-center">
+            <div class="col-12 col-sm-8 col-md-6">
+              <q-card 
+                flat 
+                bordered 
+                class="pool-type-card cursor-pointer q-pa-lg text-center column justify-between card-active"
+                style="border-color: #F59E0B !important;"
+                @click="selectModeAndNext('simple')"
+              >
+                <div>
+                  <q-avatar size="56px" color="amber-1" text-color="orange-8" class="q-mb-md">
+                    <q-icon name="sync" size="30px" />
+                  </q-avatar>
+                  <div class="text-subtitle1 text-weight-bold q-mb-xs" style="color: #0D1B2E;">Tontine Rotative Solidaire</div>
+                  <p class="text-caption text-grey-7 q-mb-sm" style="min-height: 48px; line-height: 1.4;">
+                    Collecte cyclique fermée accessible par invitation. À chaque période définie (semaine, mois...), un bénéficiaire différent perçoit l'intégralité du pot.
+                  </p>
+                  <div class="q-gutter-xs q-mb-md row justify-center">
+                    <q-chip dense outline color="orange-8" style="font-size: 0.65rem;">Cycle régulier</q-chip>
+                    <q-chip dense outline color="orange-8" style="font-size: 0.65rem;">Participants fixes</q-chip>
+                    <q-chip dense outline color="orange-8" style="font-size: 0.65rem;">Ordre de passage</q-chip>
+                    <q-chip dense outline color="orange-8" style="font-size: 0.65rem;">Sécurité garantie</q-chip>
+                  </div>
+                </div>
+                <q-btn 
+                  label="Configurer ma Tontine" 
+                  unelevated 
+                  color="orange-8" 
+                  no-caps 
+                  class="full-width q-py-sm text-weight-bold"
+                  style="border-radius: 8px;"
+                />
+              </q-card>
+            </div>
+          </div>
+
+          <!-- NORMAL POOL CARDS IF NORMAL MODE -->
+          <div v-else class="row q-col-gutter-lg justify-center">
             <!-- Simple Card -->
             <div class="col-12 col-sm-6 col-md-4">
               <q-card 
@@ -400,23 +441,41 @@
               </div>
               <div class="col-12 col-sm-6">
                 <div class="text-caption text-grey-8 q-mb-xs">Visibilité</div>
-                <q-select
-                  outlined
-                  dense
-                  v-model="form.type"
-                  :options="[
-                    { value: 'PUBLIC', label: $t('createPool.typePublicRadio') },
-                    { value: 'PRIVATE', label: $t('createPool.typePrivateRadio') },
-                    { value: 'PRIVATE_TONTINE', label: $t('createPool.typeTontineRadio') }
-                  ]"
-                  emit-value
-                  map-options
-                  label="Type de visibilité"
-                  color="secondary"
-                />
-                <div class="text-caption text-grey-6 q-mt-xs" style="font-size: 0.72rem; line-height: 1.2;">
-                  {{ form.type === 'PUBLIC' ? 'Public: Visible de tous sur la plateforme.' : (form.type === 'PRIVATE' ? 'Privé: Accessible uniquement par lien direct.' : 'Tontine: Collecte cyclique et fermée.') }}
-                </div>
+                <template v-if="isTontineMode">
+                  <q-input
+                    outlined
+                    dense
+                    readonly
+                    model-value="Tontine Privée (Membres invités)"
+                    label="Type de visibilité"
+                    color="orange-8"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="lock" color="orange-8" size="xs" />
+                    </template>
+                  </q-input>
+                  <div class="text-caption text-grey-6 q-mt-xs" style="font-size: 0.72rem; line-height: 1.2;">
+                    Tontine: Collecte cyclique et fermée accessible uniquement aux membres invités.
+                  </div>
+                </template>
+                <template v-else>
+                  <q-select
+                    outlined
+                    dense
+                    v-model="form.type"
+                    :options="[
+                      { value: 'PUBLIC', label: $t('createPool.typePublicRadio') },
+                      { value: 'PRIVATE', label: $t('createPool.typePrivateRadio') }
+                    ]"
+                    emit-value
+                    map-options
+                    label="Type de visibilité"
+                    color="secondary"
+                  />
+                  <div class="text-caption text-grey-6 q-mt-xs" style="font-size: 0.72rem; line-height: 1.2;">
+                    {{ form.type === 'PUBLIC' ? 'Public: Visible de tous sur la plateforme.' : 'Privé: Accessible uniquement par lien direct.' }}
+                  </div>
+                </template>
               </div>
             </div>
           </div>
@@ -431,26 +490,28 @@
         <!-- STEP 4 — Configuration financière & étapes -->
         <div v-show="currentStep === 4" class="q-px-xl q-py-lg animate-fade">
           <div class="text-h6 text-weight-bold text-dark q-mb-md">
-            Configuration financière & étapes
+            {{ isTontineMode ? 'Paramètres & Fréquence de la Tontine' : 'Configuration financière & étapes' }}
           </div>
 
           <div class="q-gutter-y-md">
             <!-- Goal Amount & Deadline Row -->
             <div class="row q-col-gutter-md">
               <div class="col-12 col-sm-6">
-                <div class="text-caption text-grey-8 q-mb-xs">Objectif financier total</div>
+                <div class="text-caption text-grey-8 q-mb-xs">
+                  {{ isTontineMode ? 'Objectif du pot par tour' : 'Objectif financier total' }}
+                </div>
                 <q-input
                   outlined
                   dense
                   v-model.number="form.goalAmount"
                   type="number"
-                  :label="$t('createPool.goalAmountLabel')"
+                  :label="isTontineMode ? 'Montant distribué au bénéficiaire à chaque tour' : $t('createPool.goalAmountLabel')"
                   suffix="€"
                   lazy-rules
                   :rules="[ val => val > 0 || $t('createPool.amountPositive')]"
                   color="secondary"
-                  :readonly="mode === 'multi' || (mode === 'simple' && form.simplePhases.length > 1)"
-                  :hint="mode === 'multi' || (mode === 'simple' && form.simplePhases.length > 1) ? $t('createPool.calculatedFromPhasesHint') : ''"
+                  :readonly="!isTontineMode && (mode === 'multi' || (mode === 'simple' && form.simplePhases.length > 1))"
+                  :hint="!isTontineMode && (mode === 'multi' || (mode === 'simple' && form.simplePhases.length > 1)) ? $t('createPool.calculatedFromPhasesHint') : ''"
                   @update:model-value="onTotalGoalUpdate"
                 />
               </div>
@@ -496,8 +557,40 @@
               </div>
             </div>
 
-            <!-- PHASES SECTION (Only if mode === 'simple') -->
-            <div v-if="mode === 'simple'" class="q-mt-md">
+            <!-- TONTINE CONFIGURATION CARD (If isTontineMode) -->
+            <div v-if="isTontineMode || form.type === 'PRIVATE_TONTINE'" class="q-pa-md rounded-borders bg-amber-1 q-mb-md" style="border: 1px solid #FCD34D;">
+              <div class="text-subtitle2 text-weight-bold text-amber-10 q-mb-xs flex items-center">
+                <q-icon name="tune" class="q-mr-xs" /> Paramètres de la Tontine Rotative
+              </div>
+              <div class="text-caption text-grey-8 q-mb-md" style="font-size: 0.75rem;">
+                Le montant du pot sera équitablement divisé entre tous les participants pour chaque période de tour.
+              </div>
+              <div class="row q-col-gutter-md">
+                <div class="col-12 col-sm-6">
+                  <div class="text-caption text-grey-8 q-mb-xs">Durée / Fréquence d'un tour</div>
+                  <q-select
+                    outlined
+                    dense
+                    v-model="form.tontineFrequency"
+                    :options="[
+                      { value: 'WEEKLY', label: 'Hebdomadaire (1 semaine)' },
+                      { value: 'MONTHLY', label: 'Mensuelle (1 mois)' },
+                      { value: 'YEARLY', label: 'Annuelle (1 an)' }
+                    ]"
+                    emit-value
+                    map-options
+                    color="secondary"
+                  />
+                </div>
+                <div class="col-12 col-sm-6">
+                  <div class="text-caption text-grey-8 q-mb-xs">Pénalité de retard (% / jour de retard)</div>
+                  <q-input outlined dense v-model.number="form.latePenaltyRate" type="number" suffix="%" color="secondary" />
+                </div>
+              </div>
+            </div>
+
+            <!-- PHASES SECTION (Only if mode === 'simple' and !isTontineMode) -->
+            <div v-if="mode === 'simple' && !isTontineMode" class="q-mt-md">
               <div class="row items-center justify-between q-mb-sm">
                 <div class="text-subtitle2 text-weight-bold" :style="{ color: $q.dark.isActive ? '#FFFFFF' : '#0D1B2E', borderBottom: '2px solid #FFB300' }" style="display: inline-block;">
                   {{ $t('createPool.phasesHeaderSimple') }}
@@ -828,40 +921,46 @@
             <!-- Summary Column -->
             <div class="col-12 col-md-6">
               <q-card class="bg-grey-1 no-shadow rounded-borders q-pa-sm border-light" style="height: 100%;">
-                <div class="text-caption text-weight-bold text-dark q-mb-sm">Récapitulatif de la cagnotte</div>
+                <div class="text-caption text-weight-bold text-dark q-mb-sm">
+                  {{ isTontineMode ? 'Récapitulatif de la tontine' : 'Récapitulatif de la cagnotte' }}
+                </div>
                 
                 <div class="q-gutter-y-xs text-caption">
                   <div class="row"><span class="col-4 text-grey-6 text-weight-medium">Titre :</span><strong class="col-8 text-dark">{{ form.title }}</strong></div>
                   <div class="row"><span class="col-4 text-grey-6 text-weight-medium">Catégorie :</span><span class="col-8 text-dark">{{ form.category }}</span></div>
-                  <div class="row"><span class="col-4 text-grey-6 text-weight-medium">Type :</span><span class="col-8 text-dark">{{ mode === 'simple' ? 'Simple' : 'Avec Phases' }}</span></div>
-                  <div class="row"><span class="col-4 text-grey-6 text-weight-medium">Visibilité :</span><q-badge :label="form.type" color="secondary" style="font-size: 0.65rem;" /></div>
-                  <div class="row"><span class="col-4 text-grey-6 text-weight-medium">Objectif :</span><strong class="col-8 text-primary">{{ form.goalAmount }} €</strong></div>
+                  <div class="row"><span class="col-4 text-grey-6 text-weight-medium">Type :</span><span class="col-8 text-dark">{{ isTontineMode ? 'Tontine Rotative' : (mode === 'simple' ? 'Simple' : 'Avec Phases') }}</span></div>
+                  <div class="row"><span class="col-4 text-grey-6 text-weight-medium">Visibilité :</span><q-badge :label="isTontineMode ? 'Tontine Privée' : form.type" :color="isTontineMode ? 'orange-8' : 'secondary'" style="font-size: 0.65rem;" /></div>
+                  <div v-if="isTontineMode" class="row"><span class="col-4 text-grey-6 text-weight-medium">Fréquence :</span><span class="col-8 text-dark text-weight-bold">{{ form.tontineFrequency === 'WEEKLY' ? 'Hebdomadaire' : (form.tontineFrequency === 'YEARLY' ? 'Annuelle' : 'Mensuelle') }}</span></div>
+                  <div v-if="isTontineMode && form.latePenaltyRate" class="row"><span class="col-4 text-grey-6 text-weight-medium">Pénalité :</span><span class="col-8 text-dark">{{ form.latePenaltyRate }} % / jour</span></div>
+                  <div class="row"><span class="col-4 text-grey-6 text-weight-medium">{{ isTontineMode ? 'Pot par tour :' : 'Objectif :' }}</span><strong class="col-8 text-primary">{{ form.goalAmount }} €</strong></div>
                   <div v-if="form.hasDeadline" class="row">
                     <span class="col-4 text-grey-6 text-weight-medium">Date limite :</span>
                     <span class="col-8 text-dark">{{ form.deadlineDate ? form.deadlineDate.replace('T', ' ') : '' }}</span>
                   </div>
                 </div>
 
-                <q-separator class="q-my-sm" />
+                <template v-if="!isTontineMode">
+                  <q-separator class="q-my-sm" />
 
-                <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">Structure des étapes :</div>
-                <div style="max-height: 120px; overflow-y: auto;" class="q-pr-xs">
-                  <div v-if="mode === 'simple'">
-                    <div v-for="(p, idx) in form.simplePhases" :key="idx" class="row justify-between items-center q-py-xs border-bottom">
-                      <span class="text-caption text-grey-9" style="font-size: 0.72rem;">• {{ p.title }}</span>
-                      <strong class="text-caption text-dark" style="font-size: 0.72rem;">{{ p.goalAmount }} €</strong>
+                  <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">Structure des étapes :</div>
+                  <div style="max-height: 120px; overflow-y: auto;" class="q-pr-xs">
+                    <div v-if="mode === 'simple'">
+                      <div v-for="(p, idx) in form.simplePhases" :key="idx" class="row justify-between items-center q-py-xs border-bottom">
+                        <span class="text-caption text-grey-9" style="font-size: 0.72rem;">• {{ p.title }}</span>
+                        <strong class="text-caption text-dark" style="font-size: 0.72rem;">{{ p.goalAmount }} €</strong>
+                      </div>
                     </div>
-                  </div>
-                  <div v-else>
-                    <div v-for="(sp, spIdx) in form.subPools" :key="spIdx" class="q-mb-xs">
-                      <div class="text-caption text-weight-bold text-secondary" style="font-size: 0.72rem;">{{ sp.title }} ({{ getSubPoolGoal(sp) }} €)</div>
-                      <div v-for="(p, pIdx) in sp.phases" :key="pIdx" class="row justify-between items-center q-pl-sm q-py-xs border-bottom">
-                        <span class="text-caption text-grey-7" style="font-size: 0.68rem;">- {{ p.title }}</span>
-                        <span class="text-caption text-grey-9 text-dark" style="font-size: 0.68rem;">{{ p.goalAmount }} €</span>
+                    <div v-else>
+                      <div v-for="(sp, spIdx) in form.subPools" :key="spIdx" class="q-mb-xs">
+                        <div class="text-caption text-weight-bold text-secondary" style="font-size: 0.72rem;">{{ sp.title }} ({{ getSubPoolGoal(sp) }} €)</div>
+                        <div v-for="(p, pIdx) in sp.phases" :key="pIdx" class="row justify-between items-center q-pl-sm q-py-xs border-bottom">
+                          <span class="text-caption text-grey-7" style="font-size: 0.68rem;">- {{ p.title }}</span>
+                          <span class="text-caption text-grey-9 text-dark" style="font-size: 0.68rem;">{{ p.goalAmount }} €</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </template>
               </q-card>
             </div>
           </div>
@@ -871,11 +970,15 @@
             <q-btn label="Précédent" flat color="grey-6" icon="arrow_back" @click="currentStep = 4" no-caps size="sm" />
             <div class="row q-gutter-x-sm">
               <q-btn
-                :label="$t('createPool.submitBtn')"
+                :label="isTontineMode ? 'Lancer ma tontine' : $t('createPool.submitBtn')"
                 type="submit"
                 unelevated
                 class="q-px-lg q-py-xs text-weight-bold animate-pulse"
-                style="background: #FFB300; color: #1A1A2A; border-radius: 8px;"
+                :style="{
+                  background: isTontineMode ? '#F59E0B' : '#FFB300',
+                  color: isTontineMode ? '#FFFFFF' : '#1A1A2A',
+                  borderRadius: '8px'
+                }"
                 :loading="loading"
                 no-caps
                 size="sm"
@@ -1066,7 +1169,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, nextTick } from 'vue'
+import { ref, reactive, computed, nextTick, onMounted, watch } from 'vue'
 import { poolApi } from 'boot/axios'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
@@ -1079,6 +1182,10 @@ const route = useRoute()
 const { t } = useI18n()
 const loading = ref(false)
 const imageFile = ref(null)
+
+const isTontineMode = computed(() => {
+  return route.query.type === 'tontine' || route.query.mode === 'tontine'
+})
 
 const aiPrompt = ref('')
 const aiLoading = ref(false)
@@ -1405,7 +1512,10 @@ const form = reactive({
   description: '',
   category: 'Santé',
   goalAmount: 1000,
-  type: 'PUBLIC',
+  type: route.query.type === 'tontine' || route.query.mode === 'tontine' ? 'PRIVATE_TONTINE' : 'PUBLIC',
+  contributionAmount: 100,
+  tontineFrequency: 'MONTHLY',
+  latePenaltyRate: 2.0,
   ownerId: '',
   videoUrl: '',
   parentId: route.query.parentId || null,
@@ -1426,6 +1536,25 @@ const form = reactive({
     }
   ]
 })
+
+const syncTontineState = () => {
+  if (isTontineMode.value) {
+    form.type = 'PRIVATE_TONTINE'
+    mode.value = 'simple'
+  } else {
+    if (form.type === 'PRIVATE_TONTINE') {
+      form.type = 'PUBLIC'
+    }
+  }
+}
+
+onMounted(() => {
+  syncTontineState()
+})
+
+watch(() => route.query, () => {
+  syncTontineState()
+}, { deep: true })
 
 const addSubPool = () => {
   form.subPools.push({
@@ -1582,6 +1711,19 @@ const onSubmit = async () => {
 
     const response = await poolApi.post('/pools', mainPoolPayload)
     const mainPoolId = response.data.id
+
+    // Si type Tontine, enregistrer la configuration tontine
+    if (form.type === 'PRIVATE_TONTINE') {
+      try {
+        await poolApi.post(`/pools/${mainPoolId}/tontine/config`, {
+          contributionAmount: form.contributionAmount || 100,
+          frequency: form.tontineFrequency || 'MONTHLY',
+          latePenaltyRate: form.latePenaltyRate || 0
+        })
+      } catch (err) {
+        console.error('Erreur config tontine:', err)
+      }
+    }
 
     // Upload Video if selected
     if (videoSource.value === 'upload' && videoFile.value) {

@@ -60,7 +60,7 @@
                 unelevated
                 no-caps
                 class="btn-hero-primary text-white"
-                style="padding: 14px 36px; border-radius: 12px; font-weight: 600; font-size: 0.95rem; box-shadow: 0 4px 18px rgba(22, 163, 74, 0.2);"
+                style="padding: 14px 32px; border-radius: 12px; font-weight: 600; font-size: 0.95rem; box-shadow: 0 4px 18px rgba(22, 163, 74, 0.2);"
                 to="/pools/create"
               >
                 <q-icon name="favorite_border" size="18px" :class="locale === 'ar' ? 'q-ml-sm' : 'q-mr-sm'" />
@@ -76,10 +76,10 @@
                   color: $q.dark.isActive ? '#FFFFFF' : '#166534'
                 }"
                 style="padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 0.95rem;"
-                @click="scrollToHowItWorks"
+                to="/pools/create?type=tontine"
               >
-                <q-icon name="play_circle_outline" size="20px" :class="locale === 'ar' ? 'q-ml-sm' : 'q-mr-sm'" style="color: #16A34A;" />
-                {{ $t('home.learnMore') }}
+                <q-icon name="sync" size="20px" :class="locale === 'ar' ? 'q-ml-sm' : 'q-mr-sm'" style="color: #16A34A;" />
+                {{ $t('home.ctaTontineButton') || 'Cagnotte Tontine' }}
               </q-btn>
             </div>
           </div>
@@ -648,14 +648,24 @@
         <p class="text-body2 q-mb-xl text-grey-4" style="line-height: 1.7; font-size: 1.05rem; font-weight: 300; max-width: 540px; margin-left: auto; margin-right: auto;">
           {{ $t('home.ctaSubtitle') }}
         </p>
-        <q-btn
-          no-caps
-          unelevated
-          class="btn-hero-primary text-white"
-          :label="$t('home.ctaButton')"
-          style="padding: 16px 48px; border-radius: 12px; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 18px rgba(22, 163, 74, 0.25);"
-          to="/pools/create"
-        />
+        <div class="row q-gutter-md justify-center items-center">
+          <q-btn
+            no-caps
+            unelevated
+            class="btn-hero-primary text-white"
+            :label="$t('home.ctaButton')"
+            style="padding: 16px 40px; border-radius: 12px; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 18px rgba(22, 163, 74, 0.25);"
+            to="/pools/create"
+          />
+          <q-btn
+            no-caps
+            unelevated
+            class="btn-hero-secondary text-white"
+            :label="$t('home.ctaTontineButton') || 'Cagnotte Tontine'"
+            style="padding: 16px 36px; border-radius: 12px; font-weight: 700; font-size: 1rem; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);"
+            to="/pools/create?type=tontine"
+          />
+        </div>
       </div>
     </div>
 
@@ -695,11 +705,6 @@ const getTagLabel = (tag) => {
     'Nouveau': { fr: 'Nouveau', en: 'New', es: 'Nuevo', ar: 'جديد' }
   }
   return tags[tag]?.[lang] || tag
-}
-
-const scrollToHowItWorks = () => {
-  const el = document.getElementById('how-it-works')
-  if (el) el.scrollIntoView({ behavior: 'smooth' })
 }
 
 const pools = ref([])
