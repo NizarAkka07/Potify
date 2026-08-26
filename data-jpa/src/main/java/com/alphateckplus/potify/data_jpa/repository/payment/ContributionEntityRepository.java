@@ -19,4 +19,19 @@ public interface ContributionEntityRepository extends JpaRepository<Contribution
 
     @Query("SELECT c FROM ContributionEntity c WHERE LOWER(c.contributorEmail) = LOWER(:email)")
     List<ContributionEntity> findByContributorEmail(@Param("email") String email);
+
+    @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM ContributionEntity c WHERE c.pool.id = :poolId AND (c.user.id = :userId OR (c.contributorEmail IS NOT NULL AND LOWER(c.contributorEmail) = LOWER(:email))) AND (c.roundNumber = :roundNumber OR (c.roundNumber IS NULL AND :roundNumber = 1))")
+    boolean existsByPoolIdAndUserIdOrEmailAndRoundNumber(@Param("poolId") String poolId, @Param("userId") String userId, @Param("email") String email, @Param("roundNumber") Integer roundNumber);
+
+    @Query("SELECT c FROM ContributionEntity c WHERE c.pool.id = :poolId AND (c.roundNumber = :roundNumber OR (c.roundNumber IS NULL AND :roundNumber = 1))")
+    List<ContributionEntity> findByPoolIdAndRoundNumber(@Param("poolId") String poolId, @Param("roundNumber") Integer roundNumber);
+
+    @Query("SELECT COALESCE(SUM(c.amount), 0) FROM ContributionEntity c WHERE c.pool.id = :poolId AND (c.roundNumber = :roundNumber OR (c.roundNumber IS NULL AND :roundNumber = 1)) AND c.status = 'CONFIRMED'")
+    java.math.BigDecimal sumAmountByPoolIdAndRoundNumber(@Param("poolId") String poolId, @Param("roundNumber") Integer roundNumber);
+
+    @Query("SELECT COALESCE(SUM(c.penaltyAmount), 0) FROM ContributionEntity c WHERE c.pool.id = :poolId AND (c.roundNumber = :roundNumber OR (c.roundNumber IS NULL AND :roundNumber = 1)) AND c.status = 'CONFIRMED'")
+    java.math.BigDecimal sumPenaltyByPoolIdAndRoundNumber(@Param("poolId") String poolId, @Param("roundNumber") Integer roundNumber);
+
+    @Query("SELECT COUNT(c) FROM ContributionEntity c WHERE c.pool.id = :poolId AND (c.roundNumber = :roundNumber OR (c.roundNumber IS NULL AND :roundNumber = 1)) AND c.status = 'CONFIRMED'")
+    long countConfirmedByPoolIdAndRoundNumber(@Param("poolId") String poolId, @Param("roundNumber") Integer roundNumber);
 }
