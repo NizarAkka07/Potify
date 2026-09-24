@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/potify
     username: postgres
-    password: "123456"
+    password: ${POSTGRES_PASSWORD:}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -16,8 +16,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:nizarakka07@gmail.com}
-    password: ${MAIL_PASSWORD:prjjnvfjsjyucddn}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
@@ -42,15 +42,15 @@ server:
 application:
   security:
     jwt:
-      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      secret-key: ${JWT_SECRET_KEY:}
       expiration: 86400000
   cloudinary:
-    cloud-name: dsoliwbee
-    api-key: "628423652634248"
-    api-secret: wL8TV51jdidtGpCP7ibcn4pFgNA
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+    api-key: ${CLOUDINARY_API_KEY:}
+    api-secret: ${CLOUDINARY_API_SECRET:}
   ai:
     gemini:
-      api-key: "AQ.Ab8RN6J9G1xnw7NB3AcONErZZH3TZVWdZtdLXq3YfQW471tSPA"
+      api-key: ${GEMINI_API_KEY:}
     mistral:
-      api-key: "iHHRFrffoeZSVrs3NiVPDgESNA55lTf5"
+      api-key: ${MISTRAL_API_KEY:}
 

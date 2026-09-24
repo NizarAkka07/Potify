@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/potify
     username: postgres
-    password: "123456"
+    password: ${POSTGRES_PASSWORD:}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -17,7 +17,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: ${MAIL_USERNAME:nizarakka07@gmail.com}
-    password: ${MAIL_PASSWORD:phfakngqcxibdghc}
+    password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
@@ -32,7 +32,7 @@ application:
   security:
     jwt:
       # Secret key (HS512 requires 64 bytes)
-      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      secret-key: ${JWT_SECRET_KEY:}
       # 1 day in milliseconds
       expiration: 86400000
       refresh-token:

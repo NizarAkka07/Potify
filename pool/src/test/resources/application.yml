@@ -20,9 +20,9 @@ spring:
 application:
   security:
     jwt:
-      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      secret-key: test-only-jwt-secret-key-that-is-long-enough-1234567890
       expiration: 86400000
   cloudinary:
-    cloud-name: dsoliwbee
-    api-key: "628423652634248"
-    api-secret: wL8TV51jdidtGpCP7ibcn4pFgNA
+    cloud-name: test-cloud
+    api-key: test-api-key
+    api-secret: test-api-secret

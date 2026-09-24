@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/potify
     username: postgres
-    password: "123456"
+    password: ${POSTGRES_PASSWORD:}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -17,7 +17,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: ${MAIL_USERNAME:nizarakka07@gmail.com}
-    password: ${MAIL_PASSWORD:prjjnvfjsjyucddn}
+    password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
